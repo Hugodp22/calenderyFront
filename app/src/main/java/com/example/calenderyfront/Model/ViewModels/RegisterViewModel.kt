@@ -2,7 +2,7 @@ package com.example.calenderyfront.Model.ViewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.calenderyfront.Model.DataObjects.UserLog
+import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.States.RegisterState
 import com.example.calenderyfront.Model.UiStates.RegisterUiState
 import com.example.calenderyfront.R
@@ -44,7 +44,7 @@ class RegisterViewModel: ViewModel() {
 
     fun onEmailChange(nuevoCorreo: String) {
         _errorEmail.value = false
-        _uiState.update { it.copy(correo = nuevoCorreo) }
+        _uiState.update { it.copy(email = nuevoCorreo) }
     }
 
     fun onKeypassChange(nuevaPass: String) {
@@ -58,7 +58,7 @@ class RegisterViewModel: ViewModel() {
         _uiState.update { it.copy(keypassConfirm = nuevaPassConfirm) }
     }
 
-    fun tryLogin() {
+    fun tryRegister() {
         val currentUiState = _uiState.value
 
         if (_state.value is RegisterState.Error) {
@@ -70,9 +70,10 @@ class RegisterViewModel: ViewModel() {
             _state.value = RegisterState.Error(R.string.Error_name_message)
             return
         }
+
         _errorName.value = false
 
-        if (currentUiState.correo == "" || currentUiState.correo.isEmpty() || !currentUiState.correo.contains("@") || !currentUiState.correo.contains(".")) {
+        if (currentUiState.email == "" || currentUiState.email.isEmpty() || !currentUiState.email.contains("@") || !currentUiState.email.contains(".")) {
             _errorEmail.value = true
             _state.value = RegisterState.Error(R.string.Error_email_message)
             return
@@ -96,15 +97,16 @@ class RegisterViewModel: ViewModel() {
     fun saveUser(currentUiState: RegisterUiState) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val usuarioEnviar = UserLog(
+                val usuarioEnviar = UserRegister(
                     nombre = currentUiState.nombre,
-                    email = currentUiState.correo,
+                    email = currentUiState.email,
                     keypass = currentUiState.keypass
                 )
 
                 val respuesta = RetrofitClient.usuarioApi.registrarUsuario(usuarioEnviar)
 
                 if (respuesta.isSuccessful) {
+                    _state.value = RegisterState.Iniciado
                     val user = respuesta.body()
 
                     //if (user != null) {
@@ -114,7 +116,6 @@ class RegisterViewModel: ViewModel() {
                     //else {
                     //    _state.value = LoginState.Error("El servidor envió datos vacíos")
                     //}
-                    _state.value = RegisterState.Iniciado
                     //_state.value = RegisterState.Exito() Aqui recibiriamos el usuario
 
                 }

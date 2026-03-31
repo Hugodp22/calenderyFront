@@ -18,4 +18,6 @@
     <string name="Error_404_Message">Servidor no encontrado (404)</string>
     <string name="Error_500_message">Error interno del servidor (500)</string>
     <string name="Error_Unknow_Message">Error desconocido</string>
+    <string name="Error_Profile_Message">Perfil no encontrado</string>
+    <string name="Login_title">Inicio de sesion</string>
 </resources>

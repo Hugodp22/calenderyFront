@@ -1,8 +1,7 @@
 package com.example.calenderyfront.Model.UiStates
 
-data class RegisterUiState(
+data class LoginUiState (
     val nombre: String,
     val email: String,
-    val keypass: String,
-    val keypassConfirm: String
+    val keypass: String
 )
