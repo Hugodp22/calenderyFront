@@ -47,8 +47,7 @@ fun InputCreation(
     onValueChange: (String) -> Unit,
     @StringRes placeholderRes: Int,
     isPassword: Boolean = false,
-    errorKeypass: Boolean = false,
-    errorRequest: Boolean = false,
+    error: Boolean = false,
     modifier : Modifier = Modifier
 )
 {
@@ -61,14 +60,14 @@ fun InputCreation(
     {
         Text(
             text = stringResource(title),
-            color = if (errorKeypass || errorRequest) Color.Red else Color.Gray,
+            color = if (error) Color.Red else Color.Gray,
             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
 
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            isError = if (isPassword) errorKeypass else errorRequest,
+            isError = error,
             placeholder = { Text(
                 text = stringResource(placeholderRes),
                 color = Color.Gray)
@@ -120,6 +119,9 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
 
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
+
+    val errorName by viewModel.errorName.collectAsState()
+    val errorEmail by viewModel.errorEmail.collectAsState()
     val errorKeypass by viewModel.errorKeypass.collectAsState()
 
     Box(
@@ -146,8 +148,8 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
                     fontSize = 32.sp,
                 )
 
-                InputCreation(R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name)
-                InputCreation(R.string.input_label_email, uiState.correo, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email)
+                InputCreation(R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName)
+                InputCreation(R.string.input_label_email, uiState.correo, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
                 InputCreation(R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
                 InputCreation(R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass)
 
@@ -158,7 +160,7 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
                 SaveButton(onClick = { viewModel.tryLogin()})
                 if (stateProcess is RegisterState.Error) {
                     Text(
-                        text = (stateProcess as RegisterState.Error).mensaje,
+                        text = stringResource((stateProcess as RegisterState.Error).mensaje),
                         color = Color.Red,
                         fontSize = 14.sp
                     )
