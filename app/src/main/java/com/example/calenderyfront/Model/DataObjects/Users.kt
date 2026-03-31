@@ -12,13 +12,21 @@ data class UserPost(
 )
 
 /**
- * Clase para manejar el logeo del usuario
+ * Clase para manejar el registro del usuario
  */
-data class UserLog(
+data class UserRegister(
     val nombre: String,
     val email: String,
     val keypass: String,
-    val clavePublica: String = "TrenPrueba" //Borrar luego, hay que generarla junto a la privada
+    val clavePublica: String = "AranchaPrueba" //Borrar luego, hay que generarla junto a la privada
+)
+
+/**
+ * Clase para manejar el inicio de sesion del usuario
+ */
+data class UserLogin(
+    val email: String,
+    val keypass: String
 )
 
 /**

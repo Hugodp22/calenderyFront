@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.example.calenderyfront.Screens.LoginScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 
@@ -18,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             CalenderyFrontTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    RegisterScreen(
+                    LoginScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

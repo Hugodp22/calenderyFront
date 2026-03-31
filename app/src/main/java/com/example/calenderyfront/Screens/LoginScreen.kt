@@ -21,18 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
-import com.example.calenderyfront.Model.States.RegisterState
-import com.example.calenderyfront.Model.ViewModels.RegisterViewModel
+import com.example.calenderyfront.Model.States.LoginState
+import com.example.calenderyfront.Model.ViewModels.LoginViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 
-@Composable
-fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel = viewModel()) {
 
+@Composable
+fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
 
-    val errorName by viewModel.errorName.collectAsState()
     val errorEmail by viewModel.errorEmail.collectAsState()
     val errorKeypass by viewModel.errorKeypass.collectAsState()
 
@@ -54,28 +53,27 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
+            )
+            {
                 Text(
-                    text = stringResource(R.string.register),
+                    text = stringResource(R.string.Login_title),
                     fontSize = 32.sp,
                 )
 
-                InputCreation(R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName)
                 InputCreation(R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
                 InputCreation(R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
-                InputCreation(R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass)
+                SaveButton(onClick = { viewModel.tryLogin()})
 
-                SaveButton(onClick = { viewModel.tryRegister()})
-                if (stateProcess is RegisterState.Error) {
+                if (stateProcess is LoginState.Error) {
                     Text(
-                        text = stringResource((stateProcess as RegisterState.Error).mensaje),
+                        text = stringResource((stateProcess as LoginState.Error).mensaje),
                         color = Color.Red,
                         fontSize = 14.sp
                     )
                 }
-                else if (stateProcess is RegisterState.Cargando) {
-                        CircularProgressIndicator()
-                    }
+                else if (stateProcess is LoginState.Cargando) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
