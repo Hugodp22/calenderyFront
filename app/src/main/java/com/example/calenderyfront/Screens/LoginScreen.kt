@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,15 +27,22 @@ import com.example.calenderyfront.Model.States.LoginState
 import com.example.calenderyfront.Model.ViewModels.LoginViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(modifier: Modifier = Modifier, windowSize: WindowWidthSizeClass, viewModel: LoginViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
 
     val errorEmail by viewModel.errorEmail.collectAsState()
     val errorKeypass by viewModel.errorKeypass.collectAsState()
+
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Medium -> 0.7F
+        WindowWidthSizeClass.Expanded -> 0.7F
+        else -> 1f
+    }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -49,8 +58,8 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
         {
             Column(
                 modifier = Modifier
-                    .padding(vertical = 22.dp, horizontal = 16.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth(width).
+                    padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             )
@@ -62,7 +71,7 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
 
                 InputCreation(R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
                 InputCreation(R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
-                SaveButton(onClick = { viewModel.tryLogin()})
+                SaveButton(windowSize,onClick = { viewModel.tryLogin()})
 
                 if (stateProcess is LoginState.Error) {
                     Text(
@@ -78,3 +87,4 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
         }
     }
 }
+
