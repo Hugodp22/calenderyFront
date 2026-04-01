@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.UserLogin
 import com.example.calenderyfront.Model.States.LoginState
-import com.example.calenderyfront.Model.States.RegisterState
 import com.example.calenderyfront.Model.UiStates.LoginUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
@@ -57,6 +56,7 @@ class LoginViewModel: ViewModel() {
             _state.value = LoginState.Error(R.string.Error_email_message)
             return
         }
+
         _errorEmail.value = false
 
         if (currentUiState.keypass.isEmpty()) {
@@ -80,7 +80,7 @@ class LoginViewModel: ViewModel() {
                     keypass = currentUiState.keypass
                 )
 
-                val respuesta = RetrofitClient.usuarioApi.buscarUsuarioPorCorreo(usuarioBuscar)
+                val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorCorreo(usuarioBuscar)
 
                 if (respuesta.isSuccessful) {
                     val profile = respuesta.body()
@@ -89,7 +89,7 @@ class LoginViewModel: ViewModel() {
                         _state.value = LoginState.Exito(profile)
                     }
 
-                    //Y aqui le mandariamos a la pantalla perfil con sus datos
+                    //Y aqui le mandariamos a la pantalla perfil con sus datos de UserProfile
 
 
                     else {

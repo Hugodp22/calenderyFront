@@ -109,14 +109,8 @@ class RegisterViewModel: ViewModel() {
                     _state.value = RegisterState.Iniciado
                     val user = respuesta.body()
 
-                    //if (user != null) {
-                    //    _state.value = LoginState.Exito(user)
-                    //}
-
-                    //else {
-                    //    _state.value = LoginState.Error("El servidor envió datos vacíos")
-                    //}
-                    //_state.value = RegisterState.Exito() Aqui recibiriamos el usuario
+                    //Aqui que me devuelva el usuario o hacer get a ese correo o usuario
+                    //Y llevarlo a la siguiente pantalla, que es la de configuracion
 
                 }
 

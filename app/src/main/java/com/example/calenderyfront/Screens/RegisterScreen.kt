@@ -10,6 +10,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,7 +28,7 @@ import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 
 @Composable
-fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel = viewModel()) {
+fun RegisterScreen(modifier : Modifier = Modifier, windowSize: WindowWidthSizeClass, viewModel: RegisterViewModel = viewModel()) {
 
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
@@ -35,6 +36,12 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
     val errorName by viewModel.errorName.collectAsState()
     val errorEmail by viewModel.errorEmail.collectAsState()
     val errorKeypass by viewModel.errorKeypass.collectAsState()
+
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Medium -> 0.7F
+        WindowWidthSizeClass.Expanded -> 0.7F
+        else -> 1f
+    }
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -49,9 +56,8 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
         )
         {
             Column(
-                modifier = Modifier
-                    .padding(vertical = 22.dp, horizontal = 16.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(width).
+                padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -65,7 +71,7 @@ fun RegisterScreen(modifier : Modifier = Modifier,viewModel: RegisterViewModel =
                 InputCreation(R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
                 InputCreation(R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass)
 
-                SaveButton(onClick = { viewModel.tryRegister()})
+                SaveButton(windowSize,onClick = { viewModel.tryRegister()})
                 if (stateProcess is RegisterState.Error) {
                     Text(
                         text = stringResource((stateProcess as RegisterState.Error).mensaje),

@@ -14,6 +14,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,19 +86,26 @@ fun InputCreation(
 }
 
 @Composable
-fun SaveButton(onClick: () -> Unit) {
+fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
+
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.5F
+        else -> 0.3F
+    }
+
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF4285F4),
             contentColor = Color.White
         ),
-        modifier = Modifier.padding(horizontal = 32.dp)
+        modifier = Modifier.fillMaxWidth(width)
     )
     {
         Text(
             text = stringResource(R.string.btn_save),
-            fontSize = 18.sp
+            fontSize = 20.sp
         )
     }
 }
+
