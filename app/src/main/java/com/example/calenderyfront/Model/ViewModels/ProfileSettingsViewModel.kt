@@ -30,6 +30,14 @@ class ProfileSettingsViewModel: ViewModel() {
         _uiState.update { it.copy(nombre = nuevoNombre) }
     }
 
+    fun onDescriptionChange(nuevaDescripcion: String) {
+        _uiState.update { it.copy(descripcion = nuevaDescripcion) }
+    }
+
+    fun onPhotoChange(nuevaFoto: String) {
+        _uiState.update { it.copy(fotoPerfil = nuevaFoto) }
+    }
+
     fun tryChangeSettings() {
         val currentUiState = _uiState.value
 

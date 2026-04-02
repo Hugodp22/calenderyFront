@@ -4,10 +4,12 @@
     <string name="btn_save">Guardar</string>
     <string name="register">Registro</string>
     <string name="input_label_name">Nombre</string>
+    <string name="input_label_description">Descripcion</string>
     <string name="input_label_email">Email</string>
     <string name="input_label_keypass">Contraseña</string>
     <string name="input_label_keypass_confirm">Confirmacion contraseña</string>
     <string name="input_placeholder_empty_name">Introduzca su nombre</string>
+    <string name="input_placeholder_empty_description">Introduzca una descripcion</string>
     <string name="input_placeholder_empty_email">Introduce tu correo</string>
     <string name="input_placeholder_empty_keypass">Introduce tu contraseña</string>
     <string name="input_placeholder_empty_keypass_confirm">Confirma tu contraseña</string>
@@ -20,4 +22,8 @@
     <string name="Error_Unknow_Message">Error desconocido</string>
     <string name="Error_Profile_Message">Perfil no encontrado</string>
     <string name="Login_title">Inicio de sesion</string>
+    <string name="Settings_Title">Configuracion</string>
+    <string name="image_description">Imagen de perfil</string>
+    <string name="share_description_Mesagge">Comparte una descripcion!!!</string>
+
 </resources>
