@@ -36,8 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -180,3 +182,18 @@ fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Texto clickable para mandar al link que tu quieras.
+ * Pensado para texto de "¿Ya tienes cuenta?" y cosas asi
+ */
+@Composable
+fun TextLink(@StringRes texto: Int, @StringRes enlace: Int,onClick: () -> Unit) {
+    Text(
+        text = stringResource(texto),
+        color = Color(0xFF4285F4),
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier.clickable { onClick }
+    )
+}
