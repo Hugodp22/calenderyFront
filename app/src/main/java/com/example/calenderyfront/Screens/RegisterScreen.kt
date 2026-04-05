@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,7 +30,13 @@ import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 
 @Composable
-fun RegisterScreen(modifier : Modifier = Modifier, windowSize: WindowWidthSizeClass, viewModel: RegisterViewModel = viewModel()) {
+fun RegisterScreen(
+    modifier : Modifier = Modifier,
+    windowSize: WindowWidthSizeClass,
+    viewModel: RegisterViewModel = viewModel(),
+    onNavigateToSettings: (Int) -> Unit
+)
+{
 
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
@@ -42,6 +49,15 @@ fun RegisterScreen(modifier : Modifier = Modifier, windowSize: WindowWidthSizeCl
         WindowWidthSizeClass.Medium -> 0.7F
         WindowWidthSizeClass.Expanded -> 0.7F
         else -> 1f
+    }
+
+    //Disparador que se activara cuando el State sea Exito
+    //Para obtener el usuario y mandarlo a la siguiente pantalla
+    LaunchedEffect(stateProcess) {
+        if (stateProcess is RegisterState.Exito) {
+            val user = (stateProcess as RegisterState.Exito).usuario
+            onNavigateToSettings(user.id)
+        }
     }
 
     Box(

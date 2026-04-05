@@ -107,11 +107,13 @@ class RegisterViewModel: ViewModel() {
 
                 if (respuesta.isSuccessful) {
                     _state.value = RegisterState.Iniciado
-                    val user = respuesta.body()
+                    val user = respuesta.body() //Igual se cambia a peticion get
 
-                    //Aqui que me devuelva el usuario o hacer get a ese correo o usuario
-                    //Y llevarlo a la siguiente pantalla, que es la de configuracion
-
+                    if (user != null) {
+                        //Esto activa el disparador del RegisterScreen, mandadole el usuario
+                        //a la siguiente pantalla
+                        _state.value = RegisterState.Exito(user)
+                    }
                 }
 
                 else {
