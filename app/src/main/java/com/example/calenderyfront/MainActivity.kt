@@ -12,6 +12,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.ui.Modifier
 import com.example.calenderyfront.Screens.LoginScreen
 import com.example.calenderyfront.Screens.RegisterScreen
+import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 
 class MainActivity : ComponentActivity() {
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
                     //Aqui detectariamos si el movil tiene token para saber a que pantalla
                     //Mandar o no al iniciar la app
                     //if token bla bla bla
-                    RegisterScreen(
+                    SettingScreen(
                         modifier = Modifier.padding(innerPadding),
                         windowSize = windowSize.widthSizeClass
                     )

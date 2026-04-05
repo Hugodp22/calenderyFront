@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -41,21 +42,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 
+/**
+ * Creacion de un input con capacidad de manejar errores
+ * y contraseñas, con capacidad de ocultar el texto en caso de ser contraseña
+ */
 @Composable
 fun InputCreation(
+    modifier : Modifier = Modifier,
     @StringRes title: Int,
     value: String,
     onValueChange: (String) -> Unit,
     @StringRes placeholderRes: Int,
     isPassword: Boolean = false,
-    error: Boolean = false,
-    modifier : Modifier = Modifier
+    error: Boolean = false, //El error que va a gestionar el view model
 )
 {
     var passwordVisible by remember { mutableStateOf(false) } //Variable para saber si se muestra o no la contrasñea
 
     Column(
-        modifier = modifier.fillMaxWidth(0.8f),
+        modifier = modifier,
         horizontalAlignment = Alignment.Start
     )
     {
@@ -90,7 +95,8 @@ fun InputCreation(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF4285F4),
                 unfocusedBorderColor = Color.Gray,
-                errorBorderColor = Color.Red
+                errorBorderColor = Color.Red,
+                cursorColor = MaterialTheme.colorScheme.tertiary
             ),
             modifier = Modifier.fillMaxWidth()
         )
@@ -104,6 +110,9 @@ fun InputCreation(
  */
 @Composable
 fun PhotoUserContainer(photoPath: Any?, onClick: () -> Unit,@StringRes contentDescription: Int, modifier : Modifier = Modifier) {
+    //Usamos AsyncImage para poder cargar las imagenes
+    //mediante su URL
+
     AsyncImage(
         model = photoPath,
         contentDescription = stringResource(contentDescription),
@@ -112,8 +121,8 @@ fun PhotoUserContainer(photoPath: Any?, onClick: () -> Unit,@StringRes contentDe
             .clickable { onClick() }
             .background(Color.LightGray),
         contentScale = ContentScale.Crop,
-        placeholder = painterResource(R.drawable.ic_launcher_background), //Image while loadign
-        error = painterResource(R.drawable.ic_launcher_foreground) //Error image if there is an error
+        placeholder = painterResource(R.drawable.ic_launcher_background),
+        error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
     )
 }
 
@@ -124,18 +133,30 @@ fun PhotoUserContainer(photoPath: Any?, onClick: () -> Unit,@StringRes contentDe
  */
 @Composable
 fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
+    //Creacion del launcher para abrir el selecionador de imagen por
+    //defecto de android
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     )
     {
-            uri ->
+        //Esto se ejecuta cuando el usuario ha dejado de interactuar con la galeria
+        //en caso de tener algo se sustitulle
+        uri ->
         onImageSelected(uri)
     }
     return {
+        //Devolvemos el launcher que abre el selector y especificamos
+        //que solo se puedan escoger imagenes de momento, a futuro
+        //intentar poner videos
         launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 }
 
+/**
+ * Creacion de un boton de guardado, pensado para usar para diferentes
+ * casos de uso, ya sea guardar tu configuracion, iniciar sesion
+ * y cosas asi
+ */
 @Composable
 fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
     val width = when (windowSize) {

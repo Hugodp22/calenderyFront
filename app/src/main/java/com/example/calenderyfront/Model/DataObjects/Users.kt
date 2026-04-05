@@ -3,7 +3,8 @@ package com.example.calenderyfront.Model.DataObjects
 import com.google.gson.annotations.SerializedName
 
 /**
- * Clase para sacar los datos del usuario mediante la publicacion para asi cargarla a su lado
+ * Clase para sacar los datos del usuario mediante el id de lq publicacion para asi cargarla a su lado
+ * Con su nombre y foto
  */
 data class UserPost(
     val id: Int,
@@ -12,7 +13,8 @@ data class UserPost(
 )
 
 /**
- * Clase para manejar el registro del usuario
+ * Clase para manejar el registro del usuario y mandarle peticion
+ * al back para que lo inserte
  */
 data class UserRegister(
     val nombre: String,
@@ -22,7 +24,8 @@ data class UserRegister(
 )
 
 /**
- * Clase para manejar el inicio de sesion del usuario
+ * Clase para manejar el inicio de sesion del usuario mediante
+ * correo y contraseña
  */
 data class UserLogin(
     val email: String,
@@ -46,7 +49,7 @@ data class UserProfile(
     val id: Int,
     val nombre: String,
     val fotoPerfil: String,
-    val descripcion: String = "",
+    val descripcion: String = "", //Puede ser nulo, tener en cuenta
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
     val publicaciones: List<Publicacion> = emptyList()

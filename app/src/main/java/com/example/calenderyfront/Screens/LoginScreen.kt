@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -52,7 +53,7 @@ fun LoginScreen(modifier: Modifier = Modifier, windowSize: WindowWidthSizeClass,
         Card(
             modifier = Modifier.padding(24.dp),
             shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         )
         {
@@ -67,10 +68,11 @@ fun LoginScreen(modifier: Modifier = Modifier, windowSize: WindowWidthSizeClass,
                 Text(
                     text = stringResource(R.string.Login_title),
                     fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
-                InputCreation(R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
                 SaveButton(windowSize,onClick = { viewModel.tryLogin()})
 
                 if (stateProcess is LoginState.Error) {
