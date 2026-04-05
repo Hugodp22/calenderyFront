@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -51,7 +52,7 @@ fun RegisterScreen(modifier : Modifier = Modifier, windowSize: WindowWidthSizeCl
         Card(
             modifier = Modifier.padding(24.dp),
             shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         )
         {
@@ -64,14 +65,16 @@ fun RegisterScreen(modifier : Modifier = Modifier, windowSize: WindowWidthSizeCl
                 Text(
                     text = stringResource(R.string.register),
                     fontSize = 32.sp,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName)
-                InputCreation(R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
-                InputCreation(R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
-                InputCreation(R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass)
 
                 SaveButton(windowSize,onClick = { viewModel.tryRegister()})
+                //Si hay un error mostramos el mensaje
                 if (stateProcess is RegisterState.Error) {
                     Text(
                         text = stringResource((stateProcess as RegisterState.Error).mensaje),
@@ -79,6 +82,8 @@ fun RegisterScreen(modifier : Modifier = Modifier, windowSize: WindowWidthSizeCl
                         fontSize = 14.sp
                     )
                 }
+                //Si esta cargando, mostramos una barra de carga por defecto
+                //en futuro, mirar si podemos ver una personalizada
                 else if (stateProcess is RegisterState.Cargando) {
                         CircularProgressIndicator()
                     }
