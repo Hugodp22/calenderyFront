@@ -25,5 +25,7 @@
     <string name="Settings_Title">Configuracion</string>
     <string name="image_description">Imagen de perfil</string>
     <string name="share_description_Mesagge">Comparte una descripcion!!!</string>
+    <string name="redirect_login">¿Ya tienes una cuenta?</string>
+    <string name="redirect_register">¿No tienes una cuenta?</string>
 
 </resources>
