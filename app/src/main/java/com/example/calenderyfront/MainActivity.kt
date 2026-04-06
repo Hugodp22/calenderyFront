@@ -33,10 +33,16 @@ class MainActivity : ComponentActivity() {
                     //Aqui detectariamos si el movil tiene token para saber a que pantalla
                     //Mandar o no al iniciar la app
                     //if token bla bla bla
-                    SettingScreen(
+
+                    CalenderyApp(
                         modifier = Modifier.padding(innerPadding),
                         windowSize = windowSize.widthSizeClass
                     )
+
+                    //SettingScreen(
+                    //    modifier = Modifier.padding(innerPadding),
+                    //    windowSize = windowSize.widthSizeClass
+                    //)
                 }
             }
         }
@@ -45,28 +51,44 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CalenderyApp(
-    navController: NavHostController = rememberNavController(),
+    modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
+    navController: NavHostController = rememberNavController(),
 )
 {
     //Controlador que empieza en la pantalla de register. Falta poner
     //Comprobacion de si tiene token o no a implementar en el futuro.
-
     NavHost(navController = navController, startDestination = "register") {
-
-        composable("register") {
+        composable(route = "register") {
             RegisterScreen(
                 modifier = Modifier,
+                //Llevamos el userID de cuando el state es Exito
+                //a la siguiente ruta
                 onNavigateToSettings = { userId ->
                     navController.navigate("settings/$userId")
-                },
+                                       },
+                onNavigateToLogin = {
+                    navController.navigate("login")
+                                    },
                 windowSize = windowSize,
             )
         }
 
-        composable("settings/{userId}") { backStackEntry ->
+        composable(route = "settings/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") //Obtenemos el id
-            //SettingScreen(userId = userId) y seria cargar el view model con los datos de este usuario
+            //SettingScreen(userId = userId) y seria cargar la screen con los datos de este usuario
+            //Tambien falta poner barra de navegacion entre mas pantallas, como la de perfil,
+            //la de ver publicaciones y la de chats
+        }
+
+        composable(route = "login") {
+            LoginScreen(
+                modifier = Modifier,
+                onNavigateToRegister = {
+                    navController.navigate(("register"))
+                },
+                windowSize = windowSize,
+                )
         }
     }
 }

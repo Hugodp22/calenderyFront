@@ -70,7 +70,12 @@ fun DescriptionContent( modifier: Modifier = Modifier,description: String, onVal
 }
 
 @Composable
-fun SettingScreen(modifier: Modifier = Modifier,windowSize: WindowWidthSizeClass, viewModel: ProfileSettingsViewModel = viewModel()) {
+fun SettingScreen(
+    modifier: Modifier = Modifier,
+    windowSize: WindowWidthSizeClass,
+    viewModel: ProfileSettingsViewModel = viewModel()
+)
+{
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
 

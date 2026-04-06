@@ -29,10 +29,17 @@ import com.example.calenderyfront.Model.ViewModels.LoginViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import com.example.calenderyfront.TextLink
 
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier, windowSize: WindowWidthSizeClass, viewModel: LoginViewModel = viewModel()) {
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    onNavigateToRegister : () -> Unit,
+    windowSize: WindowWidthSizeClass,
+    viewModel: LoginViewModel = viewModel()
+)
+{
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
 
@@ -74,6 +81,7 @@ fun LoginScreen(modifier: Modifier = Modifier, windowSize: WindowWidthSizeClass,
                 InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
                 InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
                 SaveButton(windowSize,onClick = { viewModel.tryLogin()})
+                TextLink(R.string.redirect_register,onNavigateToRegister)
 
                 if (stateProcess is LoginState.Error) {
                     Text(

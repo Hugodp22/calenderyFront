@@ -28,14 +28,16 @@ import com.example.calenderyfront.Model.States.RegisterState
 import com.example.calenderyfront.Model.ViewModels.RegisterViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
+import com.example.calenderyfront.TextLink
 
 @Composable
 fun RegisterScreen(
     modifier : Modifier = Modifier,
-    windowSize: WindowWidthSizeClass,
     viewModel: RegisterViewModel = viewModel(),
-    onNavigateToSettings: (Int) -> Unit
-)
+    onNavigateToSettings: (Int) -> Unit,
+    onNavigateToLogin: () -> Unit,
+    windowSize: WindowWidthSizeClass,
+    )
 {
 
     val uiState by viewModel.uiState.collectAsState()
@@ -55,7 +57,7 @@ fun RegisterScreen(
     //Para obtener el usuario y mandarlo a la siguiente pantalla
     LaunchedEffect(stateProcess) {
         if (stateProcess is RegisterState.Exito) {
-            val user = (stateProcess as RegisterState.Exito).usuario
+            val user = (stateProcess as RegisterState.Exito).usuario //Cogemos el usuario del estado del exito
             onNavigateToSettings(user.id)
         }
     }
@@ -88,8 +90,9 @@ fun RegisterScreen(
                 InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
                 InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
                 InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass)
-
                 SaveButton(windowSize,onClick = { viewModel.tryRegister()})
+                TextLink(R.string.redirect_login,onNavigateToLogin)
+
                 //Si hay un error mostramos el mensaje
                 if (stateProcess is RegisterState.Error) {
                     Text(

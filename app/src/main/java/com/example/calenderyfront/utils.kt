@@ -187,13 +187,13 @@ fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
  * Pensado para texto de "¿Ya tienes cuenta?" y cosas asi
  */
 @Composable
-fun TextLink(@StringRes texto: Int, @StringRes enlace: Int,onClick: () -> Unit) {
+fun TextLink(@StringRes texto: Int,onClick: () -> Unit) {
     Text(
         text = stringResource(texto),
         color = Color(0xFF4285F4),
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold,
         textDecoration = TextDecoration.Underline,
-        modifier = Modifier.clickable { onClick }
+        modifier = Modifier.clickable { onClick() }
     )
 }
