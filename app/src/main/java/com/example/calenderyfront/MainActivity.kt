@@ -20,6 +20,8 @@ import com.example.calenderyfront.Screens.LoginScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -38,11 +40,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding),
                         windowSize = windowSize.widthSizeClass
                     )
-
-                    //SettingScreen(
-                    //    modifier = Modifier.padding(innerPadding),
-                    //    windowSize = windowSize.widthSizeClass
-                    //)
                 }
             }
         }
@@ -62,8 +59,6 @@ fun CalenderyApp(
         composable(route = "register") {
             RegisterScreen(
                 modifier = Modifier,
-                //Llevamos el userID de cuando el state es Exito
-                //a la siguiente ruta
                 onNavigateToSettings = { userId ->
                     navController.navigate("settings/$userId")
                                        },
@@ -74,20 +69,25 @@ fun CalenderyApp(
             )
         }
 
-        composable(route = "settings/{userId}") { backStackEntry ->
-            val userId = backStackEntry.arguments?.getString("userId") //Obtenemos el id
-            //SettingScreen(userId = userId) y seria cargar la screen con los datos de este usuario
-            //Tambien falta poner barra de navegacion entre mas pantallas, como la de perfil,
-            //la de ver publicaciones y la de chats
-        }
-
         composable(route = "login") {
             LoginScreen(
                 modifier = Modifier,
                 onNavigateToRegister = {
-                    navController.navigate(("register"))
+                    navController.navigate("register")
                 },
+                //Haria falta un onNavigateToMain aqui y obvio hacer la peticion y el model ahi
                 windowSize = windowSize,
+            )
+        }
+
+        composable(
+            route = "settings/{userId}",
+            arguments = listOf(navArgument("userId") { type = NavType.IntType })
+        )
+        {
+            SettingScreen(
+                    modifier = Modifier,
+                    windowSize = windowSize,
                 )
         }
     }

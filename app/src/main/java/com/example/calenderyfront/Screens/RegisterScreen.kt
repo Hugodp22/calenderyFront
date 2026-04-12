@@ -57,8 +57,8 @@ fun RegisterScreen(
     //Para obtener el usuario y mandarlo a la siguiente pantalla
     LaunchedEffect(stateProcess) {
         if (stateProcess is RegisterState.Exito) {
-            val user = (stateProcess as RegisterState.Exito).usuario //Cogemos el usuario del estado del exito
-            onNavigateToSettings(user.id)
+            val userId = (stateProcess as RegisterState.Exito).userId
+            onNavigateToSettings(userId)
         }
     }
 
@@ -79,7 +79,8 @@ fun RegisterScreen(
                 padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
+            )
+            {
                 Text(
                     text = stringResource(R.string.register),
                     fontSize = 32.sp,

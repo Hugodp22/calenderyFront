@@ -17,20 +17,23 @@ interface UsuarioApiService {
      * Sus datos configurables para llevarlo a la pantalla de configuracion
      */
     @POST("api/v1/users/auth/register")
-    suspend fun registrarUsuario(@Body datosUsuario: UserRegister): Response<UserSettings>
+    suspend fun registrarUsuario(@Body datosUsuario: UserRegister): Response<Int>
+
+    @GET("")
+    suspend fun buscarConfiguracionPorId(@Body userId: Int): Response<UserSettings>
 
     /**
      * Funcion para updatear los datos del usuario segun sus datos configurables
      * Y que nos devuelvan sus datos updateados para volver al perfil
      */
     @PUT("")
-    suspend fun cambiarConfiguracionUsuario(@Body datosUsuario: UserSettings): Response<UserProfile>
+    suspend fun cambiarConfiguracionUsuario(@Body datosUsuario: UserSettings): Response<Int>
 
     /**
      * Funcion para buscar por correo si existe el usuario, mandando su
      * Contraseña para verificar el inicio de sesion y llevarlo a su perfil
      */
     @GET("api/v1/users/auth")
-    suspend fun buscarPerfilUsuarioPorCorreo(@Body datosUsuario: UserLogin): Response<UserProfile>
+    suspend fun buscarPerfilUsuarioPorLog(@Body datosUsuario: UserLogin): Response<Int>
 
 }
