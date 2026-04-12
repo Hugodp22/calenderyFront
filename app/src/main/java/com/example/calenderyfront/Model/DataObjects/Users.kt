@@ -20,7 +20,7 @@ data class UserRegister(
     val nombre: String,
     val email: String,
     val keypass: String,
-    val clavePublica: String = "AranchaPrueba" //Borrar luego, hay que generarla junto a la privada
+    val clavePublica: String = "AranchaPrueba" //Borrar luego, hay que generarla junto a la privada y pasarla
 )
 
 /**
@@ -52,7 +52,7 @@ data class UserProfile(
     val descripcion: String = "", //Puede ser nulo, tener en cuenta
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
-    val publicaciones: List<Publicacion> = emptyList()
+    //Igual poner la lista de publicaciones aqui. Si no, cargarlas.
 )
 
 data class UserSecurity(

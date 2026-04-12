@@ -1,0 +1,8 @@
+package com.example.calenderyfront.Model.States
+
+sealed class SettingsState {
+    object Iniciado : SettingsState() //Estado base
+    object Cargando : SettingsState() // Mientras esperamos al Back
+    data class Exito(val userId: Int) : SettingsState() //Lo que obtenemos si tenemos exito
+    data class Error(val mensaje: Int) : SettingsState() // Si el Back falla o no hay internet
+}

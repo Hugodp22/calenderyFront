@@ -1,5 +1,6 @@
 package com.example.calenderyfront
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -43,6 +44,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.util.UUID
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -111,7 +116,7 @@ fun InputCreation(
  * de que quieras verla claro.
  */
 @Composable
-fun PhotoUserContainer(photoPath: Any?, onClick: () -> Unit,@StringRes contentDescription: Int, modifier : Modifier = Modifier) {
+fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: () -> Unit,@StringRes contentDescription: Int) {
     //Usamos AsyncImage para poder cargar las imagenes
     //mediante su URL
 

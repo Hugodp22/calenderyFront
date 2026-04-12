@@ -27,13 +27,6 @@ class LoginViewModel: ViewModel() {
     private val _errorKeypass = MutableStateFlow(false)
     val errorKeypass: StateFlow<Boolean> = _errorKeypass.asStateFlow()
 
-    private val _errorMesagge = MutableStateFlow("")
-    val errorMessage : StateFlow<String> = _errorMesagge.asStateFlow()
-
-    init {
-
-    }
-
     fun onEmailChange(nuevoCorreo: String) {
         _errorEmail.value = false
         _uiState.update { it.copy(email = nuevoCorreo) }
@@ -80,18 +73,14 @@ class LoginViewModel: ViewModel() {
                     keypass = currentUiState.keypass
                 )
 
-                val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorCorreo(usuarioBuscar)
+                val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorLog(usuarioBuscar)
 
                 if (respuesta.isSuccessful) {
-                    val profile = respuesta.body()
+                    val userId = respuesta.body()
 
-                    if (profile != null) {
-                        _state.value = LoginState.Exito(profile)
+                    if (userId != null) {
+                        _state.value = LoginState.Exito(userId)
                     }
-
-                    //Y aqui le mandariamos a la pantalla perfil con sus datos de UserProfile
-
-
                     else {
                         _state.value = LoginState.Error(R.string.Error_Profile_Message)
                     }

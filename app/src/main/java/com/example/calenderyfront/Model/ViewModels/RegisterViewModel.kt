@@ -33,11 +33,8 @@ class RegisterViewModel: ViewModel() {
     private val _errorMesagge = MutableStateFlow("")
     val errorMessage : StateFlow<String> = _errorMesagge.asStateFlow()
 
-    init {
-
-    }
-
     fun onNameChange(nuevoNombre: String) {
+        //Para que en caso de estar rojo el input por un error se reinicie el color del input al volver a escribir
         _errorName.value = false
         _uiState.update { it.copy(nombre = nuevoNombre) }
     }
@@ -48,7 +45,6 @@ class RegisterViewModel: ViewModel() {
     }
 
     fun onKeypassChange(nuevaPass: String) {
-        //Para que en caso de estar rojo el input por un error se reinicie el color del input al volver a escribir
         _errorKeypass.value = false
         _uiState.update { it.copy(keypass = nuevaPass) }
     }
@@ -61,6 +57,7 @@ class RegisterViewModel: ViewModel() {
     fun tryRegister() {
         val currentUiState = _uiState.value
 
+        //Quitamos el error mientras validamos
         if (_state.value is RegisterState.Error) {
             _state.value = RegisterState.Iniciado
         }
@@ -80,7 +77,6 @@ class RegisterViewModel: ViewModel() {
         }
         _errorEmail.value = false
 
-        //Si las contraseñas no son las mismas, o directamente alguna esta vacia, da error.
         if (currentUiState.keypass != currentUiState.keypassConfirm || currentUiState.keypass.isEmpty() || currentUiState.keypassConfirm.isEmpty()) {
             _errorKeypass.value = true
             _state.value = RegisterState.Error(R.string.Error_pass_message)
@@ -106,13 +102,13 @@ class RegisterViewModel: ViewModel() {
                 val respuesta = RetrofitClient.usuarioApi.registrarUsuario(usuarioEnviar)
 
                 if (respuesta.isSuccessful) {
-                    _state.value = RegisterState.Iniciado
-                    val user = respuesta.body() //Igual se cambia a peticion get
+                    _state.value = RegisterState.Iniciado //Para quitar la barra de carga
+                    val userId = respuesta.body()
 
-                    if (user != null) {
-                        //Esto activa el disparador del RegisterScreen, mandadole el usuario
-                        //a la siguiente pantalla
-                        _state.value = RegisterState.Exito(user)
+                    if (userId != null) {
+                        //Esto activa el disparador del RegisterScreen, mandadole el id del usuario
+                        //a la siguiente pantalla para que esta haga la peticion
+                        _state.value = RegisterState.Exito(userId)
                     }
                 }
 

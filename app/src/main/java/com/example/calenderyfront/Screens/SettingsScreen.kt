@@ -18,21 +18,20 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.PreferencesProto
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
-import com.example.calenderyfront.Model.States.ProfileSettingsState
+import com.example.calenderyfront.Model.States.SettingsState
 import com.example.calenderyfront.Model.States.RegisterState
-import com.example.calenderyfront.Model.ViewModels.ProfileSettingsViewModel
+import com.example.calenderyfront.Model.ViewModels.SettingsViewModel
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
@@ -64,7 +63,8 @@ fun DescriptionContent( modifier: Modifier = Modifier,description: String, onVal
             focusedBorderColor = Color(0xFF4285F4),
             unfocusedBorderColor = Color.Gray,
             cursorColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTextColor = Color.Gray
+            unfocusedTextColor = Color.Gray,
+            focusedTextColor = MaterialTheme.colorScheme.tertiary
         )
     )
 }
@@ -73,7 +73,7 @@ fun DescriptionContent( modifier: Modifier = Modifier,description: String, onVal
 fun SettingScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
-    viewModel: ProfileSettingsViewModel = viewModel()
+    viewModel: SettingsViewModel = viewModel()
 )
 {
     val uiState by viewModel.uiState.collectAsState()
@@ -98,6 +98,13 @@ fun SettingScreen(
         WindowWidthSizeClass.Medium -> 115.dp
         WindowWidthSizeClass.Expanded -> 120.dp
         else -> 100.dp
+    }
+
+    LaunchedEffect(stateProcess) {
+        if (stateProcess is SettingsState.Exito) {
+            val userId = (stateProcess as SettingsState.Exito).userId
+            //onNavigateToProfile(userId) seria
+        }
     }
 
     Box(
@@ -125,20 +132,21 @@ fun SettingScreen(
                     fontSize = 32.sp,
                     color = MaterialTheme.colorScheme.tertiary
                 )
-                PhotoUserContainer(uiState.fotoPerfil, openGallery,R.string.image_description,Modifier.size(containerSize))
+
+                PhotoUserContainer(Modifier.size(containerSize),uiState.fotoPerfil, openGallery,R.string.image_description)
                 InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName)
                 DescriptionContent(Modifier.fillMaxWidth(width),uiState.descripcion,{viewModel.onDescriptionChange(it)})
                 //Mirar si poner mas cosas por que lo veo vacio
                 SaveButton(windowSize, onClick = {viewModel.tryChangeSettings()})
 
-                if (stateProcess is ProfileSettingsState.Error) {
+                if (stateProcess is SettingsState.Error) {
                     Text(
                         text = stringResource((stateProcess as RegisterState.Error).mensaje),
                         color = Color.Red,
                         fontSize = 14.sp
                     )
                 }
-                else if (stateProcess is ProfileSettingsState.Cargando) {
+                else if (stateProcess is SettingsState.Cargando) {
                     CircularProgressIndicator()
                 }
             }
