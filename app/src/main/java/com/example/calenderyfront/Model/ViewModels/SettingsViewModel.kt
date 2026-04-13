@@ -3,6 +3,8 @@ package com.example.calenderyfront.Model.ViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.States.SettingsState
 import com.example.calenderyfront.Model.UiStates.SettingsUiState
@@ -17,8 +19,9 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(path: SavedStateHandle): ViewModel() {
 
-    //Obtenemos el id del path del compose en el main
-    private val userId: Int = checkNotNull(path["userId"])
+    //Obtenemos el path del controller y obtenemos el id de este
+    private val settingsPath = path.toRoute<Settings>()
+    private val userId: Int = settingsPath.userId
 
     private val _uiState = MutableStateFlow(SettingsUiState(userId, "", "", ""))
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()

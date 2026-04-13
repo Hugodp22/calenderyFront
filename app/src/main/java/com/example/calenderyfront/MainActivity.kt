@@ -22,6 +22,9 @@ import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Register
+import com.example.calenderyfront.Model.DataObjects.Settings
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -55,36 +58,32 @@ fun CalenderyApp(
 {
     //Controlador que empieza en la pantalla de register. Falta poner
     //Comprobacion de si tiene token o no a implementar en el futuro.
-    NavHost(navController = navController, startDestination = "register") {
-        composable(route = "register") {
+    NavHost(navController = navController, startDestination = Register) {
+        composable<Register> {
             RegisterScreen(
                 modifier = Modifier,
                 onNavigateToSettings = { userId ->
-                    navController.navigate("settings/$userId")
+                    navController.navigate(Settings(userId = userId))
                                        },
                 onNavigateToLogin = {
-                    navController.navigate("login")
+                    navController.navigate(Login)
                                     },
                 windowSize = windowSize,
             )
         }
 
-        composable(route = "login") {
+        composable<Login> {
             LoginScreen(
                 modifier = Modifier,
                 onNavigateToRegister = {
-                    navController.navigate("register")
+                    navController.navigate(Register)
                 },
                 //Haria falta un onNavigateToMain aqui y obvio hacer la peticion y el model ahi
                 windowSize = windowSize,
             )
         }
 
-        composable(
-            route = "settings/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.IntType })
-        )
-        {
+        composable<Settings> {
             SettingScreen(
                     modifier = Modifier,
                     windowSize = windowSize,

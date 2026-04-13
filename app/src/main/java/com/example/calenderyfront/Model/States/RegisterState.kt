@@ -1,7 +1,5 @@
 package com.example.calenderyfront.Model.States
 
-import com.example.calenderyfront.Model.DataObjects.UserSettings
-
 sealed class RegisterState {
     object Iniciado : RegisterState() //Estado base
     object Cargando : RegisterState() // Mientras esperamos al Back
