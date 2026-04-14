@@ -1,20 +1,23 @@
 package com.example.calenderyfront.Model.ViewModels
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.States.RegisterState
 import com.example.calenderyfront.Model.UiStates.RegisterUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
-import kotlinx.coroutines.Dispatchers
+import com.example.calenderyfront.errorMessages
+import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class RegisterViewModel: ViewModel() {
+class RegisterViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableStateFlow<RegisterState>(RegisterState.Iniciado)
     val state: StateFlow<RegisterState> = _state.asStateFlow()
 
@@ -82,44 +85,45 @@ class RegisterViewModel: ViewModel() {
             _state.value = RegisterState.Error(R.string.Error_pass_message)
             return
         }
+
         _errorKeypass.value = false
 
         //Si esta todo bien, ponemos a cargar mientras hacemos la peticion
         _state.value = RegisterState.Cargando
 
-        saveUser(currentUiState)
+        saveUser()
     }
 
-    fun saveUser(currentUiState: RegisterUiState) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun saveUser() {
+        val currentUiState = _uiState.value
+        viewModelScope.launch {
             try {
                 val usuarioEnviar = UserRegister(
                     nombre = currentUiState.nombre,
                     email = currentUiState.email,
-                    keypass = currentUiState.keypass
+                    keypass = currentUiState.keypass,
                 )
 
                 val respuesta = RetrofitClient.usuarioApi.registrarUsuario(usuarioEnviar)
 
                 if (respuesta.isSuccessful) {
-                    _state.value = RegisterState.Iniciado //Para quitar la barra de carga
-                    val userId = respuesta.body()
+                    val userInfo = respuesta.body()
 
-                    if (userId != null) {
-                        //Esto activa el disparador del RegisterScreen, mandadole el id del usuario
-                        //a la siguiente pantalla para que esta haga la peticion
-                        _state.value = RegisterState.Exito(userId)
+                    if (userInfo != null) {
+                        //Se guarda la cabecera para las siguientes llamadas
+                        SessionManager.saveSession(getApplication(),currentUiState.email, currentUiState.keypass)
+                        _state.value = RegisterState.Exito(userInfo)
+                    }
+
+                    else {
+                        val codigoError = respuesta.code()
+                        _state.value = RegisterState.Error(errorMessages(codigoError))
                     }
                 }
 
                 else {
                     val codigoError = respuesta.code()
-                    val mensajeError = when (codigoError) {
-                        404 -> R.string.Error_404_Message
-                        500 -> R.string.Error_500_message
-                        else -> R.string.Error_Unknow_Message
-                    }
-                    _state.value = RegisterState.Error(mensajeError)
+                    _state.value = RegisterState.Error(errorMessages(codigoError))
                 }
             } catch (e: Exception) {
                 // Error de red

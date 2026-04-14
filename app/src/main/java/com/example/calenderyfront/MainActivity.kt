@@ -16,17 +16,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Register
+import com.example.calenderyfront.Model.DataObjects.Settings
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
+import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.Screens.LoginScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
+import com.example.calenderyfront.Screens.WaitingForLinkScreen
+import com.example.calenderyfront.Screens.WaitingToSendTokenScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
+import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RetrofitClient.init(applicationContext) //Se inicia UNA SOLA VEZ
         enableEdgeToEdge()
         setContent {
             CalenderyFrontTheme {
@@ -53,36 +63,67 @@ fun CalenderyApp(
     navController: NavHostController = rememberNavController(),
 )
 {
+    val uri = "https://calenderyback.com"
+
     //Controlador que empieza en la pantalla de register. Falta poner
     //Comprobacion de si tiene token o no a implementar en el futuro.
-    NavHost(navController = navController, startDestination = "register") {
-        composable(route = "register") {
+
+    NavHost(navController = navController, startDestination = Register) {
+        composable<Register> {
             RegisterScreen(
                 modifier = Modifier,
-                onNavigateToSettings = { userId ->
-                    navController.navigate("settings/$userId")
+                onNavigateToWaiting = { userInfo ->
+                    navController.navigate(VerifyLink(userInfo))
                                        },
                 onNavigateToLogin = {
-                    navController.navigate("login")
+                    navController.navigate(Login)
                                     },
                 windowSize = windowSize,
             )
         }
 
-        composable(route = "login") {
+        composable<VerifyLink>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+            //deepLinks = listOf(navDeepLink<VerifyLink>(basePath = "$uri/registrationConfirm"))
+        )
+        { path ->
+            //val token = verifyLink.token
+
+            //if (token == null) {
+                WaitingForLinkScreen(
+                    modifier = Modifier,
+                    onNavigateToSettings = { userInfo ->
+                        navController.navigate(Settings(userInfo))
+                    },
+                    windowSize = windowSize
+                )
+            //}
+
+            //else {
+            //    WaitingToSendTokenScreen(
+            //        modifier = Modifier,
+            //        onNavigateToSettings = { userInfo ->
+            //            navController.navigate(Settings(userInfo))
+            //        },
+            //        token = token,
+            //        windowSize = windowSize
+            //    )
+            //}
+        }
+
+        composable<Login> {
             LoginScreen(
                 modifier = Modifier,
                 onNavigateToRegister = {
-                    navController.navigate("register")
+                    navController.navigate(Register)
                 },
                 //Haria falta un onNavigateToMain aqui y obvio hacer la peticion y el model ahi
                 windowSize = windowSize,
             )
         }
 
-        composable(
-            route = "settings/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.IntType })
+        composable<Settings>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
         )
         {
             SettingScreen(

@@ -1,7 +1,9 @@
 package com.example.calenderyfront.Model.UiStates
 
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+
 data class SettingsUiState(
-    val id: Int,
+    val userInfo: UserInfo,
     val nombre: String,
     val fotoPerfil: String,
     val descripcion: String

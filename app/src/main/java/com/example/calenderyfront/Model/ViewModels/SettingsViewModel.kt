@@ -1,26 +1,34 @@
 package com.example.calenderyfront.Model.ViewModels
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Settings
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.States.SettingsState
 import com.example.calenderyfront.Model.UiStates.SettingsUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.errorMessages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.reflect.typeOf
 
 class SettingsViewModel(path: SavedStateHandle): ViewModel() {
 
-    //Obtenemos el id del path del compose en el main
-    private val userId: Int = checkNotNull(path["userId"])
+    //Obtenemos el path del controller y obtenemos el id de este
+    private val userInfo = path.toRoute<Settings>(
+        typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+    ).userInfo
 
-    private val _uiState = MutableStateFlow(SettingsUiState(userId, "", "", ""))
+    private val _uiState = MutableStateFlow(SettingsUiState(userInfo, "", "", ""))
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<SettingsState>(SettingsState.Iniciado)
@@ -30,41 +38,36 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
     val errorName: StateFlow<Boolean> = _errorName.asStateFlow()
 
     init {
-        loadSettings()
+        //loadSettings()
     }
 
-    private fun loadSettings() {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val respuesta = RetrofitClient.usuarioApi.buscarConfiguracionPorId(userId)
-
-                if (respuesta.isSuccessful) {
-                    val configuracionUsuario = respuesta.body()
-
-                    if (configuracionUsuario != null) {
-                        _uiState.update { it.copy(
-                            nombre = configuracionUsuario.nombre,
-                            fotoPerfil = configuracionUsuario.fotoPerfil,
-                            descripcion = configuracionUsuario.descripcion
-                        )}
-                    }
-                }
-
-                else {
-                    val codigoError = respuesta.code()
-                    val mensajeError = when (codigoError) {
-                        404 -> R.string.Error_404_Message
-                        500 -> R.string.Error_500_message
-                        else -> R.string.Error_Unknow_Message
-                    }
-                    _state.value = SettingsState.Error(mensajeError)
-                }
-            }
-            catch (e: Exception) {
-                _state.value = SettingsState.Error(R.string.Error_Network)
-            }
-        }
-    }
+    //private fun loadSettings() {
+    //    viewModelScope.launch(Dispatchers.IO) {
+    //        try {
+    //            val respuesta = RetrofitClient.usuarioApi.buscarDatosUsuarioPorId(userInfo.idUsuario)
+//
+    //            if (respuesta.isSuccessful) {
+    //                val configuracionUsuario = respuesta.body()
+//
+    //                if (configuracionUsuario != null) {
+    //                    _uiState.update { it.copy(
+    //                        nombre = configuracionUsuario.nombre,
+    //                        fotoPerfil = configuracionUsuario.fotoPerfil,
+    //                        descripcion = configuracionUsuario.descripcion
+    //                    )}
+    //                }
+    //            }
+//
+    //            else {
+    //                val codigoError = respuesta.code()
+    //                _state.value = SettingsState.Error(errorMessages(codigoError))
+    //            }
+    //        }
+    //        catch (e: Exception) {
+    //            _state.value = SettingsState.Error(R.string.Error_Network)
+    //        }
+    //    }
+    //}
 
     fun onNameChange(nuevoNombre: String) {
         _errorName.value = false
@@ -110,7 +113,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val datosActualizados = UserSettings(
-                    id = userId,
+                    id = userInfo.idUsuario,
                     nombre = currentUiState.nombre,
                     fotoPerfil = currentUiState.fotoPerfil,
                     descripcion = currentUiState.descripcion
@@ -122,20 +125,14 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.usuarioApi.cambiarConfiguracionUsuario(datosActualizados)
 
                 if (respuesta.isSuccessful) {
-                    val userId = respuesta.body()
+                    val userInfo = respuesta.body()
 
-                    if (userId != null) {
-                        _state.value = SettingsState.Exito(userId)
-                    }
+                    if (userInfo != null)
+                        _state.value = SettingsState.Exito(userInfo)
                 }
                 else {
                     val codigoError = respuesta.code()
-                    val mensajeError = when (codigoError) {
-                        404 -> R.string.Error_404_Message
-                        500 -> R.string.Error_500_message
-                        else -> R.string.Error_Unknow_Message
-                    }
-                    _state.value = SettingsState.Error(mensajeError)
+                    _state.value = SettingsState.Error(errorMessages(codigoError))
                 }
             }
             catch (e: Exception) {

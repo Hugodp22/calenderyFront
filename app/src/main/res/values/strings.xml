@@ -17,6 +17,9 @@
     <string name="Error_name_message">El nombre no es valido</string>
     <string name="Error_email_message">El correo no es valido</string>
     <string name="Error_Network">Error de red:</string>
+    <string name="Error_400_Message">Error, Solicitud incorrecta (400)</string>
+    <string name="Error_401_Message">Error, usuario no logeado (401)</string>
+    <string name="Error_403_Message">Error, no tienes acceso (403)</string>
     <string name="Error_404_Message">Servidor no encontrado (404)</string>
     <string name="Error_500_message">Error interno del servidor (500)</string>
     <string name="Error_Unknow_Message">Error desconocido</string>
@@ -27,5 +30,12 @@
     <string name="share_description_Mesagge">Comparte una descripcion!!!</string>
     <string name="redirect_login">¿Ya tienes una cuenta?</string>
     <string name="redirect_register">¿No tienes una cuenta?</string>
+    <string name="account_validation">Validacion de cuenta</string>
+    <string name="waiting_title">Esperando</string>
+    <string name="retry_text">Reintentar</string>
+    <string name="error_token_text">Error al validar el token</string>
+    <string name="waiting_link_title">Correo de verificacion</string>
+    <string name="link_waiting_message">Se te ha enviado un correo al email introducido para que verifiques la creacion de la cuenta</string>
+
 
 </resources>
