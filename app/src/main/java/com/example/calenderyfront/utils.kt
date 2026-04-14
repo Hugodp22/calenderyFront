@@ -1,7 +1,9 @@
 package com.example.calenderyfront
 
-import android.content.Context
 import android.net.Uri
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -44,10 +45,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.util.UUID
+import java.security.KeyPairGenerator
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -202,3 +200,53 @@ fun TextLink(@StringRes texto: Int,onClick: () -> Unit) {
         modifier = Modifier.clickable { onClick() }
     )
 }
+
+const val privateAlias = "com.calendery.app.auth_key"
+/**
+ * Funcion para generar clave publica y privada, mandando
+ * la publica para guardar en la DB y guardando la privada a nivel
+ * local para su uso
+ */
+fun securityKeyCreation(): String {
+    val kpg = KeyPairGenerator.getInstance(
+        KeyProperties.KEY_ALGORITHM_RSA,
+        "AndroidKeyStore" // Forzamos el uso del Keystore para guardar a nivel interno
+    )
+
+    //Definimos el alias por el cual se va a guardar y
+    //establecemos que se usara para encriptar
+    val parameterSpec = KeyGenParameterSpec.Builder(
+        privateAlias,
+        KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_DECRYPT
+    ).run {
+        setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
+        setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
+        setSignaturePaddings(KeyProperties.SIGNATURE_PADDING_RSA_PKCS1)
+        build()
+    }
+
+    kpg.initialize(parameterSpec)
+
+    //Se guarda a nivel interno en zona segura
+    val keyPair = kpg.generateKeyPair()
+
+    //Enviamos la clave publica e indicamos que este en una sola linea con el wrap
+    return Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
+}
+
+/**
+ * Funcion para obtener un mensaje de error segun el codigo obtenido del back
+ * para asi evitar duplicacion de codigo
+ */
+fun errorMessages(erroCode: Int): Int {
+    val errorMessage = when(erroCode) {
+        400 -> R.string.Error_400_Message
+        401 -> R.string.Error_401_Message
+        403 -> R.string.Error_403_Message
+        404 -> R.string.Error_404_Message
+        500 -> R.string.Error_500_message
+        else -> R.string.Error_Unknow_Message
+    }
+    return errorMessage
+}
+

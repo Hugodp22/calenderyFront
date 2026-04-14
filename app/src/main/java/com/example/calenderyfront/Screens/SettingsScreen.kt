@@ -102,8 +102,8 @@ fun SettingScreen(
 
     LaunchedEffect(stateProcess) {
         if (stateProcess is SettingsState.Exito) {
-            val userId = (stateProcess as SettingsState.Exito).userId
-            //onNavigateToProfile(userId) seria
+            val userId = (stateProcess as SettingsState.Exito).userInfo
+            //onNavigateToProfile(userInfo) seria
         }
     }
 

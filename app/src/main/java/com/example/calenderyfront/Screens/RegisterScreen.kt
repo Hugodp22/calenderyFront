@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.States.RegisterState
 import com.example.calenderyfront.Model.ViewModels.RegisterViewModel
 import com.example.calenderyfront.R
@@ -34,7 +35,7 @@ import com.example.calenderyfront.TextLink
 fun RegisterScreen(
     modifier : Modifier = Modifier,
     viewModel: RegisterViewModel = viewModel(),
-    onNavigateToSettings: (Int) -> Unit,
+    onNavigateToWaiting: (UserInfo) -> Unit,
     onNavigateToLogin: () -> Unit,
     windowSize: WindowWidthSizeClass,
     )
@@ -57,8 +58,7 @@ fun RegisterScreen(
     //Para obtener el usuario y mandarlo a la siguiente pantalla
     LaunchedEffect(stateProcess) {
         if (stateProcess is RegisterState.Exito) {
-            val userId = (stateProcess as RegisterState.Exito).userId
-            onNavigateToSettings(userId)
+            onNavigateToWaiting((stateProcess as RegisterState.Exito).userInfo)
         }
     }
 
@@ -106,7 +106,7 @@ fun RegisterScreen(
                 //en futuro, mirar si podemos ver una personalizada
                 else if (stateProcess is RegisterState.Cargando) {
                         CircularProgressIndicator()
-                    }
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.example.calenderyfront.Model.DataObjects
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
 /**
  * Clase para sacar los datos del usuario mediante el id de lq publicacion para asi cargarla a su lado
@@ -20,7 +21,6 @@ data class UserRegister(
     val nombre: String,
     val email: String,
     val keypass: String,
-    val clavePublica: String = "AranchaPrueba" //Borrar luego, hay que generarla junto a la privada y pasarla
 )
 
 /**
@@ -55,12 +55,14 @@ data class UserProfile(
     //Igual poner la lista de publicaciones aqui. Si no, cargarlas.
 )
 
-data class UserSecurity(
-    val id: Int,
-    val nombre: String,
-    val email: String,
-    val keypass: String,
-    val clave_publica: String
+/**
+ * Informacion del usuario para hacer peticiones y saber que partes de la aplicacion
+ * crear segun su Rol
+ */
+@Serializable
+data class UserInfo(
+    val idUsuario: Int,
+    val roles: List<String>
 )
 
 /**

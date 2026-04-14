@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    kotlin("plugin.serialization") version "2.0.0"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.example.calenderyfront"
+    ndkVersion = "27.0.12077973"
     compileSdk {
         version = release(36)
     }
@@ -36,6 +37,15 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
+    @Suppress("UnstableApiUsage")
+    experimentalProperties["android.experimental.art-ti.16kb-pages"] = true
 }
 
 dependencies {
@@ -66,11 +76,11 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.0")
     implementation(libs.androidx.compose.material3.window.size.class1)
 
-
-
     // Retrofit para las peticiones HTTP
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Corrutinas para peticiones asíncronas
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

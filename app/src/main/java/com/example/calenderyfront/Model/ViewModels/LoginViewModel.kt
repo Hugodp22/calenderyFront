@@ -2,19 +2,24 @@ package com.example.calenderyfront.Model.ViewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.calenderyfront.userAuth.SessionManager
 import com.example.calenderyfront.Model.DataObjects.UserLogin
 import com.example.calenderyfront.Model.States.LoginState
 import com.example.calenderyfront.Model.UiStates.LoginUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.errorMessages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-class LoginViewModel: ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+
     private val _state = MutableStateFlow<LoginState>(LoginState.Iniciado)
     val state: StateFlow<LoginState> = _state.asStateFlow()
 
@@ -76,23 +81,22 @@ class LoginViewModel: ViewModel() {
                 val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorLog(usuarioBuscar)
 
                 if (respuesta.isSuccessful) {
-                    val userId = respuesta.body()
+                    val userInfo = respuesta.body()
 
-                    if (userId != null) {
-                        _state.value = LoginState.Exito(userId)
+                    if (userInfo != null) {
+                        //Se guarda a nivel interno el email y la contraseña
+                        SessionManager.saveSession(getApplication(),currentUiState.email, currentUiState.keypass)
+                        _state.value = LoginState.Exito(userInfo)
                     }
+
                     else {
+                        SessionManager.clearSession(getApplication())
                         _state.value = LoginState.Error(R.string.Error_Profile_Message)
                     }
                 }
                 else {
                     val codigoError = respuesta.code()
-                    val mensajeError = when (codigoError) {
-                        404 -> R.string.Error_404_Message
-                        500 -> R.string.Error_500_message
-                        else -> R.string.Error_Unknow_Message
-                    }
-                    _state.value = LoginState.Error(mensajeError)
+                    _state.value = LoginState.Error(errorMessages(codigoError))
                 }
 
             } catch(e: Exception) {
