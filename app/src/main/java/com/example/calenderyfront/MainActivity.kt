@@ -16,8 +16,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
-import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Login
 import com.example.calenderyfront.Model.DataObjects.Register
 import com.example.calenderyfront.Model.DataObjects.Settings
@@ -28,7 +26,6 @@ import com.example.calenderyfront.Screens.LoginScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
-import com.example.calenderyfront.Screens.WaitingToSendTokenScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import kotlin.reflect.typeOf
 
