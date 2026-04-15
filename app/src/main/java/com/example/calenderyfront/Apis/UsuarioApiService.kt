@@ -10,6 +10,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface UsuarioApiService {
 
@@ -33,8 +34,8 @@ interface UsuarioApiService {
     /**
      * Funcion para verificar si el token ya es valido y que devuelva los datos en caso de ser correcto
      */
-    @GET("api/users/activeAccountConfirmation/{idUsuario}")
-    suspend fun validarUsuario(@Path("idUsuario") idUsuario: Int): Response<Unit>
+    @GET("api/users/activeAccountConfirmation")
+    suspend fun validarUsuario(@Query("idUsuario") idUsuario: Int): Response<Unit>
 
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado

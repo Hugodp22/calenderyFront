@@ -31,7 +31,7 @@ class BasicInterceptor: Interceptor {
 
         //En caso de tenerlas, se creara una cabecera con estas
         if (!email.isNullOrBlank() && !keypass.isNullOrBlank()) {
-            val head = Credentials.basic(email,keypass)
+            val head = Credentials.basic(email,keypass,Charsets.UTF_8)
 
             peticionBuilder.header("Authorization", head)
             Log.d("RETROFIT_DEBUG", "Cabecera Authorization añadida $head")
@@ -40,6 +40,7 @@ class BasicInterceptor: Interceptor {
         else {
             Log.e("RETROFIT_DEBUG", "ERROR: No hay credenciales en SessionManager para esta ruta")
         }
+
         val peticionFinal = peticionBuilder.build()
 
         Log.d("RETROFIT_DEBUG", "--- DETALLES DE PETICIÓN ---")
@@ -47,6 +48,7 @@ class BasicInterceptor: Interceptor {
         Log.d("RETROFIT_DEBUG", "URL: ${peticionFinal.url}")
 
         val headers = peticionFinal.headers
+
         for (i in 0 until headers.size) {
             Log.d("RETROFIT_DEBUG", "Header: ${headers.name(i)} = ${headers.value(i)}")
         }

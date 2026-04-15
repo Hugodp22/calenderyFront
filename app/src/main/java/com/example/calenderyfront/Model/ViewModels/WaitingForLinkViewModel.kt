@@ -1,5 +1,6 @@
 package com.example.calenderyfront.Model.ViewModels
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,7 +35,6 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             var invalid = true
             val currentUiState = _uiState.value
-
             val idUsuario = currentUiState.userInfo.idUsuario
 
             while (invalid) {
@@ -45,12 +45,13 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
                         invalid = false
                         _state.value = WaitingForLinkState.Exito(currentUiState.userInfo)
                     }
-
                     else {
+                        Log.d("WaitingForLink","Error, aun inactivo ${respuesta.code()}")
                         delay(3000)
                     }
                 }
                 catch (e: Exception) {
+                    Log.d("WaitingForLink","Error ${e}")
                     delay(3000)
                 }
             }
