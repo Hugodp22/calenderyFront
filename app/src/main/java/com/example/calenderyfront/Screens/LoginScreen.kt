@@ -29,7 +29,9 @@ import com.example.calenderyfront.SaveButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import com.example.calenderyfront.TextLink
 
-
+/**
+ * Funcion para cargar la pantalla de login
+ */
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,

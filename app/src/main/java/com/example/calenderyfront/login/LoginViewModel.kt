@@ -39,6 +39,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(keypass = nuevaPass) }
     }
 
+    /**
+     * Funcion para validar el email y la contraseña
+     */
     fun tryLogin() {
         val currentUiState = _uiState.value
 

@@ -31,6 +31,9 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
     private val _uiState = MutableStateFlow(WaitingForLinkUiState(userInfo))
     val uiState: StateFlow<WaitingForLinkUiState> = _uiState.asStateFlow()
 
+    /**
+     * Funcion para pedir en bucle una peticion para revisar si ya estas registrado
+     */
     fun checkValidation() {
         viewModelScope.launch(Dispatchers.IO) {
             var invalid = true
@@ -60,6 +63,10 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    /**
+     * Funcion para generar una clave publica y privada a nivel interno, y mandar la publica
+     * al back en formato Base64
+     */
     fun sendPublicKey() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -72,7 +79,7 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
                 }
 
                 else {
-                    Log.d("WaitingValidation","Error al mandar la PK ${respuesta.code()}")
+                    Log.d("WaitingValidation","Error al mandar la PK ${respuesta.code()} ${respuesta.message()}")
                 }
             }
             catch (e: Exception) {

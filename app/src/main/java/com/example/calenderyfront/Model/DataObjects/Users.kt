@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 data class UserPost(
     val id: Int,
     val nombre: String,
-    val foto_perfil: String
+    val fotoPerfil: String
 )
 
 /**

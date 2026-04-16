@@ -33,8 +33,8 @@ import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.galleryLauncher
-import com.example.calenderyfront.setting.SettingsState
-import com.example.calenderyfront.setting.SettingsViewModel
+import com.example.calenderyfront.settings.SettingsState
+import com.example.calenderyfront.settings.SettingsViewModel
 
 /**
  * Creacion del contenedor para poner descripcion amplia, con limite configurable

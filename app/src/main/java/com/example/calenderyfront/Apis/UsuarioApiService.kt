@@ -1,16 +1,15 @@
 package com.example.calenderyfront.Apis
 
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserLogin
 import com.example.calenderyfront.Model.DataObjects.UserRegister
-import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UsuarioApiService {

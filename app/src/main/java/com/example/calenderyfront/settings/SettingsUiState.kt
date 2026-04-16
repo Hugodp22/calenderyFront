@@ -1,4 +1,4 @@
-package com.example.calenderyfront.setting
+package com.example.calenderyfront.settings
 
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 

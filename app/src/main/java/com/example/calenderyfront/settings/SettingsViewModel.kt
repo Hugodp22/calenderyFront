@@ -1,4 +1,4 @@
-package com.example.calenderyfront.setting
+package com.example.calenderyfront.settings
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

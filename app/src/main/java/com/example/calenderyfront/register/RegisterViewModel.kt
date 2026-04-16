@@ -54,6 +54,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(keypassConfirm = nuevaPassConfirm) }
     }
 
+    /**
+     * Funcion para validar el contenido del usuario antes del registro
+     */
     fun tryRegister() {
         val currentUiState = _uiState.value
 
@@ -91,6 +94,9 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         saveUser()
     }
 
+    /**
+     * Funcion para guardar el usuario en la BD
+     */
     fun saveUser() {
         val currentUiState = _uiState.value
         viewModelScope.launch {
