@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.UiStates
+package com.example.calenderyfront.register
 
 data class RegisterUiState(
     val nombre: String,

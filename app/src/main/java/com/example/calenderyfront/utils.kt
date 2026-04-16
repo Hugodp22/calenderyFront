@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -60,9 +61,17 @@ fun InputCreation(
     @StringRes placeholderRes: Int,
     isPassword: Boolean = false,
     error: Boolean = false, //El error que va a gestionar el view model
+    windowSize: WindowWidthSizeClass
 )
 {
     var passwordVisible by remember { mutableStateOf(false) } //Variable para saber si se muestra o no la contrasñea
+
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 16.sp
+        WindowWidthSizeClass.Medium -> 18.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
+        else -> 14.sp
+    }
 
     Column(
         modifier = modifier,
@@ -79,9 +88,14 @@ fun InputCreation(
             value = value,
             onValueChange = onValueChange,
             isError = error,
-            placeholder = { Text(
+            placeholder = {
+                Text(
                 text = stringResource(placeholderRes),
-                color = Color.Gray)
+                    fontSize = fontSize,
+                color = Color.Gray,
+                maxLines = 1,
+                softWrap = false,
+                )
             },
             //Si es un input de contraseña y la contraseña no esta visible, salen puntos
             //Si esta disponible, se le quita la transformacion en puntos
@@ -163,10 +177,30 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
  * y cosas asi
  */
 @Composable
-fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
+fun SaveButton(
+    @StringRes textButton: Int,
+    windowSize: WindowWidthSizeClass,
+    onClick: () -> Unit
+) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.5F
+        WindowWidthSizeClass.Medium -> 0.4F
+        WindowWidthSizeClass.Expanded -> 0.45F
         else -> 0.3F
+    }
+
+    val height = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 40.dp
+        WindowWidthSizeClass.Medium -> 60.dp
+        WindowWidthSizeClass.Expanded -> 60.dp
+        else -> 23.dp
+    }
+
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 18.sp
+        WindowWidthSizeClass.Medium -> 30.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
+        else -> 18.sp
     }
 
     Button(
@@ -175,12 +209,13 @@ fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
             containerColor = Color(0xFF4285F4),
             contentColor = Color.White
         ),
-        modifier = Modifier.fillMaxWidth(width)
+        modifier = Modifier.fillMaxWidth(width).height(height)
     )
     {
         Text(
-            text = stringResource(R.string.btn_save),
-            fontSize = 20.sp
+            text = stringResource(textButton),
+            fontSize = fontSize,
+            softWrap = false
         )
     }
 }
@@ -190,11 +225,23 @@ fun SaveButton(windowSize: WindowWidthSizeClass, onClick: () -> Unit) {
  * Pensado para texto de "¿Ya tienes cuenta?" y cosas asi
  */
 @Composable
-fun TextLink(@StringRes texto: Int,onClick: () -> Unit) {
+fun TextLink(
+    @StringRes texto: Int,
+    onClick: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 16.sp
+        WindowWidthSizeClass.Medium -> 18.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
+        else -> 14.sp
+    }
+
     Text(
         text = stringResource(texto),
         color = Color(0xFF4285F4),
-        fontSize = 14.sp,
+        fontSize = fontSize,
         fontWeight = FontWeight.Bold,
         textDecoration = TextDecoration.Underline,
         modifier = Modifier.clickable { onClick() }

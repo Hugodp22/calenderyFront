@@ -1,12 +1,9 @@
-package com.example.calenderyfront.Model.ViewModels
+package com.example.calenderyfront.register
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.UserRegister
-import com.example.calenderyfront.Model.States.RegisterState
-import com.example.calenderyfront.Model.UiStates.RegisterUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
 import com.example.calenderyfront.errorMessages
@@ -73,7 +70,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
 
         _errorName.value = false
 
-        if (currentUiState.email == "" || currentUiState.email.isEmpty() || !currentUiState.email.contains("@") || !currentUiState.email.contains(".")) {
+        if (currentUiState.email.isEmpty() || !currentUiState.email.contains("@") || !currentUiState.email.contains(".")) {
             _errorEmail.value = true
             _state.value = RegisterState.Error(R.string.Error_email_message)
             return

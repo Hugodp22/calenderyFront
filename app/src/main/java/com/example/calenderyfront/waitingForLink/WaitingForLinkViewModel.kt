@@ -1,16 +1,16 @@
-package com.example.calenderyfront.Model.ViewModels
+package com.example.calenderyfront.waitingForLink
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
-import com.example.calenderyfront.Model.States.WaitingForLinkState
-import com.example.calenderyfront.Model.UiStates.WaitingForLinkUiState
 import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.securityKeyCreation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,17 +43,40 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
 
                     if (respuesta.isSuccessful) {
                         invalid = false
-                        _state.value = WaitingForLinkState.Exito(currentUiState.userInfo)
+                        _state.value = WaitingForLinkState.Cargando
+                        sendPublicKey()
                     }
+
                     else {
-                        Log.d("WaitingForLink","Error, aun inactivo ${respuesta.code()}")
+                        Log.d("WaitingValidation","Error al validar ${respuesta.code()}")
                         delay(3000)
                     }
                 }
                 catch (e: Exception) {
-                    Log.d("WaitingForLink","Error ${e}")
+                    Log.d("WaitingValidation","Error $e")
                     delay(3000)
                 }
+            }
+        }
+    }
+
+    fun sendPublicKey() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val publicKey = securityKeyCreation()
+                val publicKeyDto = PublicKeyDto(publicKey)
+                val respuesta = RetrofitClient.usuarioApi.mandarClavePublica(userInfo.idUsuario, publicKeyDto)
+
+                if (respuesta.isSuccessful) {
+                    _state.value = WaitingForLinkState.Exito(userInfo)
+                }
+
+                else {
+                    Log.d("WaitingValidation","Error al mandar la PK ${respuesta.code()}")
+                }
+            }
+            catch (e: Exception) {
+                Log.d("WaitingValidation","Error desconocido PK $e")
             }
         }
     }

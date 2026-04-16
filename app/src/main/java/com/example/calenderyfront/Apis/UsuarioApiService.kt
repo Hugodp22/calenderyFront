@@ -1,5 +1,6 @@
 package com.example.calenderyfront.Apis
 
+import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
 import com.example.calenderyfront.Model.DataObjects.UserLogin
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.DataObjects.UserInfo
@@ -21,28 +22,29 @@ interface UsuarioApiService {
     @POST("api/users/auth/register")
     suspend fun registrarUsuario(@Body datosUsuario: UserRegister): Response<UserInfo>
 
-    //@GET("") cambiar a path
-    //suspend fun buscarDatosUsuarioPorId(@Body userId: Int): Response<UserSettings>
-
-    /**
-     * Funcion para updatear los datos del usuario segun sus datos configurables
-     * Y que nos devuelvan sus datos updateados para volver al perfil
-     */
-    @PUT("")
-    suspend fun cambiarConfiguracionUsuario(@Body datosUsuario: UserSettings): Response<UserInfo>
-
     /**
      * Funcion para verificar si el token ya es valido y que devuelva los datos en caso de ser correcto
      */
     @GET("api/users/activeAccountConfirmation")
     suspend fun validarUsuario(@Query("idUsuario") idUsuario: Int): Response<Unit>
 
+
+    @GET("")
+    suspend fun buscarDatosUsuarioPorId(@Body idUsuario: Int): Response<UserSettings>
+
+    /**
+     * Funcion para updatear los datos del usuario segun sus datos configurables
+     * Y que nos devuelvan sus datos updateados para volver al perfil
+     */
+    @PUT("")
+    suspend fun cambiarConfiguracionUsuario(@Body datosUsuario: UserSettings): Response<Unit>
+
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado
      * para asignarsela
      */
-    @PUT("api/users/publicKey")
-    suspend fun mandarClavePublica(@Path("id") userId: Int, @Body publicKey: String): Response<Unit>
+    @PUT("api/users/app/publicKey")
+    suspend fun mandarClavePublica(@Query("userId") userId: Int, @Body publicKeyDto: PublicKeyDto): Response<Unit>
 
     /**
      * Funcion para buscar por correo si existe el usuario, mandando su
