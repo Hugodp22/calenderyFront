@@ -1,29 +1,26 @@
-package com.example.calenderyfront.Model.ViewModels
+package com.example.calenderyfront.login
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.calenderyfront.userAuth.SessionManager
 import com.example.calenderyfront.Model.DataObjects.UserLogin
-import com.example.calenderyfront.Model.States.LoginState
-import com.example.calenderyfront.Model.UiStates.LoginUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
 import com.example.calenderyfront.errorMessages
+import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _state = MutableStateFlow<LoginState>(LoginState.Iniciado)
     val state: StateFlow<LoginState> = _state.asStateFlow()
 
-    private val _uiState = MutableStateFlow(LoginUiState("","",""))
+    private val _uiState = MutableStateFlow(LoginUiState("", "", ""))
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
     private val _errorEmail = MutableStateFlow(false)
@@ -90,7 +87,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     }
 
                     else {
-                        SessionManager.clearSession(getApplication())
                         _state.value = LoginState.Error(R.string.Error_Profile_Message)
                     }
                 }

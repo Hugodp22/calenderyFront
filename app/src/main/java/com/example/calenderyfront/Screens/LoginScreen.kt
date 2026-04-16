@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
-import com.example.calenderyfront.Model.States.LoginState
-import com.example.calenderyfront.Model.ViewModels.LoginViewModel
+import com.example.calenderyfront.login.LoginState
+import com.example.calenderyfront.login.LoginViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -78,10 +76,10 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail)
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass)
-                SaveButton(windowSize,onClick = { viewModel.tryLogin()})
-                TextLink(R.string.redirect_register,onNavigateToRegister)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
+                SaveButton(R.string.Login_button,windowSize,onClick = { viewModel.tryLogin()})
+                TextLink(R.string.redirect_register,onNavigateToRegister,windowSize)
 
                 if (stateProcess is LoginState.Error) {
                     Text(
@@ -91,7 +89,9 @@ fun LoginScreen(
                     )
                 }
                 else if (stateProcess is LoginState.Cargando) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
                 }
             }
         }

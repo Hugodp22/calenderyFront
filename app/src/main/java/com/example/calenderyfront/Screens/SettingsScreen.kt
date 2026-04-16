@@ -29,13 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
-import com.example.calenderyfront.Model.States.SettingsState
-import com.example.calenderyfront.Model.States.RegisterState
-import com.example.calenderyfront.Model.ViewModels.SettingsViewModel
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.galleryLauncher
+import com.example.calenderyfront.setting.SettingsState
+import com.example.calenderyfront.setting.SettingsViewModel
 
 /**
  * Creacion del contenedor para poner descripcion amplia, con limite configurable
@@ -51,7 +50,8 @@ fun DescriptionContent( modifier: Modifier = Modifier,description: String, onVal
             //Le ponemos limite a la descripcion
             if (it.length <= cantidadMaxima) {
                 onValueChange(it)
-            } },
+            }
+                        },
         modifier = modifier.height(120.dp),
         placeholder = { Text(stringResource(R.string.share_description_Mesagge))},
         maxLines = 3,
@@ -134,20 +134,22 @@ fun SettingScreen(
                 )
 
                 PhotoUserContainer(Modifier.size(containerSize),uiState.fotoPerfil, openGallery,R.string.image_description)
-                InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName)
+                InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
                 DescriptionContent(Modifier.fillMaxWidth(width),uiState.descripcion,{viewModel.onDescriptionChange(it)})
                 //Mirar si poner mas cosas por que lo veo vacio
-                SaveButton(windowSize, onClick = {viewModel.tryChangeSettings()})
+                SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings()})
 
                 if (stateProcess is SettingsState.Error) {
                     Text(
-                        text = stringResource((stateProcess as RegisterState.Error).mensaje),
+                        text = stringResource((stateProcess as SettingsState.Error).mensaje),
                         color = Color.Red,
                         fontSize = 14.sp
                     )
                 }
                 else if (stateProcess is SettingsState.Cargando) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
                 }
             }
         }

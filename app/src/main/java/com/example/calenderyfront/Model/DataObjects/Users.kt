@@ -36,7 +36,6 @@ data class UserLogin(
  * Clase para manejar los datos configurables del perfil
  */
 data class UserSettings(
-    val id: Int,
     val nombre: String,
     val fotoPerfil: String,
     val descripcion: String
@@ -63,6 +62,10 @@ data class UserProfile(
 data class UserInfo(
     val idUsuario: Int,
     val roles: List<String>
+)
+
+data class PublicKeyDto(
+    @SerializedName("publicKey") val publicKey: String
 )
 
 /**

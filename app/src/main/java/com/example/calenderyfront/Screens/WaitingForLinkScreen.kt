@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -22,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Model.States.WaitingForLinkState
-import com.example.calenderyfront.Model.ViewModels.WaitingForLinkViewModel
+import com.example.calenderyfront.waitingForLink.WaitingForLinkState
+import com.example.calenderyfront.waitingForLink.WaitingForLinkViewModel
 import com.example.calenderyfront.R
 
 @Composable
@@ -68,18 +69,27 @@ fun WaitingForLinkScreen(
                 modifier = Modifier
                     .fillMaxWidth(width)
                     .padding(24.dp),
-                horizontalAlignment = Alignment.End,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             )
             {
                 Text(
                     text = stringResource(R.string.waiting_link_title),
                     fontSize = 32.sp,
-                    softWrap = true
+                    lineHeight = 30.sp,
+                    softWrap = true,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
                 Text(
-                    text = stringResource(R.string.link_waiting_message)
+                    text = stringResource(R.string.link_waiting_message),
+                    color = MaterialTheme.colorScheme.tertiary
                 )
+
+                if (stateProcess is WaitingForLinkState.Cargando) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
+                }
             }
         }
     }

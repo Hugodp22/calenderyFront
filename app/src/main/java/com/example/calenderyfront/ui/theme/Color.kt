@@ -6,6 +6,11 @@ val PrincipalClaro = Color(0xFFFFFFFF)
 val SecundarioClaro = Color(0xFFFFFFFF)
 val LetrasClaro = Color(0xFF000000)
 
+val BarraCargaClaro = Color(0xFF004EFF)
+
+
 val PrincipalOscuro = Color(0xFF000000)
 val SecundarioOscuro = Color(0xFFFFFFFF)
 val LetrasOscuro = Color(0xFFFFFFFF)
+
+val BarraCargaOscuro = Color(0xFF004EFF)

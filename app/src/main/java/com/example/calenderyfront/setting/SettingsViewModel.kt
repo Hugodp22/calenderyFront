@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.ViewModels
+package com.example.calenderyfront.setting
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -8,8 +8,6 @@ import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.UserSettings
-import com.example.calenderyfront.Model.States.SettingsState
-import com.example.calenderyfront.Model.UiStates.SettingsUiState
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
 import com.example.calenderyfront.errorMessages
@@ -22,8 +20,6 @@ import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
 class SettingsViewModel(path: SavedStateHandle): ViewModel() {
-
-    //Obtenemos el path del controller y obtenemos el id de este
     private val userInfo = path.toRoute<Settings>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
@@ -41,33 +37,34 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
         //loadSettings()
     }
 
-    //private fun loadSettings() {
-    //    viewModelScope.launch(Dispatchers.IO) {
-    //        try {
-    //            val respuesta = RetrofitClient.usuarioApi.buscarDatosUsuarioPorId(userInfo.idUsuario)
-//
-    //            if (respuesta.isSuccessful) {
-    //                val configuracionUsuario = respuesta.body()
-//
-    //                if (configuracionUsuario != null) {
-    //                    _uiState.update { it.copy(
-    //                        nombre = configuracionUsuario.nombre,
-    //                        fotoPerfil = configuracionUsuario.fotoPerfil,
-    //                        descripcion = configuracionUsuario.descripcion
-    //                    )}
-    //                }
-    //            }
-//
-    //            else {
-    //                val codigoError = respuesta.code()
-    //                _state.value = SettingsState.Error(errorMessages(codigoError))
-    //            }
-    //        }
-    //        catch (e: Exception) {
-    //            _state.value = SettingsState.Error(R.string.Error_Network)
-    //        }
-    //    }
-    //}
+    private fun loadSettings() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.buscarDatosUsuarioPorId(userInfo.idUsuario)
+
+                if (respuesta.isSuccessful) {
+                    val configuracionUsuario = respuesta.body()
+
+                    if (configuracionUsuario != null) {
+                        _uiState.update {
+                            it.copy(
+                                nombre = configuracionUsuario.nombre,
+                                fotoPerfil = configuracionUsuario.fotoPerfil,
+                                descripcion = configuracionUsuario.descripcion
+                            )
+                        }
+                    }
+                }
+                else {
+                    val codigoError = respuesta.code()
+                    _state.value = SettingsState.Error(errorMessages(codigoError))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = SettingsState.Error(R.string.Error_Network)
+            }
+        }
+    }
 
     fun onNameChange(nuevoNombre: String) {
         _errorName.value = false
@@ -113,7 +110,6 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val datosActualizados = UserSettings(
-                    id = userInfo.idUsuario,
                     nombre = currentUiState.nombre,
                     fotoPerfil = currentUiState.fotoPerfil,
                     descripcion = currentUiState.descripcion
@@ -125,10 +121,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.usuarioApi.cambiarConfiguracionUsuario(datosActualizados)
 
                 if (respuesta.isSuccessful) {
-                    val userInfo = respuesta.body()
-
-                    if (userInfo != null)
-                        _state.value = SettingsState.Exito(userInfo)
+                    _state.value = SettingsState.Exito(userInfo)
                 }
                 else {
                     val codigoError = respuesta.code()
@@ -140,5 +133,4 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
             }
         }
     }
-
 }

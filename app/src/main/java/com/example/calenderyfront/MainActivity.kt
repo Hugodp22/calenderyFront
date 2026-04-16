@@ -60,8 +60,6 @@ fun CalenderyApp(
     navController: NavHostController = rememberNavController(),
 )
 {
-    val uri = "https://calenderyback.com"
-
     //Controlador que empieza en la pantalla de register. Falta poner
     //Comprobacion de si tiene token o no a implementar en el futuro.
 
@@ -81,31 +79,14 @@ fun CalenderyApp(
 
         composable<VerifyLink>(
             typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
-            //deepLinks = listOf(navDeepLink<VerifyLink>(basePath = "$uri/registrationConfirm"))
         )
         { path ->
-            //val token = verifyLink.token
-
-            //if (token == null) {
-                WaitingForLinkScreen(
-                    modifier = Modifier,
-                    onNavigateToSettings = { userInfo ->
-                        navController.navigate(Settings(userInfo))
-                    },
-                    windowSize = windowSize
-                )
-            //}
-
-            //else {
-            //    WaitingToSendTokenScreen(
-            //        modifier = Modifier,
-            //        onNavigateToSettings = { userInfo ->
-            //            navController.navigate(Settings(userInfo))
-            //        },
-            //        token = token,
-            //        windowSize = windowSize
-            //    )
-            //}
+            WaitingForLinkScreen(
+                modifier = Modifier,
+                onNavigateToSettings = { userInfo ->
+                    navController.navigate(Settings(userInfo)) },
+                windowSize = windowSize
+            )
         }
 
         composable<Login> {

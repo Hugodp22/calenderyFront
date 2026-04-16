@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.UiStates
+package com.example.calenderyfront.login
 
 data class LoginUiState (
     val nombre: String,

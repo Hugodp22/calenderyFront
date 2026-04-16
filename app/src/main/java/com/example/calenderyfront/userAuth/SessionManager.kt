@@ -17,7 +17,7 @@ object SessionManager {
     }
 
     /**
-     * Funcion para guardar en el sharedPreferences los datos
+     * Funcion para guardar en el sharedPreferences los datos, sobreescribiendolos en caso de existir
      */
     fun saveSession(context: Context, email: String, pass: String) {
         getPrefs(context).edit(commit = true) {
