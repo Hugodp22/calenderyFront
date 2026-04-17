@@ -11,10 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PrincipalOscuro,
+    primary = PrincipalOscuro, //Fondo
     secondary = SecundarioOscuro,
-    tertiary = LetrasOscuro,
-    onTertiary = BarraCargaOscuro,
+    tertiary = LetrasOscuro, //Letras
+    onTertiary = BarraCargaOscuro, //Barra de carga
 )
 
 private val LightColorScheme = lightColorScheme(

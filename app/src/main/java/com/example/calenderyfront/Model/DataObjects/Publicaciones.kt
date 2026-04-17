@@ -1,11 +1,11 @@
 package com.example.calenderyfront.Model.DataObjects
 
-data class Publicacion(
-    val id: Int,
-    val idUsuario: Int, //Para luego buscarlo y usarlo en
+data class PublicacionHome(
+    val idUsuario: Int, //Para ir a su perfil
+    val nombreUsuario: String,
+    val fotoUsuario: String,
     val fotoPublicacion: String?,
     val mensaje: String?,
     val cantidadComentarios: Int,
     val cantidadLikes: Int,
-    val fechaPublicacion: String //No se que poner
 )

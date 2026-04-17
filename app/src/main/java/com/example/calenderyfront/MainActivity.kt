@@ -64,6 +64,7 @@ fun CalenderyApp(
     //Comprobacion de si tiene token o no a implementar en el futuro.
 
     NavHost(navController = navController, startDestination = Register) {
+
         composable<Register> {
             RegisterScreen(
                 modifier = Modifier,
@@ -109,5 +110,11 @@ fun CalenderyApp(
                     windowSize = windowSize,
                 )
         }
+
+        //composable<Home>(
+        //    typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        //) {
+        //
+        //}
     }
 }
