@@ -27,7 +27,9 @@ interface UsuarioApiService {
     @GET("api/users/activeAccountConfirmation")
     suspend fun validarUsuario(@Query("idUsuario") idUsuario: Int): Response<Unit>
 
-
+    /**
+     * Funcion para cargar los datos del usuario basico para su perfil
+     */
     @GET("")
     suspend fun buscarDatosUsuarioPorId(@Body idUsuario: Int): Response<UserSettings>
 
@@ -49,7 +51,7 @@ interface UsuarioApiService {
      * Funcion para buscar por correo si existe el usuario, mandando su
      * Contraseña para verificar el inicio de sesion y llevarlo a su perfil
      */
-    @GET("api/users/auth")
+    @GET("api/users/auth/login")
     suspend fun buscarPerfilUsuarioPorLog(@Body datosUsuario: UserLogin): Response<UserInfo>
 
 }

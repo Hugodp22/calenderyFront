@@ -4,16 +4,6 @@ import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
 /**
- * Clase para sacar los datos del usuario mediante el id de lq publicacion para asi cargarla a su lado
- * Con su nombre y foto
- */
-data class UserPost(
-    val id: Int,
-    val nombre: String,
-    val fotoPerfil: String
-)
-
-/**
  * Clase para manejar el registro del usuario y mandarle peticion
  * al back para que lo inserte
  */
@@ -66,19 +56,4 @@ data class UserInfo(
 
 data class PublicKeyDto(
     @SerializedName("publicKey") val publicKey: String
-)
-
-/**
- * @SerializedName asegura que, aunque cambies el nombre de la variable en Kotlin,
- * busque la clave exacta que envía el JSON de Java.
- */
-data class Usuario(
-    @SerializedName("id")
-    val id: Long = 0,
-
-    @SerializedName("nombre")
-    val nombre: String,
-
-    @SerializedName("email")
-    val email: String
 )

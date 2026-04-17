@@ -25,11 +25,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
 import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.register.RegisterState
-import com.example.calenderyfront.register.RegisterViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.TextLink
+import com.example.calenderyfront.register.RegisterState
+import com.example.calenderyfront.register.RegisterViewModel
 
 @Composable
 fun RegisterScreen(
@@ -54,8 +54,16 @@ fun RegisterScreen(
         else -> 1f
     }
 
+    val titleSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 32.sp
+        WindowWidthSizeClass.Medium -> 40.sp
+        WindowWidthSizeClass.Expanded -> 35.sp
+        else -> 32.sp
+    }
+
     //Disparador que se activara cuando el State sea Exito
     //Para obtener el usuario y mandarlo a la siguiente pantalla
+
     LaunchedEffect(stateProcess) {
         if (stateProcess is RegisterState.Exito) {
             onNavigateToWaiting((stateProcess as RegisterState.Exito).userInfo)
@@ -83,7 +91,7 @@ fun RegisterScreen(
             {
                 Text(
                     text = stringResource(R.string.register),
-                    fontSize = 32.sp,
+                    fontSize = titleSize,
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
