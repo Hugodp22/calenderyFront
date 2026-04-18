@@ -1,0 +1,114 @@
+package com.example.calenderyfront.profile
+
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Settings
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
+import com.example.calenderyfront.R
+import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.errorMessages
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlin.reflect.typeOf
+
+class ProfileViewModel(path: SavedStateHandle): ViewModel() {
+
+    private val userInfo = path.toRoute<Settings>(
+        typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+    ).userInfo
+
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "", "", "", 0, 0))
+    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+
+    private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
+    val state: StateFlow<ProfileState> = _state.asStateFlow()
+
+    private var paginaActual = 0
+    private val tamanioPagina = 9
+
+    init {
+        loadProfile()
+    }
+
+    private fun loadProfile() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.buscarDatosPerfil(userInfo.idUsuario)
+
+                if (respuesta.isSuccessful) {
+                    val userData = respuesta.body()
+
+                    if (userData != null) {
+                        _uiState.update {
+                            it.copy(
+                                nombreUsuario = userData.nombre,
+                                fotoUsuario = userData.fotoPerfil,
+                                descripcion = userData.descripcion,
+                                cantidadSeguidos = userData.cantidadSeguidos,
+                                cantidadSeguidores = userData.cantidadSeguidores
+                            )
+                        }
+                        loadPublications()
+                    } else {
+                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                    }
+                } else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            } catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun loadPublications() {
+        val currentState = _uiState.value
+
+        // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.value = ProfileState.Cargando
+            try {
+                //Pedimos mediante el id, una pagina con 9 publicaciones
+                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
+                    userInfo.idUsuario,
+                    paginaActual,
+                    tamanioPagina
+                )
+
+                if (respuesta.isSuccessful) {
+                    val publicacionesCargadas = respuesta.body()
+
+                    if (publicacionesCargadas != null) {
+                        _uiState.update { it.copy(
+                            //Juntamos las que ya teníamos con las nuevas
+                            publicaciones = it.publicaciones + publicacionesCargadas,
+
+                            //Si nos devuelven menos del tamaño de cada pagina, es que ya no hay mas en el server
+                            //asi que lo guardamos para evitar hacer peticiones de mas
+                            ultimaPagina = publicacionesCargadas.size < tamanioPagina
+                        )}
+                        _state.value = ProfileState.paginaCargada
+                        paginaActual++
+                    }
+                    else {
+                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                    }
+                }
+            }
+            catch (e: Exception) {
+
+            }
+        }
+    }
+}

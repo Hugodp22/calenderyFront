@@ -17,12 +17,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.Register
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.Screens.LoginScreen
+import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
@@ -39,10 +41,6 @@ class MainActivity : ComponentActivity() {
             CalenderyFrontTheme {
                 val windowSize = calculateWindowSizeClass(this)
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    //Aqui detectariamos si el movil tiene token para saber a que pantalla
-                    //Mandar o no al iniciar la app
-                    //if token bla bla bla
-
                     CalenderyApp(
                         modifier = Modifier.padding(innerPadding),
                         windowSize = windowSize.widthSizeClass
@@ -60,10 +58,22 @@ fun CalenderyApp(
     navController: NavHostController = rememberNavController(),
 )
 {
-    //Controlador que empieza en la pantalla de register. Falta poner
-    //Comprobacion de si tiene token o no a implementar en el futuro.
-
     NavHost(navController = navController, startDestination = Register) {
+
+        composable<Redirect> {
+            RedirectScreen(
+                modifier = Modifier,
+                onNavigateToLogin = {
+                    navController.navigate(Login)
+                },
+                onNavigateToWaitingForLink = {userInfo ->
+                    navController.navigate(VerifyLink(userInfo))
+                },
+                onNavigateToSettings = { userInfo ->
+                    navController.navigate(Settings(userInfo))
+                }
+            )
+        }
 
         composable<Register> {
             RegisterScreen(

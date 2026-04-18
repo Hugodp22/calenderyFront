@@ -9,3 +9,11 @@ data class PublicacionHome(
     val cantidadComentarios: Int,
     val cantidadLikes: Int,
 )
+
+data class PublicacionProfile(
+    val id: Int,
+    val fotoPublicacion: String?,
+    val mensaje: String?,
+    val cantidadLikes: Int = 0,
+    val cantidadComentarios: Int = 0
+)

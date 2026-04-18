@@ -2,9 +2,10 @@ package com.example.calenderyfront.Apis
 
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Model.DataObjects.UserLogin
+import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.DataObjects.UserSettings
+import com.example.calenderyfront.Model.DataObjects.UserValidation
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -40,6 +41,9 @@ interface UsuarioApiService {
     @PUT("")
     suspend fun cambiarConfiguracionUsuario(@Body datosUsuario: UserSettings): Response<Unit>
 
+    @GET("")
+    suspend fun buscarDatosPerfil(@Body idUsuario: Int): Response<UserProfile>
+
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado
      * para asignarsela
@@ -48,10 +52,16 @@ interface UsuarioApiService {
     suspend fun mandarClavePublica(@Query("userId") userId: Int, @Body publicKeyDto: PublicKeyDto): Response<Unit>
 
     /**
-     * Funcion para buscar por correo si existe el usuario, mandando su
-     * Contraseña para verificar el inicio de sesion y llevarlo a su perfil
+     * Funcion para buscar por cabecera si existe el usuario
      */
-    @GET("api/users/auth/login")
-    suspend fun buscarPerfilUsuarioPorLog(@Body datosUsuario: UserLogin): Response<UserInfo>
+    @POST("api/users/auth/login")
+    suspend fun buscarPerfilUsuarioPorCabecera(): Response<UserInfo>
+
+    /**
+     * Funcion para validar si el usuario esta enable mediante la cabecera
+     * para la pantalla de redirigir
+     */
+    @POST("")
+    suspend fun validarUsuarioPorCabecera(): Response<UserValidation>
 
 }

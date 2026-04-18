@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import java.security.KeyPairGenerator
+import java.security.KeyStore
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -139,7 +140,7 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
             .clip(CircleShape)
             .clickable { onClick() }
             .background(Color.LightGray),
-        contentScale = ContentScale.Fit, //O .Crop
+        contentScale = ContentScale.Crop, //O .Crop
         placeholder = painterResource(R.drawable.ic_launcher_background),
         error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
     )
@@ -197,7 +198,7 @@ fun SaveButton(
     }
 
     val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 18.sp
+        WindowWidthSizeClass.Compact -> 15.sp
         WindowWidthSizeClass.Medium -> 30.sp
         WindowWidthSizeClass.Expanded -> 20.sp
         else -> 18.sp
@@ -248,13 +249,13 @@ fun TextLink(
     )
 }
 
-const val privateAlias = "com.calendery.app.auth_key"
 /**
  * Funcion para generar clave publica y privada, mandando
  * la publica para guardar en la DB y guardando la privada a nivel
  * local para su uso
  */
-fun securityKeyCreation(): String {
+fun securityKeyCreation(userId: Int): String {
+    val privateAlias = "com.calendery.app.auth_key_$userId"
     val kpg = KeyPairGenerator.getInstance(
         KeyProperties.KEY_ALGORITHM_RSA,
         "AndroidKeyStore" // Forzamos el uso del Keystore para guardar a nivel interno
@@ -279,6 +280,28 @@ fun securityKeyCreation(): String {
 
     //Enviamos la clave publica e indicamos que este en una sola linea con el wrap
     return Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
+}
+
+/**
+ * Funcion para borrar todas las claves generadas y que no me explote el ordenador
+ * al hacer tantas pruebas
+ */
+fun deleteAllKeys() {
+    try {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+            load(null)
+        }
+
+        val aliases = keyStore.aliases() // Lista de todos los alias
+
+        while (aliases.hasMoreElements()) {
+            val alias = aliases.nextElement()
+            keyStore.deleteEntry(alias)
+            println("Clave eliminada: $alias")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**

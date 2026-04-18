@@ -14,6 +14,7 @@
     <string name="input_placeholder_empty_email">Introduce tu correo</string>
     <string name="input_placeholder_empty_keypass">Introduce tu contraseña</string>
     <string name="input_placeholder_empty_keypass_confirm">Confirma tu contraseña</string>
+    <string name="User_profile_foto">Tu foto de perfil</string>
     <string name="Error_pass_message">Las contraseñas deben coincidir</string>
     <string name="Error_name_message">El nombre no es valido</string>
     <string name="Error_email_message">El correo no es valido</string>
@@ -38,6 +39,9 @@
     <string name="error_token_text">Error al validar el token</string>
     <string name="waiting_link_title">Correo de verificacion</string>
     <string name="link_waiting_message">Se te ha enviado un correo al email introducido para que verifiques la creacion de la cuenta</string>
+    <string name="photo_proffile_settings">Foto de perfil</string>
+    <string name="followers_text">Seguidores</string>
+    <string name="followed_text">Seguidos</string>
 
 
 </resources>

@@ -78,22 +78,24 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     keypass = currentUiState.keypass
                 )
 
-                val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorLog(usuarioBuscar)
+                SessionManager.saveSession(getApplication(),currentUiState.email, currentUiState.keypass)
+
+                val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorCabecera()
 
                 if (respuesta.isSuccessful) {
                     val userInfo = respuesta.body()
 
                     if (userInfo != null) {
-                        //Se guarda a nivel interno el email y la contraseña
-                        SessionManager.saveSession(getApplication(),currentUiState.email, currentUiState.keypass)
                         _state.value = LoginState.Exito(userInfo)
                     }
 
                     else {
+                        SessionManager.clearSession(getApplication())
                         _state.value = LoginState.Error(R.string.Error_Profile_Message)
                     }
                 }
                 else {
+                    SessionManager.clearSession(getApplication())
                     val codigoError = respuesta.code()
                     _state.value = LoginState.Error(errorMessages(codigoError))
                 }
