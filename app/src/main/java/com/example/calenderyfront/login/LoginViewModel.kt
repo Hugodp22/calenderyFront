@@ -73,11 +73,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun searchUser(currentUiState: LoginUiState) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val usuarioBuscar = UserLogin(
-                    email = currentUiState.email,
-                    keypass = currentUiState.keypass
-                )
-
                 SessionManager.saveSession(getApplication(),currentUiState.email, currentUiState.keypass)
 
                 val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorCabecera()

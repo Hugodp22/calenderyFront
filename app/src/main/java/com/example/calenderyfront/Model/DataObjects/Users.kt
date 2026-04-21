@@ -28,7 +28,7 @@ data class UserLogin(
 data class UserSettings(
     val nombre: String,
     val fotoPerfil: String,
-    val descripcion: String
+    val descripcion: String?
 )
 
 /**
