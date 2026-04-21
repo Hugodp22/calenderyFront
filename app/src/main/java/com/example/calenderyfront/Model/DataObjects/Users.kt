@@ -28,20 +28,18 @@ data class UserLogin(
 data class UserSettings(
     val nombre: String,
     val fotoPerfil: String,
-    val descripcion: String
+    val descripcion: String?
 )
 
 /**
  * Clase para datos del perfil del usuario
  */
 data class UserProfile(
-    val id: Int,
     val nombre: String,
     val fotoPerfil: String,
-    val descripcion: String = "", //Puede ser nulo, tener en cuenta
+    val descripcion: String = "",
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
-    //Igual poner la lista de publicaciones aqui. Si no, cargarlas.
 )
 
 /**
@@ -52,6 +50,11 @@ data class UserProfile(
 data class UserInfo(
     val idUsuario: Int,
     val roles: List<String>
+)
+
+data class UserValidation(
+    val userInfo: UserInfo,
+    val enable: Boolean
 )
 
 data class PublicKeyDto(

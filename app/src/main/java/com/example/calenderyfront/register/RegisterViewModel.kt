@@ -107,6 +107,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     keypass = currentUiState.keypass,
                 )
 
+                SessionManager.clearSession(getApplication())
                 val respuesta = RetrofitClient.usuarioApi.registrarUsuario(usuarioEnviar)
 
                 if (respuesta.isSuccessful) {

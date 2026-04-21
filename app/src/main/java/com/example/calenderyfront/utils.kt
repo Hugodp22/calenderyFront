@@ -10,7 +10,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,6 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,8 +50,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import java.security.KeyPairGenerator
+import java.security.KeyStore
+
+const val pageSize = 6
+const val rowProfilePostSize = 3
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -138,11 +149,58 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
         modifier = modifier
             .clip(CircleShape)
             .clickable { onClick() }
-            .background(Color.LightGray),
-        contentScale = ContentScale.Fit, //O .Crop
+            .background(MaterialTheme.colorScheme.primary),
+        contentScale = ContentScale.Crop, //O .Crop
         placeholder = painterResource(R.drawable.ic_launcher_background),
         error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
     )
+}
+
+@Composable
+fun ExpandedPhotoProfile(
+    photoPath: Any?,
+    onDismiss: () -> Unit
+) {
+    var scale by remember { mutableStateOf(1f) }
+
+    Dialog(
+        onDismissRequest = onDismiss, //Para cuando le des atras, que se ponga en false el boolean que lo controle en la screen
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false, //Para que no ocupe toda la pantalla
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false //Evita que pete si le das en los margenes
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.primary)
+        )
+        {
+            AsyncImage(
+                model = photoPath,
+                contentDescription = stringResource(R.string.dialog_image_Message),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale
+                    )
+                    //Para detectar los golpes a la pantalla
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = { //Si es un doble golpe
+                                // Si ya tiene zoom, lo quitamos, si no lo ponemos a por 3.
+                                scale = if (scale > 1f) 1f else 3f
+                            }
+                        )
+                    },
+                contentScale = ContentScale.Fit,
+                placeholder = painterResource(R.drawable.ic_launcher_background),
+                error = painterResource(R.drawable.errorimage)
+            )
+        }
+    }
 }
 
 /**
@@ -180,7 +238,8 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
 fun SaveButton(
     @StringRes textButton: Int,
     windowSize: WindowWidthSizeClass,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enable: Boolean = true
 ) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.5F
@@ -197,7 +256,7 @@ fun SaveButton(
     }
 
     val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 18.sp
+        WindowWidthSizeClass.Compact -> 15.sp
         WindowWidthSizeClass.Medium -> 30.sp
         WindowWidthSizeClass.Expanded -> 20.sp
         else -> 18.sp
@@ -207,9 +266,14 @@ fun SaveButton(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF4285F4),
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContentColor = Color.Gray,
+            disabledContainerColor = Color(0xFF153870)
         ),
-        modifier = Modifier.fillMaxWidth(width).height(height)
+        enabled = enable,
+        modifier = Modifier
+            .fillMaxWidth(width)
+            .height(height)
     )
     {
         Text(
@@ -248,13 +312,13 @@ fun TextLink(
     )
 }
 
-const val privateAlias = "com.calendery.app.auth_key"
 /**
  * Funcion para generar clave publica y privada, mandando
  * la publica para guardar en la DB y guardando la privada a nivel
  * local para su uso
  */
-fun securityKeyCreation(): String {
+fun securityKeyCreation(userId: Int): String {
+    val privateAlias = "com.calendery.app.auth_key_$userId"
     val kpg = KeyPairGenerator.getInstance(
         KeyProperties.KEY_ALGORITHM_RSA,
         "AndroidKeyStore" // Forzamos el uso del Keystore para guardar a nivel interno
@@ -279,6 +343,28 @@ fun securityKeyCreation(): String {
 
     //Enviamos la clave publica e indicamos que este en una sola linea con el wrap
     return Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
+}
+
+/**
+ * Funcion para borrar todas las claves generadas y que no me explote el ordenador
+ * al hacer tantas pruebas
+ */
+fun deleteAllKeys() {
+    try {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+            load(null)
+        }
+
+        val aliases = keyStore.aliases() // Lista de todos los alias
+
+        while (aliases.hasMoreElements()) {
+            val alias = aliases.nextElement()
+            keyStore.deleteEntry(alias)
+            println("Clave eliminada: $alias")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**

@@ -15,6 +15,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = SecundarioOscuro,
     tertiary = LetrasOscuro, //Letras
     onTertiary = BarraCargaOscuro, //Barra de carga
+    onPrimary = FondoLeveOscuro,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -22,6 +23,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = SecundarioClaro,
     tertiary = LetrasClaro,
     onTertiary = BarraCargaClaro,
+    onPrimary = FondoLeveClaro,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

@@ -70,8 +70,8 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
     fun sendPublicKey() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val publicKey = securityKeyCreation()
-                val publicKeyDto = PublicKeyDto(publicKey)
+                val publicKey = securityKeyCreation(userInfo.idUsuario)
+                val publicKeyDto = PublicKeyDto(publicKey) //Lo envolvemos para que el back no tenga problemas
                 val respuesta = RetrofitClient.usuarioApi.mandarClavePublica(userInfo.idUsuario, publicKeyDto)
 
                 if (respuesta.isSuccessful) {

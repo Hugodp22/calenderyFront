@@ -24,7 +24,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
 
-    private val _uiState = MutableStateFlow(SettingsUiState(userInfo, "", "", ""))
+    private val _uiState = MutableStateFlow(SettingsUiState("", "", ""))
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<SettingsState>(SettingsState.Iniciado)
@@ -34,13 +34,13 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
     val errorName: StateFlow<Boolean> = _errorName.asStateFlow()
 
     init {
-        //loadSettings()
+        loadSettings()
     }
 
     private fun loadSettings() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.usuarioApi.buscarDatosUsuarioPorId(userInfo.idUsuario)
+                val respuesta = RetrofitClient.usuarioApi.buscarSettingsUsuarioPorId(userInfo.idUsuario)
 
                 if (respuesta.isSuccessful) {
                     val configuracionUsuario = respuesta.body()
@@ -118,7 +118,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
                 //Falta transformar la foto de perfil en archivo para asi mandarlo bien. No se
                 //faltan pruebas aun.
 
-                val respuesta = RetrofitClient.usuarioApi.cambiarConfiguracionUsuario(datosActualizados)
+                val respuesta = RetrofitClient.usuarioApi.cambiarConfiguracionUsuario(userInfo.idUsuario,datosActualizados)
 
                 if (respuesta.isSuccessful) {
                     _state.value = SettingsState.Exito(userInfo)
