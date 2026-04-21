@@ -1,6 +1,7 @@
 package com.example.calenderyfront.Apis
 
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
+import com.example.calenderyfront.pageSize
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -13,6 +14,6 @@ interface PublicacionApiService {
      * y el tamaño de cada pagina, 9 de momento hasta hacer pruebas
      */
     @GET("")
-    suspend fun obtenerPublicacionesPerfil(@Body userId: Int,@Query("page") page: Int, @Query("size") size : Int = 9): Response<List<PublicacionProfile>>
+    suspend fun obtenerPublicacionesPerfil(@Body userId: Int,@Query("page") page: Int, @Query("size") size : Int = pageSize): Response<List<PublicacionProfile>>
 
 }

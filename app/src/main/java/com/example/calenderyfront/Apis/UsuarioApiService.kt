@@ -31,18 +31,18 @@ interface UsuarioApiService {
     /**
      * Funcion para cargar los datos del usuario basico para su perfil
      */
-    @GET("")
-    suspend fun buscarDatosUsuarioPorId(@Body idUsuario: Int): Response<UserSettings>
+    @GET("api/users/app/getUserSettings")
+    suspend fun buscarSettingsUsuarioPorId(@Query("idUsuario") idUsuario: Int): Response<UserSettings>
 
     /**
      * Funcion para updatear los datos del usuario segun sus datos configurables
      * Y que nos devuelvan sus datos updateados para volver al perfil
      */
-    @PUT("")
-    suspend fun cambiarConfiguracionUsuario(@Body datosUsuario: UserSettings): Response<Unit>
+    @PUT("api/users/app/updateUserSetting")
+    suspend fun cambiarConfiguracionUsuario(@Query ("idUsuario") idUsuario: Int, @Body datosUsuario: UserSettings): Response<Unit>
 
-    @GET("")
-    suspend fun buscarDatosPerfil(@Body idUsuario: Int): Response<UserProfile>
+    @GET("api/users/app/getUserProfile")
+    suspend fun buscarDatosPerfil(@Query ("idUsuario") idUsuario: Int): Response<UserProfile>
 
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado

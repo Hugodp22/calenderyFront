@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.Register
 import com.example.calenderyfront.Model.DataObjects.Settings
@@ -24,6 +25,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.Screens.LoginScreen
+import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
@@ -66,7 +68,7 @@ fun CalenderyApp(
                 onNavigateToLogin = {
                     navController.navigate(Login)
                 },
-                onNavigateToWaitingForLink = {userInfo ->
+                onNavigateToWaitingForLink = { userInfo ->
                     navController.navigate(VerifyLink(userInfo))
                 },
                 onNavigateToSettings = { userInfo ->
@@ -91,13 +93,13 @@ fun CalenderyApp(
         composable<VerifyLink>(
             typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
         )
-        { path ->
+        {
             WaitingForLinkScreen(
-                modifier = Modifier,
-                onNavigateToSettings = { userInfo ->
-                    navController.navigate(Settings(userInfo)) },
-                windowSize = windowSize
-            )
+            modifier = Modifier,
+            onNavigateToSettings = { userInfo ->
+                navController.navigate(Settings(userInfo)) },
+            windowSize = windowSize
+        )
         }
 
         composable<Login> {
@@ -106,7 +108,9 @@ fun CalenderyApp(
                 onNavigateToRegister = {
                     navController.navigate(Register)
                 },
-                //Haria falta un onNavigateToMain aqui y obvio hacer la peticion y el model ahi
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate(Settings(userInfo))
+                },
                 windowSize = windowSize,
             )
         }
@@ -118,7 +122,23 @@ fun CalenderyApp(
             SettingScreen(
                     modifier = Modifier,
                     windowSize = windowSize,
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate((Profile(userInfo)))
+                }
                 )
+        }
+
+        composable<Profile>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            ProfileScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToSettings = { userInfo ->
+                    navController.navigate(Settings(userInfo))
+                }
+            )
         }
 
         //composable<Home>(

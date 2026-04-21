@@ -1,6 +1,5 @@
 package com.example.calenderyfront.Screens
 
-import android.content.res.Configuration
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -25,20 +25,24 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.calenderyfront.ExpandedPhotoProfile
+import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.profile.ProfileState
 import com.example.calenderyfront.profile.ProfileViewModel
-import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.rowProfilePostSize
 
 @Composable
 fun ProfileHeader(
@@ -46,6 +50,7 @@ fun ProfileHeader(
     windowSize: WindowWidthSizeClass,
     userName: String,
     photoUser: String,
+    onClickPhoto: () -> Unit,
     description: String?,
     numberOfFollowers: Int = 0,
     numberOfFollowed: Int = 0,
@@ -65,18 +70,17 @@ fun ProfileHeader(
         else -> 100.dp
     }
 
-    val fontSize = when (windowSize) {
+    val fontSizeName = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
-        WindowWidthSizeClass.Medium -> 20.sp
-        WindowWidthSizeClass.Expanded -> 22.sp
-        else -> 15.sp
+        else -> 22.sp
     }
 
     Column(
         modifier = modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.primary)
-            .padding(horizontal = width, vertical = 16.dp)
+            .padding(horizontal = width)
+            .padding(top = 64.dp)
     )
     {
         Row(
@@ -85,7 +89,7 @@ fun ProfileHeader(
             horizontalArrangement = Arrangement.SpaceBetween
         )
         {
-            PhotoUserContainer(Modifier.size(photoSize),photoUser,{}, R.string.User_profile_foto)
+            PhotoUserContainer(Modifier.size(photoSize),photoUser,{onClickPhoto()}, R.string.User_profile_foto)
             Row(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -106,6 +110,8 @@ fun ProfileHeader(
         {
             Text(
                 text = userName,
+                fontWeight = FontWeight.Bold,
+                fontSize = fontSizeName,
                 color = MaterialTheme.colorScheme.tertiary
             )
 
@@ -118,6 +124,7 @@ fun ProfileHeader(
                 )
             }
         }
+        Spacer(Modifier.padding(bottom = 16.dp))
     }
 }
 
@@ -162,6 +169,10 @@ fun ProfileScreen(
 
     val gridState = rememberLazyGridState() //State para obtener informacion del lazy
 
+    var expandedPhotoProfile by remember { mutableStateOf(false) } //Para saber cuando la foto esta ampliada
+
+    var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Para saber que publicacion mostrar
+
     //Para detectar cuando el scroll esta en el final
     val scrollEnElFinal by remember {
         //Se actualiza cada vez que el usuario haga scroll
@@ -173,96 +184,61 @@ fun ProfileScreen(
             //Obtenemos de todos los items que se han cargado, el indice del ultimo
             val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
-            //Si el ultimo elemento visible esta a 3 posiciones (1 fila) o menos del final, devuelve true
-            //para pedir mas fotos
-            totalItems > 0 && ultimoItem >= (totalItems - 3)
+            //Si el ultimo elemento visible esta a 1 fila del final, da true
+            totalItems > 0 && ultimoItem >= (totalItems - rowProfilePostSize)
+        }
+    }
+
+    LaunchedEffect(stateProcess) {
+        if (stateProcess is ProfileState.Exito) {
+            onNavigateToSettings((stateProcess as ProfileState.Exito).userInfo) //Cambiar obvio a otra cosa
         }
     }
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina, cargamos publicaciones
-    LaunchedEffect(scrollEnElFinal) {
-        if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
-            viewModel.loadPublications()
-        }
-    }
+    //LaunchedEffect(scrollEnElFinal) {
+    //    if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
+    //        viewModel.loadPublications()
+    //    }
+    //}
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3), //Columnas de 3 en 3 publicaciones. Para el tamaño y eso
+        columns = GridCells.Fixed(rowProfilePostSize), //Columnas de 3 en 3 publicaciones. Para el tamaño y eso
         state = gridState,
         modifier = modifier.fillMaxSize()
     )
     {
-        //Aqui cargamos la cabecera
+        //Ponemos la cabecera
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            ProfileHeader(
+                modifier = Modifier,
+                windowSize = windowSize,
+                userName = uiState.nombreUsuario,
+                photoUser = uiState.fotoUsuario,
+                onClickPhoto = { expandedPhotoProfile = true },
+                description = uiState.descripcion,
+                numberOfFollowers = uiState.cantidadSeguidores,
+                numberOfFollowed = uiState.cantidadSeguidos
+            )
+        }
 
         items(uiState.publicaciones) { publicacion ->
-            //Aqui generamos cada publicacione
+            //Aqui generamos cada publicacione, pasarle a cada una que cuando le des onclick
+            //se cambie el mutableState a esa publicacion y asi lo mostramos con un Post
         }
     }
+
+    //Si le has dado click a la foto de perfil, se amplia
+    if (expandedPhotoProfile) {
+        ExpandedPhotoProfile(
+            photoPath = uiState.fotoUsuario,
+            onDismiss = { expandedPhotoProfile = false }
+        )
+    }
+
     if (stateProcess is ProfileState.Cargando) {
         CircularProgressIndicator(
             color = MaterialTheme.colorScheme.onTertiary
         )
     }
 }
-
-@Preview(showBackground = true, name = "Phone - Compact")
-@Composable
-fun PreviewProfileHeaderCompact() {
-    CalenderyFrontTheme { // Reemplaza con el nombre de tu tema
-        ProfileHeader(
-            windowSize = WindowWidthSizeClass.Compact,
-            userName = "Alex Designer",
-            photoUser = "https://example.com/photo.jpg",
-            description = "Entusiasta del UI/UX y amante del café. ☕️ Diseñando el futuro bit a bit.",
-            numberOfFollowers = 1250,
-            numberOfFollowed = 450
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Phone - Compact (Dark)", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun PreviewProfileHeaderCompactDark() {
-    CalenderyFrontTheme {
-        ProfileHeader(
-            windowSize = WindowWidthSizeClass.Compact,
-            userName = "Alex Designer",
-            photoUser = "https://example.com/photo.jpg",
-            description = "Entusiasta del UI/UX y amante del café. ☕️ Diseñando el futuro bit a bit.",
-            numberOfFollowers = 1250,
-            numberOfFollowed = 450
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 700, name = "Tablet - Medium")
-@Composable
-fun PreviewProfileHeaderMedium() {
-    CalenderyFrontTheme() {
-        ProfileHeader(
-            windowSize = WindowWidthSizeClass.Medium,
-            userName = "Alex Designer",
-            photoUser = "https://example.com/photo.jpg",
-            description = "Entusiasta del UI/UX y amante del café. ☕️",
-            numberOfFollowers = 1250,
-            numberOfFollowed = 450
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 900, name = "Desktop - Expanded")
-@Composable
-fun PreviewProfileHeaderExpanded() {
-    CalenderyFrontTheme {
-        ProfileHeader(
-            windowSize = WindowWidthSizeClass.Expanded,
-            userName = "Alex Designer",
-            photoUser = "https://example.com/photo.jpg",
-            description = "Bio extendida para pantallas grandes donde tenemos mucho más espacio para lucir el texto de perfil del usuario.",
-            numberOfFollowers = 9900,
-            numberOfFollowed = 120
-        )
-    }
-}
-
-

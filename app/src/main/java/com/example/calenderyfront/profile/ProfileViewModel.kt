@@ -10,6 +10,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.RetrofitClient
 import com.example.calenderyfront.errorMessages
+import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,14 +25,14 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "", "", "", 0, 0))
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "a", "https://hplwhrjrasmhwsjtawht.supabase.co/storage/v1/object/public/Avatares/Perfil_defecto.png", "a", 0, 0))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
     val state: StateFlow<ProfileState> = _state.asStateFlow()
 
     private var paginaActual = 0
-    private val tamanioPagina = 9
+    private val tamanioPagina = pageSize
 
     init {
         loadProfile()
@@ -55,7 +56,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 cantidadSeguidores = userData.cantidadSeguidores
                             )
                         }
-                        loadPublications()
+                        //loadPublications()
                     } else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     }
