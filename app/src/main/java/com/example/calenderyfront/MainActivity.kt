@@ -30,6 +30,7 @@ import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
+import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import kotlin.reflect.typeOf
 
@@ -60,7 +61,7 @@ fun CalenderyApp(
     navController: NavHostController = rememberNavController(),
 )
 {
-    NavHost(navController = navController, startDestination = Register) {
+    NavHost(navController = navController, startDestination = Redirect) {
 
         composable<Redirect> {
             RedirectScreen(
@@ -120,11 +121,11 @@ fun CalenderyApp(
         )
         {
             SettingScreen(
-                    modifier = Modifier,
-                    windowSize = windowSize,
+                modifier = Modifier,
                 onNavigateToProfile = { userInfo ->
                     navController.navigate((Profile(userInfo)))
-                }
+                },
+                    windowSize = windowSize,
                 )
         }
 

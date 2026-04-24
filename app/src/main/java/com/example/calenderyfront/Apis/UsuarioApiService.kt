@@ -1,16 +1,17 @@
 package com.example.calenderyfront.Apis
 
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
+import com.example.calenderyfront.Model.DataObjects.UrlPhotos
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.DataObjects.UserSettings
-import com.example.calenderyfront.Model.DataObjects.UserValidation
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UsuarioApiService {
@@ -57,11 +58,17 @@ interface UsuarioApiService {
     @POST("api/users/auth/login")
     suspend fun buscarPerfilUsuarioPorCabecera(): Response<UserInfo>
 
+    @GET("")
+    suspend fun obtenerUrlsImagen(@Path ("idUsuario") idUsuario: Int): Response<UrlPhotos>
+
+    @GET("api/users/auth/resendRegistrationToken")
+    suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>
+
     /**
      * Funcion para validar si el usuario esta enable mediante la cabecera
      * para la pantalla de redirigir
      */
     @POST("")
-    suspend fun validarUsuarioPorCabecera(): Response<UserValidation>
+    suspend fun validarUsuarioPorCabecera(): Response<UserInfo>
 
 }

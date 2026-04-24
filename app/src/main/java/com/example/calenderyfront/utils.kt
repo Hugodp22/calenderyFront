@@ -1,5 +1,6 @@
 package com.example.calenderyfront
 
+import android.content.Context
 import android.net.Uri
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -11,6 +12,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -53,6 +56,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.example.calenderyfront.clients.PhotoClient
+import com.example.calenderyfront.userAuth.SessionManager
+import okhttp3.Credentials
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.Request
+import okhttp3.RequestBody
+import okio.BufferedSink
+import okio.source
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 
@@ -162,6 +174,7 @@ fun ExpandedPhotoProfile(
     onDismiss: () -> Unit
 ) {
     var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) } //
 
     Dialog(
         onDismissRequest = onDismiss, //Para cuando le des atras, que se ponga en false el boolean que lo controle en la screen
@@ -184,16 +197,21 @@ fun ExpandedPhotoProfile(
                     .fillMaxSize()
                     .graphicsLayer(
                         scaleX = scale,
-                        scaleY = scale
+                        scaleY = scale,
+                        translationX = offset.x, //Para mover la imagen estando ampliada
+                        translationY = offset.y
                     )
-                    //Para detectar los golpes a la pantalla
                     .pointerInput(Unit) {
-                        detectTapGestures(
-                            onDoubleTap = { //Si es un doble golpe
-                                // Si ya tiene zoom, lo quitamos, si no lo ponemos a por 3.
-                                scale = if (scale > 1f) 1f else 3f
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f) //Limitamos el zoom entre 1 y 5
+
+                            //Solo permitimos mover la imagen si hay zoom
+                            if (scale > 1f) {
+                                offset += pan * scale
+                            } else {
+                                offset = Offset.Zero
                             }
-                        )
+                        }
                     },
                 contentScale = ContentScale.Fit,
                 placeholder = painterResource(R.drawable.ic_launcher_background),
@@ -226,6 +244,47 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
         //que solo se puedan escoger imagenes de momento, a futuro
         //intentar poner videos
         launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+}
+
+/**
+ * Creacion de un RequestBody mediante una Uri obtenida por galeria, para mandarla al bucket la foto
+ */
+fun createUriRequestBody(context: Context, uri: Uri, mediaType: MediaType?): RequestBody {
+    //Creamos un RequestBody
+    return object : RequestBody() {
+        //Sobreescribimos la funcion de contentype para que maneje mediaType
+        override fun contentType() = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
+
+        //Sobreescribimos para leer directamente desde la direccion del uri, los bytes
+        //directamente
+        override fun writeTo(sink: BufferedSink) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                sink.writeAll(inputStream.source())
+            }
+        }
+    }
+}
+
+fun sendImageToBucket(context: Context, uriImage: Uri, urlBucket: String): Boolean {
+    val mediaType = "image/jpeg".toMediaTypeOrNull()
+    val requestBody = createUriRequestBody(context, uriImage, mediaType)
+
+    val request = Request.Builder()
+        .url(urlBucket)
+        .put(requestBody)
+
+    val email = SessionManager.getEmail(context)
+    val keypass = SessionManager.getKeypass(context)
+
+    if (!email.isNullOrBlank() && !keypass.isNullOrBlank()) {
+        val head = Credentials.basic(email,keypass,Charsets.UTF_8)
+        request.header("Authorization", head)
+
+    }
+
+    PhotoClient.client.newCall(request.build()).execute().use { respuesta ->
+        return respuesta.isSuccessful //Dara error si no tiene cabecera
     }
 }
 

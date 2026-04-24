@@ -1,5 +1,6 @@
 package com.example.calenderyfront.settings
 
+import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,9 +8,8 @@ import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
-import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.R
-import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
+import androidx.core.net.toUri
+import com.example.calenderyfront.Model.DataObjects.UserSettings
+import com.example.calenderyfront.sendImageToBucket
 
 class SettingsViewModel(path: SavedStateHandle): ViewModel() {
     private val userInfo = path.toRoute<Settings>(
@@ -79,7 +82,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
         _uiState.update { it.copy(fotoPerfil = nuevaFoto) }
     }
 
-    fun tryChangeSettings() {
+    fun tryChangeSettings(context: Context) {
         val currentUiState = _uiState.value
 
         //Quitamos el mensaje de error
@@ -97,32 +100,71 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
 
         //Se pone la foto por defecto
         if (currentUiState.fotoPerfil.isEmpty()) {
-            _uiState.update { it.copy(fotoPerfil = "https://hplwhrjrasmhwsjtawht.supabase.co/storage/v1/object/public/Avatares/Perfil_defecto.png")}
+            _uiState.update { it.copy(fotoPerfil = "Perfil_defecto.png") }
         }
 
         _state.value = SettingsState.Cargando
-        updateProfile()
+        uploadImage(context)
     }
 
-    fun updateProfile() {
+    fun uploadImage(context: Context) {
         val currentUiState = _uiState.value
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val datosActualizados = UserSettings(
-                    nombre = currentUiState.nombre,
-                    fotoPerfil = currentUiState.fotoPerfil,
-                    descripcion = currentUiState.descripcion
-                )
+                val uriPhoto = currentUiState.fotoPerfil
 
-                //Falta transformar la foto de perfil en archivo para asi mandarlo bien. No se
-                //faltan pruebas aun.
+                if (uriPhoto.startsWith("content://")) {
+                    val uriGallery = uriPhoto.toUri()
 
+                    val respuesta = RetrofitClient.usuarioApi.obtenerUrlsImagen(userInfo.idUsuario)
+
+                    if (respuesta.isSuccessful) {
+                        val urls = respuesta.body()
+
+                        if (urls != null) {
+                            val sendImage = sendImageToBucket(context, uriGallery, urls.signedUrl)
+
+                            if (sendImage) {
+                                uploadProfile()
+                            }
+
+                            else {
+                                _state.value = SettingsState.Error(R.string.Error_photo)
+                            }
+                        }
+                        else {
+                            _state.value = SettingsState.Error(errorMessages(respuesta.code()))
+                        }
+                    }
+                }
+                else {
+                    uploadProfile()
+                }
+            }
+            catch (e: Exception) {
+                _state.value = SettingsState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun uploadProfile() {
+        val currentUiState = _uiState.value
+
+        val datosActualizados = UserSettings(
+            nombre = currentUiState.nombre,
+            fotoPerfil = currentUiState.fotoPerfil,
+            descripcion = currentUiState.descripcion
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
                 val respuesta = RetrofitClient.usuarioApi.cambiarConfiguracionUsuario(userInfo.idUsuario,datosActualizados)
 
                 if (respuesta.isSuccessful) {
                     _state.value = SettingsState.Exito(userInfo)
                 }
+
                 else {
                     val codigoError = respuesta.code()
                     _state.value = SettingsState.Error(errorMessages(codigoError))

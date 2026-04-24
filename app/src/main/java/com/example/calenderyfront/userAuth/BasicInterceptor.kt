@@ -1,7 +1,7 @@
 package com.example.calenderyfront.userAuth
 
 import android.util.Log
-import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.clients.RetrofitClient
 import okhttp3.Credentials
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -21,7 +21,7 @@ class BasicInterceptor: Interceptor {
 
         //Detecta si son las peticiones sin seguridad en el back
         //Falta poner la peticion del login
-        if (url.endsWith("users/auth/register")) {
+        if (url.endsWith("users/auth/register") || url.endsWith("/users/auth/resendRegistrationToken")) {
             return chain.proceed(peticion)
         }
 

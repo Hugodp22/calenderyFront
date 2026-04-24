@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.UserLogin
 import com.example.calenderyfront.R
-import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.Dispatchers

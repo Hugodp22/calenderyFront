@@ -44,6 +44,8 @@ import com.example.calenderyfront.profile.ProfileState
 import com.example.calenderyfront.profile.ProfileViewModel
 import com.example.calenderyfront.rowProfilePostSize
 
+
+
 @Composable
 fun ProfileHeader(
     modifier: Modifier = Modifier,
@@ -89,7 +91,7 @@ fun ProfileHeader(
             horizontalArrangement = Arrangement.SpaceBetween
         )
         {
-            PhotoUserContainer(Modifier.size(photoSize),photoUser,{onClickPhoto()}, R.string.User_profile_foto)
+            PhotoUserContainer(Modifier.size(photoSize),"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQODGxCR4m6d9QvekaDYQFiYEVMYvwS6u7QDw&s",{onClickPhoto()}, R.string.User_profile_foto)
             Row(
                 modifier = Modifier.weight(1f),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -231,7 +233,7 @@ fun ProfileScreen(
     //Si le has dado click a la foto de perfil, se amplia
     if (expandedPhotoProfile) {
         ExpandedPhotoProfile(
-            photoPath = uiState.fotoUsuario,
+            photoPath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQODGxCR4m6d9QvekaDYQFiYEVMYvwS6u7QDw&s",
             onDismiss = { expandedPhotoProfile = false }
         )
     }

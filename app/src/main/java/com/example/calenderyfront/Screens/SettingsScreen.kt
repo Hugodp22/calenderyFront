@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -81,6 +82,8 @@ fun SettingScreen(
 {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
+
+    val context = LocalContext.current
 
     val errorName by viewModel.errorName.collectAsState()
 
@@ -141,7 +144,7 @@ fun SettingScreen(
                 PhotoUserContainer(Modifier.size(containerSize),uiState.fotoPerfil, openGallery,R.string.image_description)
                 InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
                 DescriptionContent(Modifier.fillMaxWidth(width),uiState.descripcion,{viewModel.onDescriptionChange(it)})
-                SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings()},enableButton)
+                SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings(context)},enableButton)
 
                 if (stateProcess is SettingsState.Error) {
                     Text(

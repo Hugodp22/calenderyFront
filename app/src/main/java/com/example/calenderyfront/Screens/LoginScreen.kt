@@ -92,8 +92,8 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
                 SaveButton(R.string.Login_button,windowSize,onClick = { viewModel.tryLogin()},enableButton)
 
                 when (stateProcess) {

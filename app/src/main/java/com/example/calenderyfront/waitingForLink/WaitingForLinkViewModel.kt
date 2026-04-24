@@ -9,7 +9,9 @@ import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
-import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.R
+import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.securityKeyCreation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -84,6 +86,26 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
             }
             catch (e: Exception) {
                 Log.d("WaitingValidation","Error desconocido PK $e")
+            }
+        }
+    }
+
+    fun resendEmail() {
+        _state.value = WaitingForLinkState.Cargando
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.reenviarCorreo(userInfo.idUsuario)
+
+                if (respuesta.isSuccessful) {
+                    _state.value = WaitingForLinkState.Iniciado
+                }
+
+                else {
+                    _state.value = WaitingForLinkState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = WaitingForLinkState.Error(R.string.Error_resend)
             }
         }
     }
