@@ -43,9 +43,17 @@
     <string name="resend_email">Reenviar correo</string>
     <string name="Error_resend">Error al reenviar correo</string>
     <string name="photo_proffile_settings">Foto de perfil</string>
+    <string name="post_description">Publicacion con el siguiente mensaje </string>
     <string name="followers_text">Seguidores</string>
     <string name="followed_text">Seguidos</string>
     <string name="dialog_image_Message">Imagen ampliada</string>
+    <string name="like_Message">Like dado a la publicacion</string>
+    <string name="comment_Message">Comentarios de la publicacion</string>
+    <string name="week_text">"Semana "</string>
+    <string name="settings_profile">Yendo a configuracion de perfil</string>
+    <string name="left_arrow"><![CDATA[<]]></string>
+    <string name="right_arrow"><![CDATA[>]]></string>
+    <string name="no_post_month_message">No hay publicaciones en este mes</string>
 
 
 </resources>

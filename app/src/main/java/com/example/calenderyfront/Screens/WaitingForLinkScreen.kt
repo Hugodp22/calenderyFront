@@ -86,7 +86,9 @@ fun WaitingForLinkScreen(
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                TextLink(R.string.resend_email, { viewModel.resendEmail() }, windowSize)
+                if (stateProcess is WaitingForLinkState.Iniciado || stateProcess is WaitingForLinkState.Error) {
+                    TextLink(R.string.resend_email, { viewModel.resendEmail() }, windowSize)
+                }
 
                 if (stateProcess is WaitingForLinkState.Cargando) {
                     CircularProgressIndicator(

@@ -33,6 +33,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+
+        isCoreLibraryDesugaringEnabled = true
+
     }
     buildFeatures {
         compose = true
@@ -43,6 +46,8 @@ android {
             useLegacyPackaging = false
         }
     }
+
+
 
     @Suppress("UnstableApiUsage")
     experimentalProperties["android.experimental.art-ti.16kb-pages"] = true
@@ -87,4 +92,6 @@ dependencies {
 
     // ViewModel (para que los datos no se borren al girar la pantalla)
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

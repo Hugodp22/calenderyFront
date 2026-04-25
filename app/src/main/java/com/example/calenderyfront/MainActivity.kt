@@ -72,8 +72,8 @@ fun CalenderyApp(
                 onNavigateToWaitingForLink = { userInfo ->
                     navController.navigate(VerifyLink(userInfo))
                 },
-                onNavigateToSettings = { userInfo ->
-                    navController.navigate(Settings(userInfo))
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate(Profile(userInfo)) //Cambiar a profile, que es para probar
                 }
             )
         }
@@ -82,8 +82,14 @@ fun CalenderyApp(
             RegisterScreen(
                 modifier = Modifier,
                 onNavigateToWaiting = { userInfo ->
-                    navController.navigate(VerifyLink(userInfo))
-                                       },
+                    navController.navigate(VerifyLink(userInfo)) {
+                        //Borramos del historial del navController hasta startDestination
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true //Evitamos hacer copias de pantallas.
+                    }
+                                      },
                 onNavigateToLogin = {
                     navController.navigate(Login)
                                     },

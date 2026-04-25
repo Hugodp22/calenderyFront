@@ -117,13 +117,13 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
                 if (uriPhoto.startsWith("content://")) {
                     val uriGallery = uriPhoto.toUri()
 
-                    val respuesta = RetrofitClient.usuarioApi.obtenerUrlsImagen(userInfo.idUsuario)
+                    val respuesta = RetrofitClient.usuarioApi.obtenerUrlSubidaImagen()
 
                     if (respuesta.isSuccessful) {
                         val urls = respuesta.body()
 
                         if (urls != null) {
-                            val sendImage = sendImageToBucket(context, uriGallery, urls.signedUrl)
+                            val sendImage = sendImageToBucket(context, uriGallery, urls.url)
 
                             if (sendImage) {
                                 uploadProfile()
@@ -153,7 +153,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
 
         val datosActualizados = UserSettings(
             nombre = currentUiState.nombre,
-            fotoPerfil = currentUiState.fotoPerfil,
+            fotoPerfil = "",
             descripcion = currentUiState.descripcion
         )
 

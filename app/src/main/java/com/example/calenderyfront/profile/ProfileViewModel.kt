@@ -25,14 +25,18 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "a", "https://hplwhrjrasmhwsjtawht.supabase.co/storage/v1/object/public/Avatares/Perfil_defecto.png", "a", 0, 0))
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "a", "Perfil_defecto.png", "a", 0, 0))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
     val state: StateFlow<ProfileState> = _state.asStateFlow()
 
-    private var paginaActual = 0
-    private val tamanioPagina = pageSize
+    private var currentPage = 0
+    private val currentPageSize = pageSize
+
+    private var lastLoadedYear: Int? = null
+
+    private var lastLoadedMonth: Int? = null
 
     init {
         loadProfile()
@@ -57,20 +61,31 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                             )
                         }
                         //loadPublications()
-                    } else {
+                    }
+                    else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     }
-                } else {
+                }
+                else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            } catch (e: Exception) {
+            }
+            catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
     }
 
-    fun loadPublications() {
+    fun loadPublications(year: Int, month: Int) {
         val currentState = _uiState.value
+
+        //Si cambiamos de mes en el perfil, reseteamos todo
+        if (year != lastLoadedYear || month != lastLoadedMonth) {
+            currentPage = 0
+            _uiState.update { it.copy(ultimaPagina = false, publicaciones = emptyList()) }
+            lastLoadedYear = year
+            lastLoadedMonth = month
+        }
 
         // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
         if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
@@ -78,13 +93,17 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
 
         viewModelScope.launch(Dispatchers.IO) {
+
             _state.value = ProfileState.Cargando
+
             try {
-                //Pedimos mediante el id, una pagina con 9 publicaciones
+                //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
                 val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
-                    userInfo.idUsuario,
-                    paginaActual,
-                    tamanioPagina
+                    userId = userInfo.idUsuario,
+                    page = currentPage,
+                    size = currentPageSize,
+                    month = month,
+                    year = year
                 )
 
                 if (respuesta.isSuccessful) {
@@ -97,10 +116,10 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
                             //Si nos devuelven menos del tamaño de cada pagina, es que ya no hay mas en el server
                             //asi que lo guardamos para evitar hacer peticiones de mas
-                            ultimaPagina = publicacionesCargadas.size < tamanioPagina
+                            ultimaPagina = publicacionesCargadas.size < currentPageSize
                         )}
                         _state.value = ProfileState.paginaCargada
-                        paginaActual++
+                        currentPage++
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -112,4 +131,5 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             }
         }
     }
+
 }
