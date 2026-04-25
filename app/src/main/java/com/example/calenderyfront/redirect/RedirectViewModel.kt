@@ -1,11 +1,8 @@
 package com.example.calenderyfront.redirect
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.Dispatchers
@@ -27,18 +24,34 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
         if (SessionManager.isUserLoggedIn(getApplication())) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    //Si esta aqui, es que tiene cabecera, entonces obtenemos el userInfo
-                    val respuesta = RetrofitClient.usuarioApi.buscarPerfilUsuarioPorCabecera()
+                    //Si esta aqui, es que tiene cabecera, entonces la cuenta existe, pero no sabemos
+                    //si esta validada o no, asi que la validamos.
 
-                    if (respuesta.isSuccessful) {
-                        val userInfo = respuesta.body()
+                    val email = SessionManager.getEmail(getApplication())?.trim()
 
-                        if (userInfo != null) {
-                            isValid(userInfo)
+                    if (email != null) {
+                        val respuesta = RetrofitClient.usuarioApi.validarUsuarioPorCorreo(email)
+
+                        if (respuesta.isSuccessful) {
+                            val userValidation = respuesta.body()
+
+                            if (userValidation != null) {
+
+                                if (userValidation.enable) {
+                                    _state.value = RedirectState.Exito(userValidation.userInfo)
+                                }
+
+                                else {
+                                    _state.value = RedirectState.NoValidate(userValidation.userInfo)
+                                }
+                            }
+                        }
+                        else {
+                            SessionManager.clearSession(getApplication())
+                            _state.value = RedirectState.NoLogin
                         }
                     }
                     else {
-                        SessionManager.clearSession(getApplication())
                         _state.value = RedirectState.NoLogin
                     }
                 }
@@ -48,28 +61,9 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
                 }
             }
         }
+
         else {
-            SessionManager.clearSession(getApplication())
             _state.value = RedirectState.NoLogin
-        }
-    }
-
-    fun isValid(userInfo: UserInfo) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val respuesta = RetrofitClient.usuarioApi.validarUsuario(userInfo.idUsuario)
-
-                if (respuesta.isSuccessful) {
-                    _state.value = RedirectState.Exito(userInfo)
-                }
-                else {
-                    _state.value = RedirectState.NoValidate(userInfo)
-                }
-            }
-            catch (e: Exception) {
-                SessionManager.clearSession(getApplication())
-                _state.value = RedirectState.NoLogin
-            }
         }
     }
 

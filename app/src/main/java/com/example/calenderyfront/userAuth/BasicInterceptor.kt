@@ -21,7 +21,7 @@ class BasicInterceptor: Interceptor {
 
         //Detecta si son las peticiones sin seguridad en el back
         //Falta poner la peticion del login
-        if (url.endsWith("users/auth/register") || url.endsWith("/users/auth/resendRegistrationToken")) {
+        if (url.endsWith("users/auth/register") || url.endsWith("/users/auth/resendRegistrationToken") || url.endsWith("/users/auth/validateUser")) {
             return chain.proceed(peticion)
         }
 

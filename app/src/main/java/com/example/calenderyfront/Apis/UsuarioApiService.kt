@@ -6,6 +6,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.DataObjects.UserSettings
+import com.example.calenderyfront.Model.DataObjects.UserValidation
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -58,8 +59,11 @@ interface UsuarioApiService {
     @POST("api/users/auth/login")
     suspend fun buscarPerfilUsuarioPorCabecera(): Response<UserInfo>
 
-    @GET("")
-    suspend fun obtenerUrlsImagen(@Path ("idUsuario") idUsuario: Int): Response<UrlPhotos>
+    @GET("api/users/auth/validateUser")
+    suspend fun validarUsuarioPorCorreo(@Query("email",encoded = true) email: String): Response<UserValidation>
+
+    @GET("api/users/app/getUploadProfileSignedUrl")
+    suspend fun obtenerUrlSubidaImagen(): Response<UrlPhotos>
 
     @GET("api/users/auth/resendRegistrationToken")
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>

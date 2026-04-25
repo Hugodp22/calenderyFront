@@ -24,7 +24,7 @@ fun RedirectScreen(
     modifier: Modifier = Modifier,
     onNavigateToLogin: () -> Unit,
     onNavigateToWaitingForLink: (UserInfo) -> Unit,
-    onNavigateToSettings: (UserInfo) -> Unit,
+    onNavigateToProfile: (UserInfo) -> Unit,
     viewModel: RedirectViewModel = viewModel()
     )
 {
@@ -32,7 +32,7 @@ fun RedirectScreen(
 
     LaunchedEffect(stateProcess) {
         if (stateProcess is RedirectState.Exito) {
-            onNavigateToSettings((stateProcess as RedirectState.Exito).userInfo) //En un futuro, ponerlo a la screen home
+            onNavigateToProfile((stateProcess as RedirectState.Exito).userInfo) //En un futuro, ponerlo a la screen home
         }
 
         else if (stateProcess is RedirectState.NoLogin) {
