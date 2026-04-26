@@ -23,7 +23,7 @@ data class PublicacionProfile(
     val fechaPublicacion: Instant, //Fecha real en la que lo subiste
 )
 
-data class timeData(
+data class TimeData(
     val anio : Int,
     val semana: Int,
     val fechaReferencia: LocalDate

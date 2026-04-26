@@ -28,6 +28,9 @@ data class Home(val userInfo: UserInfo)
 @Serializable
 data class Profile(val userInfo: UserInfo)
 
+@Serializable
+data class Upload(val userInfo: UserInfo)
+
 
 /**
  * NavType personalizado para que sea capaz de utilizar el objeto UserInfo para pasarlo entre

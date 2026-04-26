@@ -50,7 +50,7 @@ import com.example.calenderyfront.ExpandedPhotoPostProfile
 import com.example.calenderyfront.ExpandedPhotoProfile
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Model.DataObjects.timeData
+import com.example.calenderyfront.Model.DataObjects.TimeData
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.profile.ProfileState
@@ -160,6 +160,7 @@ fun ProfileHeader(
     photoUser: String,
     onClickPhoto: () -> Unit,
     onClickSettings: () -> Unit,
+    onClickUpload: () -> Unit,
     description: String?,
     numberOfFollowers: Int = 0,
     numberOfFollowed: Int = 0,
@@ -238,20 +239,43 @@ fun ProfileHeader(
             Spacer(Modifier.padding(bottom = 16.dp))
         }
 
-        IconButton(
-            onClick = onClickSettings,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 24.dp, end = 18.dp)
+        IconsBox(
+            modifier = Modifier.align(Alignment.TopEnd).padding(top = 24.dp, end = 18.dp),
+            onClickUpload =  onClickUpload,
+            onClickSettings = onClickSettings,
         )
-        {
+    }
+}
+
+@Composable
+fun IconsBox(
+    modifier : Modifier = Modifier,
+    onClickUpload: () -> Unit,
+    onClickSettings: () -> Unit,
+)
+{
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    )
+    {
+        IconButton(onClick = onClickUpload) {
+            Icon(
+                painter = painterResource(id = R.drawable.upload),
+                contentDescription = stringResource(R.string.post_profile),
+            )
+        }
+
+        IconButton(onClick = onClickSettings) {
             Icon(
                 painter = painterResource(R.drawable.settings),
-                contentDescription = stringResource(R.string.settings_profile),
+                contentDescription = stringResource(R.string.settings_profile)
             )
         }
     }
 }
+
 
 @Composable
 fun ProfileStat(
@@ -284,14 +308,14 @@ fun ProfileStat(
 
 @Composable
 fun WeekTitle(
-    timeData: timeData,
+    timeData: TimeData,
     windowSize: WindowWidthSizeClass
 )
 {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 24.sp
-        WindowWidthSizeClass.Medium -> 26.sp
-        WindowWidthSizeClass.Expanded -> 28.sp
+        WindowWidthSizeClass.Medium -> 34.sp
+        WindowWidthSizeClass.Expanded -> 36.sp
         else -> 24.sp
     }
 
@@ -364,18 +388,24 @@ fun MonthTitle(
         fistDayOfMonth.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
 
     Card(
-        modifier = Modifier.fillMaxWidth(0.5F).background(color = MaterialTheme.colorScheme.primary)
+        modifier = Modifier
+            .fillMaxWidth(0.5F)
+            .background(color = MaterialTheme.colorScheme.primary)
     )
     {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         )
         {
             Text(
                 text = stringResource(R.string.left_arrow),
-                modifier = Modifier.clickable { onPreviousMonth() }.padding(16.dp),
+                modifier = Modifier
+                    .clickable { onPreviousMonth() }
+                    .padding(16.dp),
                 fontSize = fontSizeArrows,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.tertiary
@@ -411,7 +441,7 @@ fun MonthTitle(
 /**
  * Funcion para ordenar las publicaciones, mediante su mes, y dentro del mes, mediante numero de semana
  */
-fun getGroupedPosts(publicaciones: List<PublicacionProfile>): SortedMap<LocalDate, SortedMap<timeData, List<PublicacionProfile>>> {
+fun getGroupedPosts(publicaciones: List<PublicacionProfile>): SortedMap<LocalDate, SortedMap<TimeData, List<PublicacionProfile>>> {
     //Obtenemos cuando acaba una semana a nivel regional
     val weekFields = WeekFields.of(getDefault())
 
@@ -425,7 +455,7 @@ fun getGroupedPosts(publicaciones: List<PublicacionProfile>): SortedMap<LocalDat
                     // Calculamos el numero de semana del mes
                     val numSemana = post.fechaCalendario.get(weekFields.weekOfMonth())
 
-                    timeData(
+                    TimeData(
                         anio = post.fechaCalendario.year,
                         semana = numSemana,
                         fechaReferencia = monthEntry.key //Obtenemos el dia 1 de ese mes
@@ -444,6 +474,7 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     onNavigateToSettings: (UserInfo) -> Unit,
+    onNavigateToUpload: (UserInfo) -> Unit,
     viewModel: ProfileViewModel = viewModel(),
 )
 {
@@ -463,11 +494,9 @@ fun ProfileScreen(
     //Para detectar cuando el scroll esta en el final
     val scrollEnElFinal by remember {
         derivedStateOf {
-            //Obtenemos del lazy la cantidad total de elementos
-            val totalItems = gridState.layoutInfo.totalItemsCount
+            val totalItems = gridState.layoutInfo.totalItemsCount //Obtenemos del lazy la cantidad total de elementos
 
-            //Obtenemos el indice del ultimo item cargado
-            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 //Obtenemos el indice del ultimo item cargado
 
             //Si el ultimo elemento visible esta a 1 fila del final, da true
             totalItems > 0 && ultimoItem >= (totalItems - rowProfilePostSize)
@@ -482,13 +511,13 @@ fun ProfileScreen(
 
     LaunchedEffect(currentMonth) {
         gridState.scrollToItem(0) //Cuando cambiemos de mes, vamos al indice 0 para volver arriba y no quedarnos abajo
-        //viewModel.loadPublications(currentMonth.year, currentMonth.monthValue)
+        //viewModel.loadPublicationsByDate(currentMonth.year, currentMonth.monthValue)
     }
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
     //LaunchedEffect(scrollEnElFinal) {
     //    if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
-    //        viewModel.loadPublications(currentMonth.year, currentMonth.monthValue) //Cambiar a loadPublications por mes
+    //        viewModel.loadPublicationsByDate(currentMonth.year, currentMonth.monthValue)
     //    }
     //}
 
@@ -513,6 +542,7 @@ fun ProfileScreen(
                 photoUser = uiState.fotoUsuario,
                 onClickPhoto = { expandedPhotoProfile = true },
                 onClickSettings = {onNavigateToSettings(uiState.usuario)},
+                onClickUpload = { onNavigateToUpload(uiState.usuario) },
                 description = uiState.descripcion,
                 numberOfFollowers = uiState.cantidadSeguidores,
                 numberOfFollowed = uiState.cantidadSeguidos
@@ -551,7 +581,9 @@ fun ProfileScreen(
             else {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Box(
-                        modifier = Modifier.fillMaxWidth().padding(40.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(40.dp),
                         contentAlignment = Alignment.Center
                     )
                     {
@@ -578,7 +610,7 @@ fun ProfileScreen(
             post = it,
             onDismiss = { selectedPost = null },
             onClickLikes = {},
-            onClickComents = {},
+            onClickComments = {},
             windowSize = windowSize
         )
     }

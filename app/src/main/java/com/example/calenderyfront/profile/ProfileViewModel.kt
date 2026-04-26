@@ -25,7 +25,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "a", "Perfil_defecto.png", "a", 0, 0))
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "", "Perfil_defecto.png", "", 0, 0))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
@@ -76,7 +76,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
-    fun loadPublications(year: Int, month: Int) {
+    fun loadPublicationsByDate(year: Int, month: Int) {
         val currentState = _uiState.value
 
         //Si cambiamos de mes en el perfil, reseteamos todo
@@ -93,9 +93,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-
             _state.value = ProfileState.Cargando
-
             try {
                 //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
                 val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
@@ -111,14 +109,13 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
                     if (publicacionesCargadas != null) {
                         _uiState.update { it.copy(
-                            //Juntamos las que ya teníamos con las nuevas
                             publicaciones = it.publicaciones + publicacionesCargadas,
 
                             //Si nos devuelven menos del tamaño de cada pagina, es que ya no hay mas en el server
                             //asi que lo guardamos para evitar hacer peticiones de mas
                             ultimaPagina = publicacionesCargadas.size < currentPageSize
                         )}
-                        _state.value = ProfileState.paginaCargada
+                        _state.value = ProfileState.PaginaCargada
                         currentPage++
                     }
                     else {
@@ -127,9 +124,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 }
             }
             catch (e: Exception) {
-
+                _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
     }
-
 }

@@ -12,7 +12,6 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UsuarioApiService {
@@ -63,7 +62,7 @@ interface UsuarioApiService {
     suspend fun validarUsuarioPorCorreo(@Query("email",encoded = true) email: String): Response<UserValidation>
 
     @GET("api/users/app/getUploadProfileSignedUrl")
-    suspend fun obtenerUrlSubidaImagen(): Response<UrlPhotos>
+    suspend fun obtenerUrlSubidaImagenAvatares(): Response<UrlPhotos>
 
     @GET("api/users/auth/resendRegistrationToken")
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>

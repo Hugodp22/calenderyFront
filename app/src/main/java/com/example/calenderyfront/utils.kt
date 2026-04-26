@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -150,6 +151,39 @@ fun InputCreation(
 }
 
 /**
+ * Creacion del contenedor para poner descripcion amplia, con limite configurable
+ * para que el usuario no se pase demasiado
+ */
+@Composable
+fun MessageLimitContent(modifier: Modifier = Modifier, @StringRes placeHolder: Int, description: String?, onValueChange: (String) -> Unit, limite : Int = 150) {
+    val cantidadMaxima: Int = limite
+
+    OutlinedTextField (
+        value = description ?: "",
+        onValueChange = {
+            //Le ponemos limite a la descripcion
+            if (it.length <= cantidadMaxima) {
+                onValueChange(it)
+            }
+        },
+        modifier = modifier.height(120.dp),
+        placeholder = { Text(stringResource(placeHolder))},
+        maxLines = 3,
+        singleLine = false,
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+            focusedBorderColor = Color(0xFF4285F4),
+            unfocusedBorderColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedTextColor = Color.Gray,
+            focusedTextColor = MaterialTheme.colorScheme.tertiary
+        )
+    )
+}
+
+/**
  * Funcion preparada para crear contenedores de imagenes con diferentes funciones
  * pensado para usar tanto para cambiar foto como para ampliar la foto en caso
  * de que quieras verla claro.
@@ -265,7 +299,7 @@ fun ExpandedPhotoPostProfile(
     post: PublicacionProfile,
     onDismiss: () -> Unit,
     onClickLikes: () -> Unit,
-    onClickComents: () -> Unit,
+    onClickComments: () -> Unit,
     windowSize: WindowWidthSizeClass
 )
 {
@@ -338,7 +372,7 @@ fun ExpandedPhotoPostProfile(
 
             {
                 IconPostDialog(Modifier.size(iconSize),R.drawable.favourite,R.string.like_Message,{onClickLikes})
-                IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,{onClickComents})
+                IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,{onClickComments})
             }
         }
     }

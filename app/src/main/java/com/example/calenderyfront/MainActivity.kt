@@ -21,6 +21,7 @@ import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.Register
 import com.example.calenderyfront.Model.DataObjects.Settings
+import com.example.calenderyfront.Model.DataObjects.Upload
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
@@ -29,6 +30,7 @@ import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
+import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
@@ -73,7 +75,7 @@ fun CalenderyApp(
                     navController.navigate(VerifyLink(userInfo))
                 },
                 onNavigateToProfile = { userInfo ->
-                    navController.navigate(Profile(userInfo)) //Cambiar a profile, que es para probar
+                    navController.navigate(Profile(userInfo))
                 }
             )
         }
@@ -84,6 +86,7 @@ fun CalenderyApp(
                 onNavigateToWaiting = { userInfo ->
                     navController.navigate(VerifyLink(userInfo)) {
                         //Borramos del historial del navController hasta startDestination
+                        //que seria el redirect, para asi evitar errores al poder ir hacia atras
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
                         }
@@ -116,7 +119,7 @@ fun CalenderyApp(
                     navController.navigate(Register)
                 },
                 onNavigateToProfile = { userInfo ->
-                    navController.navigate(Settings(userInfo))
+                    navController.navigate(Profile(userInfo))
                 },
                 windowSize = windowSize,
             )
@@ -144,6 +147,22 @@ fun CalenderyApp(
                 windowSize = windowSize,
                 onNavigateToSettings = { userInfo ->
                     navController.navigate(Settings(userInfo))
+                },
+                onNavigateToUpload = { userInfo ->
+                    navController.navigate(Upload(userInfo))
+                }
+            )
+        }
+
+        composable<Upload>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            UploadScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate(Profile(userInfo))
                 }
             )
         }
