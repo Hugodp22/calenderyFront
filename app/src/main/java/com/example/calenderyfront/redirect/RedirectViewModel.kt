@@ -56,7 +56,6 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
                     }
                 }
                 catch (e: Exception) {
-                    SessionManager.clearSession(getApplication())
                     _state.value = RedirectState.NoLogin
                 }
             }

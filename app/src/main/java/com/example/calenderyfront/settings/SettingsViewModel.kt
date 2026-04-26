@@ -1,6 +1,7 @@
 package com.example.calenderyfront.settings
 
 import android.content.Context
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,9 +9,11 @@ import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
+import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
+import com.example.calenderyfront.sendImageToBucket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
-import androidx.core.net.toUri
-import com.example.calenderyfront.Model.DataObjects.UserSettings
-import com.example.calenderyfront.sendImageToBucket
 
 class SettingsViewModel(path: SavedStateHandle): ViewModel() {
     private val userInfo = path.toRoute<Settings>(
@@ -117,7 +117,7 @@ class SettingsViewModel(path: SavedStateHandle): ViewModel() {
                 if (uriPhoto.startsWith("content://")) {
                     val uriGallery = uriPhoto.toUri()
 
-                    val respuesta = RetrofitClient.usuarioApi.obtenerUrlSubidaImagen()
+                    val respuesta = RetrofitClient.usuarioApi.obtenerUrlSubidaImagenAvatares()
 
                     if (respuesta.isSuccessful) {
                         val urls = respuesta.body()

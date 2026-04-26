@@ -5,16 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -30,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
+import com.example.calenderyfront.MessageLimitContent
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
@@ -38,39 +35,6 @@ import com.example.calenderyfront.galleryLauncher
 import com.example.calenderyfront.settings.SettingsState
 import com.example.calenderyfront.settings.SettingsViewModel
 import com.example.calenderyfront.ui.theme.BebasNeue
-
-/**
- * Creacion del contenedor para poner descripcion amplia, con limite configurable
- * para que el usuario no se pase demasiado
- */
-@Composable
-fun DescriptionContent( modifier: Modifier = Modifier,description: String?, onValueChange: (String) -> Unit,limite : Int = 150) {
-    val cantidadMaxima: Int = limite
-
-    OutlinedTextField (
-        value = description ?: "",
-        onValueChange = {
-            //Le ponemos limite a la descripcion
-            if (it.length <= cantidadMaxima) {
-                onValueChange(it)
-            }
-                        },
-        modifier = modifier.height(120.dp),
-        placeholder = { Text(stringResource(R.string.share_description_Mesagge))},
-        maxLines = 3,
-        singleLine = false,
-        shape = RoundedCornerShape(16.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-            focusedBorderColor = Color(0xFF4285F4),
-            unfocusedBorderColor = Color.Gray,
-            cursorColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTextColor = Color.Gray,
-            focusedTextColor = MaterialTheme.colorScheme.tertiary
-        )
-    )
-}
 
 @Composable
 fun SettingScreen(
@@ -143,7 +107,7 @@ fun SettingScreen(
 
                 PhotoUserContainer(Modifier.size(containerSize),uiState.fotoPerfil, openGallery,R.string.image_description)
                 InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
-                DescriptionContent(Modifier.fillMaxWidth(width),uiState.descripcion,{viewModel.onDescriptionChange(it)})
+                MessageLimitContent(Modifier.fillMaxWidth(width),R.string.share_description_Mesagge,uiState.descripcion,{viewModel.onDescriptionChange(it)})
                 SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings(context)},enableButton)
 
                 if (stateProcess is SettingsState.Error) {

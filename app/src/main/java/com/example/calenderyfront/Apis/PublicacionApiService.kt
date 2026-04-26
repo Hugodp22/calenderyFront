@@ -1,6 +1,7 @@
 package com.example.calenderyfront.Apis
 
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
+import com.example.calenderyfront.Model.DataObjects.UrlPhotos
 import com.example.calenderyfront.pageSize
 import retrofit2.Response
 import retrofit2.http.Body
@@ -25,5 +26,8 @@ interface PublicacionApiService {
 
     @PUT("")
     suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
+
+    @GET("api/users/app/")
+    suspend fun obtenerUrlSubidaImagenPublicaciones(): Response<UrlPhotos>
 
 }

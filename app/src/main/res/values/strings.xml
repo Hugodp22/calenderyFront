@@ -54,6 +54,12 @@
     <string name="left_arrow"><![CDATA[<]]></string>
     <string name="right_arrow"><![CDATA[>]]></string>
     <string name="no_post_month_message">No hay publicaciones en este mes</string>
+    <string name="post_profile">Post a photo</string>
+    <string name="select_photo_upload">Selecciona una foto de tu galeria</string>
+    <string name="selected_image">Imagen seleccionada</string>
+    <string name="upload">Subir</string>
+    <string name="select_image_upload">Selecciona una imagen</string>
+    <string name="upload_message">Pon un mensaje!!!</string>
 
 
 </resources>
