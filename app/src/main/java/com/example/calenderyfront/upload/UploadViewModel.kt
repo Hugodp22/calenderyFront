@@ -1,6 +1,5 @@
 package com.example.calenderyfront.upload
 
-import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -12,7 +11,6 @@ import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
-import com.example.calenderyfront.sendImageToBucket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,12 +35,9 @@ class UploadViewModel(path: SavedStateHandle): ViewModel() {
         _uiState.update { it.copy(fotoSubir = nuevaFoto) }
     }
 
-    fun onMessageChange(mensaje: String) {
-        _uiState.update { it.copy(mensaje = mensaje) }
-    }
+    fun uploadPhoto() {
+        _state.value = UploadState.Cargando //PONER CARGANDO QUE EXITO ES PA PROBAR
 
-    fun uploadPhoto(context: Context) {
-        _state.value = UploadState.Cargando
         val currentUiState = _uiState.value
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -50,19 +45,14 @@ class UploadViewModel(path: SavedStateHandle): ViewModel() {
                 val uriPhoto = currentUiState.fotoSubir
 
                 if (uriPhoto.startsWith("content://")) {
-                    val uriGallery = uriPhoto.toUri()
 
                     val respuesta = RetrofitClient.publicacionApi.obtenerUrlSubidaImagenPublicaciones()
 
                     if (respuesta.isSuccessful) {
-                        val urls = respuesta.body()
+                        val postData = respuesta.body() //Me devuelve, el url y el id de la publicacione y yo llevo eso mas la imagen.
 
-                        if (urls != null) {
-                            val sendImage = sendImageToBucket(context, uriGallery, urls.url)
-
-                            if (sendImage) {
-                                //uploadMessage(currentUiState)
-                            }
+                        if (postData != null) {
+                            _state.value = UploadState.Exito(userInfo,postData.idPost,postData.url)
                         }
                     }
                     else {
@@ -75,9 +65,5 @@ class UploadViewModel(path: SavedStateHandle): ViewModel() {
                 _state.value = UploadState.Error(R.string.Error_Network)
             }
         }
-    }
-
-    fun uploadMessage(currentUiState: UploadUiState) {
-
     }
 }

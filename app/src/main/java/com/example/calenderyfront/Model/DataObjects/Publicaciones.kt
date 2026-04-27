@@ -23,8 +23,18 @@ data class PublicacionProfile(
     val fechaPublicacion: Instant, //Fecha real en la que lo subiste
 )
 
+data class PostData(
+    val idUsuario: Int,
+    val idPost: Int,
+    val message: String,
+    val month: Int,
+    val year: Int
+)
+
 data class TimeData(
     val anio : Int,
     val semana: Int,
     val fechaReferencia: LocalDate
 )
+
+

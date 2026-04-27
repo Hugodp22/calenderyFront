@@ -53,12 +53,11 @@ fun PostMessageInput(
 fun UploadScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
-    onNavigateToProfile: (UserInfo) -> Unit,
+    onNavigateToUpload: (UserInfo,Int, String, String) -> Unit,
     viewModel: UploadViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
-    val context = LocalContext.current
     val enableButton = stateProcess !is UploadState.Cargando && stateProcess !is UploadState.Exito
 
     val iconSize = when (windowSize) {
@@ -95,7 +94,12 @@ fun UploadScreen(
 
     LaunchedEffect(stateProcess) {
         if (stateProcess is UploadState.Exito) {
-            onNavigateToProfile((stateProcess as UploadState.Exito).userInfo)
+            onNavigateToUpload(
+                (stateProcess as UploadState.Exito).userInfo,
+                (stateProcess as UploadState.Exito).postId,
+                uiState.fotoSubir,
+                (stateProcess as UploadState.Exito).photoUrl
+            )
         }
     }
 
@@ -147,14 +151,10 @@ fun UploadScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            MessageLimitContent(Modifier.fillMaxWidth(width),R.string.upload_message,"",{viewModel.onMessageChange(it)})
-
-            Spacer(modifier = Modifier.height(32.dp))
-
             SaveButton(
                 textButton = R.string.upload,
                 windowSize = windowSize,
-                onClick = { viewModel.uploadPhoto(context) },
+                onClick = { viewModel.uploadPhoto() },
                 enable = enableButton
             )
 

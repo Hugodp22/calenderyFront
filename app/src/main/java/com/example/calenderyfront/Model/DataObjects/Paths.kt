@@ -31,6 +31,9 @@ data class Profile(val userInfo: UserInfo)
 @Serializable
 data class Upload(val userInfo: UserInfo)
 
+@Serializable
+data class PostDataUpload(val userInfo: UserInfo, val postId: Int, val photoPath: String, val photoUrl: String)
+
 
 /**
  * NavType personalizado para que sea capaz de utilizar el objeto UserInfo para pasarlo entre

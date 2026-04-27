@@ -210,6 +210,7 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
             .clip(CircleShape)
             .clickable { onClick() }
             .background(MaterialTheme.colorScheme.primary),
+        placeholder = painterResource(R.drawable.ic_launcher_background),
         contentScale = ContentScale.Crop, //O .Crop
         error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
     )
