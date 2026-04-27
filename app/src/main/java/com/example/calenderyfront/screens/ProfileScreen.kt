@@ -48,9 +48,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.calenderyfront.ExpandedPhotoPostProfile
 import com.example.calenderyfront.ExpandedPhotoProfile
-import com.example.calenderyfront.Model.dataObjects.PublicacionProfile
-import com.example.calenderyfront.Model.dataObjects.UserInfo
-import com.example.calenderyfront.Model.dataObjects.TimeData
+import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.TimeData
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.profile.ProfileState

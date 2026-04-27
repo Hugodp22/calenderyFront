@@ -1,7 +1,7 @@
 package com.example.calenderyfront.screens.home
 
-import com.example.calenderyfront.Model.dataObjects.PublicacionHome
-import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.PublicacionHome
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 
 data class HomeUiState(
     val userInfo: UserInfo,

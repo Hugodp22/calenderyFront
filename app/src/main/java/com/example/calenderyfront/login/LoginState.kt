@@ -1,6 +1,6 @@
 package com.example.calenderyfront.login
 
-import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 
 sealed class LoginState {
     object Iniciado : LoginState() //Estado base

@@ -64,7 +64,7 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
-import com.example.calenderyfront.Model.dataObjects.PublicacionProfile
+import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.clients.PhotoClient
 import com.example.calenderyfront.userAuth.SessionManager
 import okhttp3.Credentials
