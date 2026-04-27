@@ -1,6 +1,6 @@
 package com.example.calenderyfront.screens.home
 
-import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 
 sealed class HomeState {
     object Iniciado : HomeState() //Estado base

@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.dataObjects
+package com.example.calenderyfront.Model.DataObjects
 
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp

@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.calenderyfront.Model.dataObjects.PublicacionHome
+import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 
 
 @Composable

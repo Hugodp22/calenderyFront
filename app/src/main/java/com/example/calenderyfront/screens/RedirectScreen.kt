@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.redirect.RedirectState
 import com.example.calenderyfront.redirect.RedirectViewModel
 

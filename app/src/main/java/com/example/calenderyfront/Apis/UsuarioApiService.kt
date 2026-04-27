@@ -1,12 +1,12 @@
 package com.example.calenderyfront.Apis
 
-import com.example.calenderyfront.Model.dataObjects.PublicKeyDto
-import com.example.calenderyfront.Model.dataObjects.UrlPhotos
-import com.example.calenderyfront.Model.dataObjects.UserInfo
-import com.example.calenderyfront.Model.dataObjects.UserProfile
-import com.example.calenderyfront.Model.dataObjects.UserRegister
-import com.example.calenderyfront.Model.dataObjects.UserSettings
-import com.example.calenderyfront.Model.dataObjects.UserValidation
+import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
+import com.example.calenderyfront.Model.DataObjects.UrlPhotos
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserProfile
+import com.example.calenderyfront.Model.DataObjects.UserRegister
+import com.example.calenderyfront.Model.DataObjects.UserSettings
+import com.example.calenderyfront.Model.DataObjects.UserValidation
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

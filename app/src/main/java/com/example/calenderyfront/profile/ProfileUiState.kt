@@ -1,7 +1,7 @@
 package com.example.calenderyfront.profile
 
-import com.example.calenderyfront.Model.dataObjects.PublicacionProfile
-import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 
 data class ProfileUiState(
     val usuario: UserInfo,

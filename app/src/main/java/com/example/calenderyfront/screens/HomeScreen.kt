@@ -40,8 +40,8 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
-import com.example.calenderyfront.Model.dataObjects.PublicacionHome
-import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.PublicacionHome
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.rowProfilePostSize
