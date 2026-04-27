@@ -1,6 +1,6 @@
 package com.example.calenderyfront.settings
 
-import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfo
 
 sealed class SettingsState {
     object Iniciado : SettingsState() //Estado base

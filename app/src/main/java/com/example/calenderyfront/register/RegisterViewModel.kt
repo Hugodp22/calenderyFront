@@ -3,7 +3,7 @@ package com.example.calenderyfront.register
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.calenderyfront.Model.DataObjects.UserRegister
+import com.example.calenderyfront.Model.dataObjects.UserRegister
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages

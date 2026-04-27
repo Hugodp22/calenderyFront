@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Screens.MainScreen.Scaffold
+package com.example.calenderyfront.screens.mainScreem.Scaffold
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -19,6 +19,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.calenderyfront.R
 
 
+//Mover a MainActivity, pasarle funciones en vez del nav, investigar como coño pasarle el UserInfo
+//Hacer tamaño dinamico tanto aqui como en el HomeScreen, cambiar nombres de imagenes de drawable
+
+//PARA CADA PUTA COSA QUE HAGAS Y ACABES, HACES PR Y UPDATEAS EL PUTO MAIN
+
 @Composable
 fun HomeBottomBar(navController: NavController) {
 
@@ -27,11 +32,8 @@ fun HomeBottomBar(navController: NavController) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.primary,
         modifier = Modifier.navigationBarsPadding()
-    ) {
-
-        /**
-         * HOME
-         */
+    )
+    {
         NavigationBarItem(
             selected = currentRoute?.destination?.route == "home",
             onClick = {
@@ -51,7 +53,8 @@ fun HomeBottomBar(navController: NavController) {
                             else Color.Transparent
                         )
                         .padding(6.dp)
-                ) {
+                )
+                {
                     Icon(
                         painter = painterResource(R.drawable.home_claro),
                         contentDescription = "Home",
@@ -62,9 +65,6 @@ fun HomeBottomBar(navController: NavController) {
             alwaysShowLabel = false
         )
 
-        /**
-         * SEARCH
-         */
         NavigationBarItem(
             selected = currentRoute?.destination?.route == "search",
             onClick = { navController.navigate("search") },
@@ -78,9 +78,7 @@ fun HomeBottomBar(navController: NavController) {
             alwaysShowLabel = false
         )
 
-        /**
-         * CALENDAR
-         */
+
         NavigationBarItem(
             selected = currentRoute?.destination?.route == "calendar",
             onClick = { navController.navigate("calendar") },
@@ -94,9 +92,6 @@ fun HomeBottomBar(navController: NavController) {
             alwaysShowLabel = false
         )
 
-        /**
-         * PROFILE
-         */
         NavigationBarItem(
             selected = currentRoute?.destination?.route == "profile",
             onClick = { navController.navigate("profile") },

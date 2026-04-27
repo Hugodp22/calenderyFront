@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.DataObjects
+package com.example.calenderyfront.Model.dataObjects
 
 import android.net.Uri
 import android.os.Bundle

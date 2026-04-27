@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.DataObjects
+package com.example.calenderyfront.Model.dataObjects
 
 import java.time.Instant
 import java.time.LocalDate

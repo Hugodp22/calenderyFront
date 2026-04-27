@@ -41,8 +41,6 @@
     <string name="waiting_link_title">Correo de verificacion</string>
     <string name="link_waiting_message">Se te ha enviado un correo al email introducido para que verifiques la creacion de la cuenta</string>
     <string name="feed">feed</string>
-    <string name="waiting_link_title">Correo de verificación</string>
-    <string name="link_waiting_message">Se te ha enviado un correo al email introducido para que verifiques la creación de la cuenta</string>
     <string name="resend_email">Reenviar correo</string>
     <string name="Error_resend">Error al reenviar correo</string>
     <string name="photo_proffile_settings">Foto de perfil</string>

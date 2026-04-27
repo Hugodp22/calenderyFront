@@ -1,9 +1,9 @@
 package com.example.calenderyfront.Apis
 
-import com.example.calenderyfront.Model.DataObjects.PostData
-import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
-import com.example.calenderyfront.Model.DataObjects.UrlPhotos
-import com.example.calenderyfront.Model.DataObjects.UrlPost
+import com.example.calenderyfront.Model.dataObjects.PostData
+import com.example.calenderyfront.Model.dataObjects.PublicacionHome
+import com.example.calenderyfront.Model.dataObjects.PublicacionProfile
+import com.example.calenderyfront.Model.dataObjects.UrlPost
 import com.example.calenderyfront.pageSize
 import retrofit2.Response
 import retrofit2.http.Body
@@ -34,5 +34,8 @@ interface PublicacionApiService {
 
     @PUT("")
     suspend fun mandarDatosPost(@Body postData: PostData):Response<Unit>
+
+    @GET("")
+    suspend fun obtenerPublicacionesHome(@Query("page") page: Int, @Query("size") size : Int = pageSize): Response<List<PublicacionHome>>
 
 }

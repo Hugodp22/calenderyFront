@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Screens
+package com.example.calenderyfront.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,13 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
-import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfo
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.TextLink
 import com.example.calenderyfront.login.LoginState
 import com.example.calenderyfront.login.LoginViewModel
-import com.example.calenderyfront.register.RegisterState
 import com.example.calenderyfront.ui.theme.BebasNeue
 
 /**

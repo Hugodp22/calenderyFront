@@ -6,10 +6,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.example.calenderyfront.Model.DataObjects.Settings
-import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
-import com.example.calenderyfront.Model.DataObjects.UserSettings
+import com.example.calenderyfront.Model.dataObjects.Settings
+import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfoNavType
+import com.example.calenderyfront.Model.dataObjects.UserSettings
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages

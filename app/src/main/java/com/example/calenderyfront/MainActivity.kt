@@ -16,25 +16,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.calenderyfront.Model.DataObjects.Login
-import com.example.calenderyfront.Model.DataObjects.Profile
-import com.example.calenderyfront.Model.DataObjects.Redirect
-import com.example.calenderyfront.Model.DataObjects.Register
-import com.example.calenderyfront.Model.DataObjects.Settings
-import com.example.calenderyfront.Model.DataObjects.Upload
-import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
-import com.example.calenderyfront.Model.DataObjects.VerifyLink
-import com.example.calenderyfront.Model.DataObjects.PostDataUpload
-import com.example.calenderyfront.Screens.LoginScreen
-import com.example.calenderyfront.Screens.PostDataUploadScreen
-import com.example.calenderyfront.Screens.ProfileScreen
-import com.example.calenderyfront.Screens.RedirectScreen
-import com.example.calenderyfront.Screens.RegisterScreen
-import com.example.calenderyfront.Screens.SettingScreen
-import com.example.calenderyfront.Screens.UploadScreen
-import com.example.calenderyfront.Screens.WaitingForLinkScreen
+import com.example.calenderyfront.Model.dataObjects.Login
+import com.example.calenderyfront.Model.dataObjects.Profile
+import com.example.calenderyfront.Model.dataObjects.Redirect
+import com.example.calenderyfront.Model.dataObjects.Register
+import com.example.calenderyfront.Model.dataObjects.Home
+import com.example.calenderyfront.Model.dataObjects.Settings
+import com.example.calenderyfront.Model.dataObjects.Upload
+import com.example.calenderyfront.Model.dataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfoNavType
+import com.example.calenderyfront.Model.dataObjects.VerifyLink
+import com.example.calenderyfront.Model.dataObjects.PostDataUpload
+import com.example.calenderyfront.screens.LoginScreen
+import com.example.calenderyfront.screens.PostDataUploadScreen
+import com.example.calenderyfront.screens.ProfileScreen
+import com.example.calenderyfront.screens.RedirectScreen
+import com.example.calenderyfront.screens.RegisterScreen
+import com.example.calenderyfront.screens.SettingScreen
+import com.example.calenderyfront.screens.UploadScreen
+import com.example.calenderyfront.screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.screens.HomeScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import kotlin.reflect.typeOf
 
@@ -77,7 +79,7 @@ fun CalenderyApp(
                     navController.navigate(VerifyLink(userInfo))
                 },
                 onNavigateToProfile = { userInfo ->
-                    navController.navigate(Profile(userInfo))
+                    navController.navigate(Home(userInfo))
                 }
             )
         }
@@ -182,10 +184,17 @@ fun CalenderyApp(
             )
         }
 
-        //composable<Home>(
-        //    typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
-//        composable<Main> {
-//            MainScreen()
-//        }
+        composable<Home>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            HomeScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToOtherProfile = { userInfo, otherUserId ->
+
+                }
+            )
+        }
     }
 }

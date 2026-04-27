@@ -1,6 +1,6 @@
 package com.example.calenderyfront.postDataUpload
 
-import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfo
 
 data class PostDataUploadUiState (
     val userInfo: UserInfo,

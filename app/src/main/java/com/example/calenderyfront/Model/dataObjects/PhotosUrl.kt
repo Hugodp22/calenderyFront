@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.DataObjects
+package com.example.calenderyfront.Model.dataObjects
 
 data class UrlPhotos (
     val url : String, //Url firmada para subir la imagen

@@ -1,6 +1,6 @@
 package com.example.calenderyfront.waitingForLink
 
-import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfo
 
 sealed class WaitingForLinkState {
     object Iniciado : WaitingForLinkState() //Estado base

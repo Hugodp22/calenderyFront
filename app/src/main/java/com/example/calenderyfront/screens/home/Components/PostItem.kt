@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Screens.home.Components
+package com.example.calenderyfront.screens.home.Components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.calenderyfront.Model.DataObjects.PublicacionHome
+import com.example.calenderyfront.Model.dataObjects.PublicacionHome
 
 
 @Composable
