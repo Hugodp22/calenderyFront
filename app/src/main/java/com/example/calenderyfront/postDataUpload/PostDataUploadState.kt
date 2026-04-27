@@ -1,6 +1,6 @@
 package com.example.calenderyfront.postDataUpload
 
-import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfo
 
 sealed class PostDataUploadState {
     object Iniciado : PostDataUploadState() //Estado base

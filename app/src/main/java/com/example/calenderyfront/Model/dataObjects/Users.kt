@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Model.DataObjects
+package com.example.calenderyfront.Model.dataObjects
 
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable

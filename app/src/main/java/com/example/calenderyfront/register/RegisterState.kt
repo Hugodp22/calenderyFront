@@ -1,6 +1,6 @@
 package com.example.calenderyfront.register
 
-import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.dataObjects.UserInfo
 
 sealed class RegisterState {
     object Iniciado : RegisterState() //Estado base
