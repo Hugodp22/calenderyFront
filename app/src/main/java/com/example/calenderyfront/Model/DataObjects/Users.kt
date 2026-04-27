@@ -49,7 +49,7 @@ data class UserProfile(
 @Serializable
 data class UserInfo(
     val idUsuario: Int,
-    val roles: List<String>
+    val roles: List<String>,
 )
 
 data class UserValidation(

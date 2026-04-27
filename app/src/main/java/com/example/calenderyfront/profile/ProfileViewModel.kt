@@ -54,7 +54,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                         _uiState.update {
                             it.copy(
                                 nombreUsuario = userData.nombre,
-                                fotoUsuario = userData.fotoPerfil,
+                                fotoUsuario = userData.fotoPerfil + "?width=500&quality=7",
                                 descripcion = userData.descripcion,
                                 cantidadSeguidos = userData.cantidadSeguidos,
                                 cantidadSeguidores = userData.cantidadSeguidores
@@ -79,6 +79,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun loadPublicationsByDate(year: Int, month: Int) {
         val currentState = _uiState.value
 
+        // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
+            return
+        }
+
         //Si cambiamos de mes en el perfil, reseteamos todo
         if (year != lastLoadedYear || month != lastLoadedMonth) {
             currentPage = 0
@@ -87,21 +92,16 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             lastLoadedMonth = month
         }
 
-        // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
-        if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
-            return
-        }
-
         viewModelScope.launch(Dispatchers.IO) {
             _state.value = ProfileState.Cargando
             try {
                 //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
                 val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
                     userId = userInfo.idUsuario,
+                    month = month,
+                    year = year,
                     page = currentPage,
                     size = currentPageSize,
-                    month = month,
-                    year = year
                 )
 
                 if (respuesta.isSuccessful) {

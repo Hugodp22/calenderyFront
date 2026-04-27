@@ -13,15 +13,15 @@ interface PublicacionApiService {
 
     /**
      * Funcion para cargar paginas por el id pensado para el perfil, enviandole la pagina actual
-     * y el tamaño de cada pagina. Tambien se le enviara mes y año para filtrar por estos.
+     * y el tamaño de cada pagina. Tambien se le enviara mes y año para filtrar por estos
      */
     @GET("")
     suspend fun obtenerPublicacionesPerfil(
-        @Body userId: Int,
-        @Query("page") page: Int,
-        @Query("size") size : Int = pageSize,
+        @Query("userId") userId: Int,
         @Query("month") month: Int,
         @Query("year") year: Int,
+        @Query("page") page: Int,
+        @Query("size") size : Int = pageSize,
     ): Response<List<PublicacionProfile>>
 
     @PUT("")

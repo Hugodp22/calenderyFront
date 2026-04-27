@@ -486,9 +486,9 @@ fun ProfileScreen(
     var expandedPhotoProfile by remember { mutableStateOf(false) } //Para saber cuando la foto esta ampliada
     var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Para saber que publicacion mostrar al hacer click
 
-    var currentMonth by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes actual que puede variar
-    val actualCurrentMonth = remember { LocalDate.now().withDayOfMonth(1) }
-    val canGoNext = currentMonth.isBefore(actualCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
+    var selectedMonth by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes que puede variar
+    val realCurrentMonth = remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
+    val canGoNext = selectedMonth.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
 
 
     //Para detectar cuando el scroll esta en el final
@@ -499,6 +499,7 @@ fun ProfileScreen(
             val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 //Obtenemos el indice del ultimo item cargado
 
             //Si el ultimo elemento visible esta a 1 fila del final, da true
+            //lo que activa la peticion al back
             totalItems > 0 && ultimoItem >= (totalItems - rowProfilePostSize)
         }
     }
@@ -509,15 +510,15 @@ fun ProfileScreen(
         }
     }
 
-    LaunchedEffect(currentMonth) {
+    LaunchedEffect(selectedMonth) {
         gridState.scrollToItem(0) //Cuando cambiemos de mes, vamos al indice 0 para volver arriba y no quedarnos abajo
-        //viewModel.loadPublicationsByDate(currentMonth.year, currentMonth.monthValue)
+        //viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
     }
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
     //LaunchedEffect(scrollEnElFinal) {
     //    if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
-    //        viewModel.loadPublicationsByDate(currentMonth.year, currentMonth.monthValue)
+    //        viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
     //    }
     //}
 
@@ -551,19 +552,19 @@ fun ProfileScreen(
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             MonthTitle(
-                fistDayOfMonth = currentMonth,
+                fistDayOfMonth = selectedMonth,
                 windowSize = windowSize,
-                onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) }, //Va restando todo, incluido año al llegar
+                onPreviousMonth = { selectedMonth = selectedMonth.minusMonths(1) }, //Va restando todo, incluido año al llegar
                 onNextMonth = {
                     if (canGoNext) {
-                        currentMonth = currentMonth.plusMonths(1)
+                        selectedMonth = selectedMonth.plusMonths(1)
                     }
                 },
                 canGoNext = canGoNext
             )
         }
 
-        val currentMonthData = groupedPost[currentMonth]
+        val currentMonthData = groupedPost[selectedMonth]
 
             if (currentMonthData != null) {
                 currentMonthData.forEach { (weekOfMonth, postsOfWeek) ->

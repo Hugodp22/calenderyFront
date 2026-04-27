@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,6 +61,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.size.Precision
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.clients.PhotoClient
 import com.example.calenderyfront.userAuth.SessionManager
@@ -194,14 +198,19 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
     //mediante su URL
 
     AsyncImage(
-        model = photoPath,
+        model = ImageRequest
+            .Builder(LocalContext.current)
+            .data(photoPath).crossfade(true)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .diskCacheKey(photoPath.toString().substringBefore("?"))
+            .precision(Precision.INEXACT)
+            .build(),
         contentDescription = stringResource(contentDescription),
         modifier = modifier
             .clip(CircleShape)
             .clickable { onClick() }
             .background(MaterialTheme.colorScheme.primary),
         contentScale = ContentScale.Crop, //O .Crop
-        placeholder = painterResource(R.drawable.ic_launcher_background),
         error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
     )
 }
@@ -232,7 +241,13 @@ fun ExpandedPhotoProfile(
         )
         {
             AsyncImage(
-                model = photoPath,
+                model = ImageRequest
+                    .Builder(LocalContext.current)
+                    .data(photoPath).crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .diskCacheKey(photoPath.toString().substringBefore("?"))
+                    .precision(Precision.INEXACT)
+                    .build(),
                 contentDescription = stringResource(R.string.dialog_image_Message),
                 modifier = Modifier
                     .fillMaxSize()
@@ -261,7 +276,6 @@ fun ExpandedPhotoProfile(
                         }
                     },
                 contentScale = ContentScale.Fit,
-                placeholder = painterResource(R.drawable.ic_launcher_background),
                 error = painterResource(R.drawable.errorimage)
             )
         }
@@ -331,7 +345,13 @@ fun ExpandedPhotoPostProfile(
         )
         {
             AsyncImage(
-                model = post.fotoPublicacion,
+                model = ImageRequest
+                    .Builder(LocalContext.current)
+                    .data(post.fotoPublicacion).crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .diskCacheKey(post.fotoPublicacion.toString().substringBefore("?"))
+                    .precision(Precision.INEXACT)
+                    .build(),
                 contentDescription = stringResource(R.string.dialog_image_Message),
                 modifier = Modifier
                     .fillMaxSize()
@@ -360,7 +380,6 @@ fun ExpandedPhotoPostProfile(
                         }
                     },
                 contentScale = ContentScale.Fit,
-                placeholder = painterResource(R.drawable.ic_launcher_background),
                 error = painterResource(R.drawable.errorimage)
             )
 
