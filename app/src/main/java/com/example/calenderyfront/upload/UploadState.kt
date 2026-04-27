@@ -5,6 +5,6 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 sealed class UploadState {
     object Iniciado : UploadState() //Estado base
     object Cargando : UploadState() // Mientras esperamos al Back
-    data class Exito(val userInfo: UserInfo) : UploadState() //Lo que obtenemos si tenemos exito
+    data class Exito(val userInfo: UserInfo, val postId: Int, val photoUrl: String) : UploadState() //Lo que obtenemos si tenemos exito
     data class Error(val mensaje: Int) : UploadState() // Si el Back falla o no hay internet
 }

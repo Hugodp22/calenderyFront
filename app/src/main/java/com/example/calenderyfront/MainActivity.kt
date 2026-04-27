@@ -25,7 +25,9 @@ import com.example.calenderyfront.Model.DataObjects.Upload
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
+import com.example.calenderyfront.Model.DataObjects.PostDataUpload
 import com.example.calenderyfront.Screens.LoginScreen
+import com.example.calenderyfront.Screens.PostDataUploadScreen
 import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
@@ -159,6 +161,19 @@ fun CalenderyApp(
         )
         {
             UploadScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToUpload = { userInfo, postId ,photoPath, photoUrl ->
+                    navController.navigate(PostDataUpload(userInfo,postId, photoPath, photoUrl))
+                }
+            )
+        }
+
+        composable<PostDataUpload>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            PostDataUploadScreen(
                 modifier = Modifier,
                 windowSize = windowSize,
                 onNavigateToProfile = { userInfo ->
