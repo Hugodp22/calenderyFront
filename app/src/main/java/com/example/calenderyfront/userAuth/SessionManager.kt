@@ -23,6 +23,7 @@ object SessionManager {
         getPrefs(context).edit(commit = true) {
             putString(KEY_EMAIL, email)
             putString(KEY_PASS, pass)
+            apply()
         }
     }
 
@@ -43,7 +44,10 @@ object SessionManager {
      * si al inicio lo detecta la aplicacion
      */
     fun isUserLoggedIn(context: Context): Boolean {
-        return getEmail(context) != null && getKeypass(context) != null
+        val email = getEmail(context)
+        val keypass = getKeypass(context)
+
+        return !email.isNullOrBlank() && !keypass.isNullOrBlank()
     }
 
     /**

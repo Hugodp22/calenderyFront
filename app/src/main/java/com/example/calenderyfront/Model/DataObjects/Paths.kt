@@ -8,6 +8,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
+object Redirect
+
+@Serializable
 object Register
 
 @Serializable
@@ -21,6 +24,15 @@ data class VerifyLink(val userInfo: UserInfo)
 
 @Serializable
 data class Home(val userInfo: UserInfo)
+
+@Serializable
+data class Profile(val userInfo: UserInfo)
+
+@Serializable
+data class Upload(val userInfo: UserInfo)
+
+@Serializable
+data class PostDataUpload(val userInfo: UserInfo, val postId: Int, val photoPath: String, val photoUrl: String)
 
 
 /**

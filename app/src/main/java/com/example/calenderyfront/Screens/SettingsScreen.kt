@@ -5,16 +5,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -24,62 +20,38 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
+import com.example.calenderyfront.MessageLimitContent
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.galleryLauncher
 import com.example.calenderyfront.settings.SettingsState
 import com.example.calenderyfront.settings.SettingsViewModel
-
-/**
- * Creacion del contenedor para poner descripcion amplia, con limite configurable
- * para que el usuario no se pase demasiado
- */
-@Composable
-fun DescriptionContent( modifier: Modifier = Modifier,description: String, onValueChange: (String) -> Unit,limite : Int = 150) {
-    val cantidadMaxima: Int = limite
-
-    OutlinedTextField (
-        value = description,
-        onValueChange = {
-            //Le ponemos limite a la descripcion
-            if (it.length <= cantidadMaxima) {
-                onValueChange(it)
-            }
-                        },
-        modifier = modifier.height(120.dp),
-        placeholder = { Text(stringResource(R.string.share_description_Mesagge))},
-        maxLines = 3,
-        singleLine = false,
-        shape = RoundedCornerShape(16.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-            focusedBorderColor = Color(0xFF4285F4),
-            unfocusedBorderColor = Color.Gray,
-            cursorColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTextColor = Color.Gray,
-            focusedTextColor = MaterialTheme.colorScheme.tertiary
-        )
-    )
-}
+import com.example.calenderyfront.ui.theme.BebasNeue
 
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
+    onNavigateToProfile: (UserInfo) -> Unit,
     viewModel: SettingsViewModel = viewModel()
 )
 {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
 
+    val context = LocalContext.current
+
     val errorName by viewModel.errorName.collectAsState()
+
+    val enableButton = stateProcess !is SettingsState.Cargando && stateProcess !is SettingsState.Exito
 
     //Funcion para abrir la galeria y selecionar una foto de esta
     val openGallery = galleryLauncher { uri -> uri?.let {
@@ -102,8 +74,7 @@ fun SettingScreen(
 
     LaunchedEffect(stateProcess) {
         if (stateProcess is SettingsState.Exito) {
-            val userId = (stateProcess as SettingsState.Exito).userInfo
-            //onNavigateToProfile(userInfo) seria
+            onNavigateToProfile((stateProcess as SettingsState.Exito).userInfo)
         }
     }
 
@@ -130,14 +101,14 @@ fun SettingScreen(
                 Text(
                     text = stringResource(R.string.Settings_Title),
                     fontSize = 32.sp,
+                    fontFamily = BebasNeue,
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
                 PhotoUserContainer(Modifier.size(containerSize),uiState.fotoPerfil, openGallery,R.string.image_description)
                 InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
-                DescriptionContent(Modifier.fillMaxWidth(width),uiState.descripcion,{viewModel.onDescriptionChange(it)})
-                //Mirar si poner mas cosas por que lo veo vacio
-                SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings()})
+                MessageLimitContent(Modifier.fillMaxWidth(width),R.string.share_description_Mesagge,uiState.descripcion,{viewModel.onDescriptionChange(it)})
+                SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings(context)},enableButton)
 
                 if (stateProcess is SettingsState.Error) {
                     Text(

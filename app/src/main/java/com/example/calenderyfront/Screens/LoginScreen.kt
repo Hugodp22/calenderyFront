@@ -11,7 +11,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -22,12 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.InputCreation
-import com.example.calenderyfront.login.LoginState
-import com.example.calenderyfront.login.LoginViewModel
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import com.example.calenderyfront.TextLink
+import com.example.calenderyfront.login.LoginState
+import com.example.calenderyfront.login.LoginViewModel
+import com.example.calenderyfront.register.RegisterState
+import com.example.calenderyfront.ui.theme.BebasNeue
 
 /**
  * Funcion para cargar la pantalla de login
@@ -36,6 +40,7 @@ import com.example.calenderyfront.TextLink
 fun LoginScreen(
     modifier: Modifier = Modifier,
     onNavigateToRegister : () -> Unit,
+    onNavigateToProfile: (UserInfo) -> Unit,
     windowSize: WindowWidthSizeClass,
     viewModel: LoginViewModel = viewModel()
 )
@@ -46,10 +51,18 @@ fun LoginScreen(
     val errorEmail by viewModel.errorEmail.collectAsState()
     val errorKeypass by viewModel.errorKeypass.collectAsState()
 
+    val enableButton = stateProcess !is LoginState.Cargando && stateProcess !is LoginState.Exito
+
     val width = when (windowSize) {
         WindowWidthSizeClass.Medium -> 0.7F
         WindowWidthSizeClass.Expanded -> 0.7F
         else -> 1f
+    }
+
+    LaunchedEffect(stateProcess) {
+        if (stateProcess is LoginState.Exito) {
+            onNavigateToProfile((stateProcess as LoginState.Exito).userInfo)
+        }
     }
 
     Box(
@@ -75,13 +88,22 @@ fun LoginScreen(
                 Text(
                     text = stringResource(R.string.Login_title),
                     fontSize = 32.sp,
+                    fontFamily = BebasNeue,
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
-                SaveButton(R.string.Login_button,windowSize,onClick = { viewModel.tryLogin()})
-                TextLink(R.string.redirect_register,onNavigateToRegister,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
+                SaveButton(R.string.Login_button,windowSize,onClick = { viewModel.tryLogin()},enableButton)
+
+                when (stateProcess) {
+                    is LoginState.Iniciado, is LoginState.Error -> {
+                        TextLink(R.string.redirect_register,onNavigateToRegister,windowSize)
+                }
+                    else -> {
+                        //No carga para evitar que le den durante la peticion
+                    }
+                }
 
                 if (stateProcess is LoginState.Error) {
                     Text(

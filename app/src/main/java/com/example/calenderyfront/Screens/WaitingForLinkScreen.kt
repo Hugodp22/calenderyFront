@@ -26,6 +26,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.waitingForLink.WaitingForLinkState
 import com.example.calenderyfront.waitingForLink.WaitingForLinkViewModel
 import com.example.calenderyfront.R
+import com.example.calenderyfront.TextLink
 
 @Composable
 fun WaitingForLinkScreen(
@@ -84,6 +85,10 @@ fun WaitingForLinkScreen(
                     text = stringResource(R.string.link_waiting_message),
                     color = MaterialTheme.colorScheme.tertiary
                 )
+
+                if (stateProcess is WaitingForLinkState.Iniciado || stateProcess is WaitingForLinkState.Error) {
+                    TextLink(R.string.resend_email, { viewModel.resendEmail() }, windowSize)
+                }
 
                 if (stateProcess is WaitingForLinkState.Cargando) {
                     CircularProgressIndicator(

@@ -17,15 +17,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Profile
+import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.Register
 import com.example.calenderyfront.Model.DataObjects.Settings
+import com.example.calenderyfront.Model.DataObjects.Upload
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
+import com.example.calenderyfront.Model.DataObjects.PostDataUpload
 import com.example.calenderyfront.Screens.LoginScreen
+import com.example.calenderyfront.Screens.PostDataUploadScreen
+import com.example.calenderyfront.Screens.ProfileScreen
+import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
 import com.example.calenderyfront.Screens.SettingScreen
+import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
+import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import kotlin.reflect.typeOf
 
@@ -39,10 +48,6 @@ class MainActivity : ComponentActivity() {
             CalenderyFrontTheme {
                 val windowSize = calculateWindowSizeClass(this)
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    //Aqui detectariamos si el movil tiene token para saber a que pantalla
-                    //Mandar o no al iniciar la app
-                    //if token bla bla bla
-
                     CalenderyApp(
                         modifier = Modifier.padding(innerPadding),
                         windowSize = windowSize.widthSizeClass
@@ -60,17 +65,36 @@ fun CalenderyApp(
     navController: NavHostController = rememberNavController(),
 )
 {
-    //Controlador que empieza en la pantalla de register. Falta poner
-    //Comprobacion de si tiene token o no a implementar en el futuro.
+    NavHost(navController = navController, startDestination = Redirect) {
 
-    NavHost(navController = navController, startDestination = Register) {
+        composable<Redirect> {
+            RedirectScreen(
+                modifier = Modifier,
+                onNavigateToLogin = {
+                    navController.navigate(Login)
+                },
+                onNavigateToWaitingForLink = { userInfo ->
+                    navController.navigate(VerifyLink(userInfo))
+                },
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate(Profile(userInfo))
+                }
+            )
+        }
 
         composable<Register> {
             RegisterScreen(
                 modifier = Modifier,
                 onNavigateToWaiting = { userInfo ->
-                    navController.navigate(VerifyLink(userInfo))
-                                       },
+                    navController.navigate(VerifyLink(userInfo)) {
+                        //Borramos del historial del navController hasta startDestination
+                        //que seria el redirect, para asi evitar errores al poder ir hacia atras
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true //Evitamos hacer copias de pantallas.
+                    }
+                                      },
                 onNavigateToLogin = {
                     navController.navigate(Login)
                                     },
@@ -81,13 +105,13 @@ fun CalenderyApp(
         composable<VerifyLink>(
             typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
         )
-        { path ->
+        {
             WaitingForLinkScreen(
-                modifier = Modifier,
-                onNavigateToSettings = { userInfo ->
-                    navController.navigate(Settings(userInfo)) },
-                windowSize = windowSize
-            )
+            modifier = Modifier,
+            onNavigateToSettings = { userInfo ->
+                navController.navigate(Settings(userInfo)) },
+            windowSize = windowSize
+        )
         }
 
         composable<Login> {
@@ -96,7 +120,9 @@ fun CalenderyApp(
                 onNavigateToRegister = {
                     navController.navigate(Register)
                 },
-                //Haria falta un onNavigateToMain aqui y obvio hacer la peticion y el model ahi
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate(Profile(userInfo))
+                },
                 windowSize = windowSize,
             )
         }
@@ -106,9 +132,54 @@ fun CalenderyApp(
         )
         {
             SettingScreen(
-                    modifier = Modifier,
+                modifier = Modifier,
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate((Profile(userInfo)))
+                },
                     windowSize = windowSize,
                 )
+        }
+
+        composable<Profile>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            ProfileScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToSettings = { userInfo ->
+                    navController.navigate(Settings(userInfo))
+                },
+                onNavigateToUpload = { userInfo ->
+                    navController.navigate(Upload(userInfo))
+                }
+            )
+        }
+
+        composable<Upload>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            UploadScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToUpload = { userInfo, postId ,photoPath, photoUrl ->
+                    navController.navigate(PostDataUpload(userInfo,postId, photoPath, photoUrl))
+                }
+            )
+        }
+
+        composable<PostDataUpload>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            PostDataUploadScreen(
+                modifier = Modifier,
+                windowSize = windowSize,
+                onNavigateToProfile = { userInfo ->
+                    navController.navigate(Profile(userInfo))
+                }
+            )
         }
 
         //composable<Home>(

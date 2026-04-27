@@ -30,6 +30,7 @@ import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.TextLink
 import com.example.calenderyfront.register.RegisterState
 import com.example.calenderyfront.register.RegisterViewModel
+import com.example.calenderyfront.ui.theme.BebasNeue
 
 @Composable
 fun RegisterScreen(
@@ -47,6 +48,8 @@ fun RegisterScreen(
     val errorName by viewModel.errorName.collectAsState()
     val errorEmail by viewModel.errorEmail.collectAsState()
     val errorKeypass by viewModel.errorKeypass.collectAsState()
+
+    val enableButton = stateProcess !is RegisterState.Cargando && stateProcess !is RegisterState.Exito
 
     val width = when (windowSize) {
         WindowWidthSizeClass.Medium -> 0.7F
@@ -83,8 +86,9 @@ fun RegisterScreen(
         )
         {
             Column(
-                modifier = Modifier.fillMaxWidth(width).
-                padding(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth(width)
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             )
@@ -92,15 +96,24 @@ fun RegisterScreen(
                 Text(
                     text = stringResource(R.string.register),
                     fontSize = titleSize,
+                    fontFamily = BebasNeue,
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
-                InputCreation(Modifier.fillMaxWidth(0.8F),R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass,windowSize)
-                SaveButton(R.string.register_button,windowSize,onClick = { viewModel.tryRegister()})
-                TextLink(R.string.redirect_login,onNavigateToLogin, windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
+                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_keypass_confirm, uiState.keypassConfirm, { viewModel.onConfirmKeypassChange(it) }, R.string.input_placeholder_empty_keypass_confirm,true, errorKeypass,windowSize)
+                SaveButton(R.string.register_button,windowSize,onClick = { viewModel.tryRegister()},enableButton)
+
+                when (stateProcess) {
+                    is RegisterState.Iniciado, is RegisterState.Error -> {
+                        TextLink(R.string.redirect_login, onNavigateToLogin, windowSize)
+                    }
+                    else -> {
+                        //No aparece para evitar que le den click
+                    }
+                }
 
                 //Si hay un error mostramos el mensaje
                 if (stateProcess is RegisterState.Error) {

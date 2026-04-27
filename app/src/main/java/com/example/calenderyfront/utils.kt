@@ -1,5 +1,6 @@
 package com.example.calenderyfront
 
+import android.content.Context
 import android.net.Uri
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -7,14 +8,21 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -35,18 +43,42 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.size.Precision
+import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
+import com.example.calenderyfront.clients.PhotoClient
+import com.example.calenderyfront.userAuth.SessionManager
+import okhttp3.Credentials
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.Request
+import okhttp3.RequestBody
+import okio.BufferedSink
+import okio.source
 import java.security.KeyPairGenerator
+import java.security.KeyStore
+
+const val pageSize = 6
+const val rowProfilePostSize = 3
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -123,6 +155,39 @@ fun InputCreation(
 }
 
 /**
+ * Creacion del contenedor para poner descripcion amplia, con limite configurable
+ * para que el usuario no se pase demasiado
+ */
+@Composable
+fun MessageLimitContent(modifier: Modifier = Modifier, @StringRes placeHolder: Int, description: String?, onValueChange: (String) -> Unit, limite : Int = 150) {
+    val cantidadMaxima: Int = limite
+
+    OutlinedTextField (
+        value = description ?: "",
+        onValueChange = {
+            //Le ponemos limite a la descripcion
+            if (it.length <= cantidadMaxima) {
+                onValueChange(it)
+            }
+        },
+        modifier = modifier.height(120.dp),
+        placeholder = { Text(stringResource(placeHolder))},
+        maxLines = 3,
+        singleLine = false,
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+            focusedBorderColor = Color(0xFF4285F4),
+            unfocusedBorderColor = Color.Gray,
+            cursorColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedTextColor = Color.Gray,
+            focusedTextColor = MaterialTheme.colorScheme.tertiary
+        )
+    )
+}
+
+/**
  * Funcion preparada para crear contenedores de imagenes con diferentes funciones
  * pensado para usar tanto para cambiar foto como para ampliar la foto en caso
  * de que quieras verla claro.
@@ -133,16 +198,204 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
     //mediante su URL
 
     AsyncImage(
-        model = photoPath,
+        model = ImageRequest
+            .Builder(LocalContext.current)
+            .data(photoPath).crossfade(true)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .diskCacheKey(photoPath.toString().substringBefore("?"))
+            .precision(Precision.INEXACT)
+            .build(),
         contentDescription = stringResource(contentDescription),
         modifier = modifier
             .clip(CircleShape)
             .clickable { onClick() }
-            .background(Color.LightGray),
-        contentScale = ContentScale.Fit, //O .Crop
+            .background(MaterialTheme.colorScheme.primary),
         placeholder = painterResource(R.drawable.ic_launcher_background),
+        contentScale = ContentScale.Crop, //O .Crop
         error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
     )
+}
+
+@Composable
+fun ExpandedPhotoProfile(
+    photoPath: Any?,
+    onDismiss: () -> Unit
+) {
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) } //
+
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+
+    Dialog(
+        onDismissRequest = onDismiss, //Para cuando le des atras, que se ponga en false el boolean que lo controle en la screen
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false, //Para que no ocupe toda la pantalla
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false //Evita que pete si le das en los margenes
+        )
+    )
+    {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        )
+        {
+            AsyncImage(
+                model = ImageRequest
+                    .Builder(LocalContext.current)
+                    .data(photoPath).crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .diskCacheKey(photoPath.toString().substringBefore("?"))
+                    .precision(Precision.INEXACT)
+                    .build(),
+                contentDescription = stringResource(R.string.dialog_image_Message),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x, //Para mover la imagen estando ampliada
+                        translationY = offset.y
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f) //Limitamos el zoom entre 1 y 5
+                            if (scale > 1f) {
+                                val newOffset = offset + pan * scale
+                                val maxX = (containerSize.width * (scale - 1)) / 2
+                                val maxY = (containerSize.height * (scale - 1)) / 2
+
+                                offset = Offset(
+                                    x = newOffset.x.coerceIn(-maxX, maxX), //Cambiamos su valor, pero respetando el tamaño
+                                    y = newOffset.y.coerceIn(-maxY, maxY) //Por que si no, nos vamos al limbo
+                                )
+                            }
+                            else {
+                                offset = Offset.Zero
+                            }
+                        }
+                    },
+                contentScale = ContentScale.Fit,
+                error = painterResource(R.drawable.errorimage)
+            )
+        }
+    }
+}
+
+@Composable
+fun IconPostDialog(
+    modifier: Modifier = Modifier,
+    @DrawableRes icon: Int,
+    @StringRes contentDescription: Int,
+    onClick: () -> Unit
+)
+{
+    Column(
+        modifier = Modifier,
+        horizontalAlignment = Alignment.End
+    )
+    {
+        IconButton(
+            modifier = modifier,
+            onClick = onClick
+        )
+        {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = stringResource(contentDescription)
+            )
+        }
+    }
+}
+
+@Composable
+fun ExpandedPhotoPostProfile(
+    post: PublicacionProfile,
+    onDismiss: () -> Unit,
+    onClickLikes: () -> Unit,
+    onClickComments: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) } //
+
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+
+    val iconSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 64.dp
+        WindowWidthSizeClass.Medium -> 66.dp
+        WindowWidthSizeClass.Expanded -> 68.dp
+        else -> 64.dp
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss, //Para cuando le des atras, que se ponga en false el boolean que lo controle en la screen
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false, //Para que no ocupe toda la pantalla
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false //Evita que pete si le das en los margenes
+        )
+    )
+    {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        )
+        {
+            AsyncImage(
+                model = ImageRequest
+                    .Builder(LocalContext.current)
+                    .data(post.fotoPublicacion).crossfade(true)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .diskCacheKey(post.fotoPublicacion.toString().substringBefore("?"))
+                    .precision(Precision.INEXACT)
+                    .build(),
+                contentDescription = stringResource(R.string.dialog_image_Message),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x, //Para mover la imagen estando ampliada
+                        translationY = offset.y
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f) //Limitamos el zoom entre 1 y 5
+                            if (scale > 1f) {
+                                val newOffset = offset + pan * scale
+                                val maxX = (containerSize.width * (scale - 1)) / 2
+                                val maxY = (containerSize.height * (scale - 1)) / 2
+
+                                offset = Offset(
+                                    x = newOffset.x.coerceIn(-maxX, maxX), //Cambiamos su valor, pero respetando el tamaño
+                                    y = newOffset.y.coerceIn(-maxY, maxY) //Por que si no, nos vamos al limbo
+                                )
+                            }
+                            else {
+                                offset = Offset.Zero
+                            }
+                        }
+                    },
+                contentScale = ContentScale.Fit,
+                error = painterResource(R.drawable.errorimage)
+            )
+
+            Column(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            )
+
+            {
+                IconPostDialog(Modifier.size(iconSize),R.drawable.favourite,R.string.like_Message,{onClickLikes})
+                IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,{onClickComments})
+            }
+        }
+    }
 }
 
 /**
@@ -172,6 +425,47 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
 }
 
 /**
+ * Creacion de un RequestBody mediante una Uri obtenida por galeria, para mandarla al bucket la foto
+ */
+fun createUriRequestBody(context: Context, uri: Uri, mediaType: MediaType?): RequestBody {
+    //Creamos un RequestBody
+    return object : RequestBody() {
+        //Sobreescribimos la funcion de contentype para que maneje mediaType
+        override fun contentType() = context.contentResolver.getType(uri)?.toMediaTypeOrNull()
+
+        //Sobreescribimos para leer directamente desde la direccion del uri, los bytes
+        //directamente
+        override fun writeTo(sink: BufferedSink) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                sink.writeAll(inputStream.source())
+            }
+        }
+    }
+}
+
+fun sendImageToBucket(context: Context, uriImage: Uri, urlBucket: String): Boolean {
+    val mediaType = "image/jpeg".toMediaTypeOrNull()
+    val requestBody = createUriRequestBody(context, uriImage, mediaType)
+
+    val request = Request.Builder()
+        .url(urlBucket)
+        .put(requestBody)
+
+    val email = SessionManager.getEmail(context)
+    val keypass = SessionManager.getKeypass(context)
+
+    if (!email.isNullOrBlank() && !keypass.isNullOrBlank()) {
+        val head = Credentials.basic(email,keypass,Charsets.UTF_8)
+        request.header("Authorization", head)
+
+    }
+
+    PhotoClient.client.newCall(request.build()).execute().use { respuesta ->
+        return respuesta.isSuccessful //Dara error si no tiene cabecera
+    }
+}
+
+/**
  * Creacion de un boton de guardado, pensado para usar para diferentes
  * casos de uso, ya sea guardar tu configuracion, iniciar sesion
  * y cosas asi
@@ -180,7 +474,8 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
 fun SaveButton(
     @StringRes textButton: Int,
     windowSize: WindowWidthSizeClass,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    enable: Boolean = true
 ) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.5F
@@ -197,7 +492,7 @@ fun SaveButton(
     }
 
     val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 18.sp
+        WindowWidthSizeClass.Compact -> 15.sp
         WindowWidthSizeClass.Medium -> 30.sp
         WindowWidthSizeClass.Expanded -> 20.sp
         else -> 18.sp
@@ -207,9 +502,14 @@ fun SaveButton(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF4285F4),
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContentColor = Color.Gray,
+            disabledContainerColor = Color(0xFF153870)
         ),
-        modifier = Modifier.fillMaxWidth(width).height(height)
+        enabled = enable,
+        modifier = Modifier
+            .fillMaxWidth(width)
+            .height(height)
     )
     {
         Text(
@@ -248,13 +548,13 @@ fun TextLink(
     )
 }
 
-const val privateAlias = "com.calendery.app.auth_key"
 /**
  * Funcion para generar clave publica y privada, mandando
  * la publica para guardar en la DB y guardando la privada a nivel
  * local para su uso
  */
-fun securityKeyCreation(): String {
+fun securityKeyCreation(userId: Int): String {
+    val privateAlias = "com.calendery.app.auth_key_$userId"
     val kpg = KeyPairGenerator.getInstance(
         KeyProperties.KEY_ALGORITHM_RSA,
         "AndroidKeyStore" // Forzamos el uso del Keystore para guardar a nivel interno
@@ -279,6 +579,28 @@ fun securityKeyCreation(): String {
 
     //Enviamos la clave publica e indicamos que este en una sola linea con el wrap
     return Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
+}
+
+/**
+ * Funcion para borrar todas las claves generadas y que no me explote el ordenador
+ * al hacer tantas pruebas
+ */
+fun deleteAllKeys() {
+    try {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+            load(null)
+        }
+
+        val aliases = keyStore.aliases() // Lista de todos los alias
+
+        while (aliases.hasMoreElements()) {
+            val alias = aliases.nextElement()
+            keyStore.deleteEntry(alias)
+            println("Clave eliminada: $alias")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**

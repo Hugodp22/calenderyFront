@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.R
-import com.example.calenderyfront.RetrofitClient
+import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,6 +107,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     keypass = currentUiState.keypass,
                 )
 
+                SessionManager.clearSession(getApplication())
                 val respuesta = RetrofitClient.usuarioApi.registrarUsuario(usuarioEnviar)
 
                 if (respuesta.isSuccessful) {
