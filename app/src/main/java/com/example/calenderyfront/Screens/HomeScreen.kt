@@ -1,4 +1,4 @@
-package com.example.calenderyfront.screens
+package com.example.calenderyfront.Screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,8 +45,8 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.rowProfilePostSize
-import com.example.calenderyfront.screens.home.HomeState
-import com.example.calenderyfront.screens.home.HomeViewModel
+import com.example.calenderyfront.Screens.home.HomeState
+import com.example.calenderyfront.Screens.home.HomeViewModel
 
 val listaPublicaciones = listOf(
     PublicacionHome(

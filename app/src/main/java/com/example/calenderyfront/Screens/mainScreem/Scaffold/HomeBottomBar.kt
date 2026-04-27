@@ -1,4 +1,4 @@
-package com.example.calenderyfront.screens.mainScreem.Scaffold
+package com.example.calenderyfront.Screens.mainScreem.Scaffold
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding

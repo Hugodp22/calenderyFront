@@ -1,4 +1,4 @@
-package com.example.calenderyfront.screens.home.Components
+package com.example.calenderyfront.Screens.home.Components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

@@ -27,16 +27,16 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.Model.DataObjects.PostDataUpload
-import com.example.calenderyfront.screens.LoginScreen
-import com.example.calenderyfront.screens.PostDataUploadScreen
-import com.example.calenderyfront.screens.ProfileScreen
-import com.example.calenderyfront.screens.RedirectScreen
-import com.example.calenderyfront.screens.RegisterScreen
-import com.example.calenderyfront.screens.SettingScreen
-import com.example.calenderyfront.screens.UploadScreen
-import com.example.calenderyfront.screens.WaitingForLinkScreen
+import com.example.calenderyfront.Screens.LoginScreen
+import com.example.calenderyfront.Screens.PostDataUploadScreen
+import com.example.calenderyfront.Screens.ProfileScreen
+import com.example.calenderyfront.Screens.RedirectScreen
+import com.example.calenderyfront.Screens.RegisterScreen
+import com.example.calenderyfront.Screens.SettingScreen
+import com.example.calenderyfront.Screens.UploadScreen
+import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
-import com.example.calenderyfront.screens.HomeScreen
+import com.example.calenderyfront.Screens.HomeScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import kotlin.reflect.typeOf
 

@@ -1,4 +1,4 @@
-package com.example.calenderyfront.screens
+package com.example.calenderyfront.Screens
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
