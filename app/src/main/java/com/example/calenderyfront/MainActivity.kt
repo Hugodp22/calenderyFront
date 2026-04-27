@@ -113,8 +113,8 @@ fun CalenderyApp(
 
         //composable<Home>(
         //    typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
-        //) {
-        //
-        //}
+//        composable<Main> {
+//            MainScreen()
+//        }
     }
 }

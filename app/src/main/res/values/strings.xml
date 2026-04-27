@@ -38,6 +38,6 @@
     <string name="error_token_text">Error al validar el token</string>
     <string name="waiting_link_title">Correo de verificacion</string>
     <string name="link_waiting_message">Se te ha enviado un correo al email introducido para que verifiques la creacion de la cuenta</string>
-
+    <string name="feed">feed</string>
 
 </resources>
