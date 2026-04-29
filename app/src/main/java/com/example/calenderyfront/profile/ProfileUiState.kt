@@ -5,6 +5,8 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 
 data class ProfileUiState(
     val usuario: UserInfo,
+    val otherUserId: Int?,
+    val mainId: Int,
     val nombreUsuario: String,
     val fotoUsuario: String,
     val descripcion: String?,

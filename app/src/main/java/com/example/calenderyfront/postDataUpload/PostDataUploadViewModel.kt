@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import kotlin.reflect.typeOf
 
 class PostDataUploadViewModel(path: SavedStateHandle): ViewModel()  {
@@ -33,7 +34,7 @@ class PostDataUploadViewModel(path: SavedStateHandle): ViewModel()  {
     private val photoPath = route.photoPath
     private val photoUrl = route.photoUrl
 
-    private val _uiState = MutableStateFlow(PostDataUploadUiState(userInfo, postId, photoPath, photoUrl,"",1,2000))
+    private val _uiState = MutableStateFlow(PostDataUploadUiState(userInfo, postId, photoPath, photoUrl,"",))
     val uiState: StateFlow<PostDataUploadUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<PostDataUploadState>(PostDataUploadState.Iniciado)
@@ -43,17 +44,22 @@ class PostDataUploadViewModel(path: SavedStateHandle): ViewModel()  {
         _uiState.update { it.copy(message = message) }
     }
 
-    fun onMonthChange(month: Int) {
-        _uiState.update { it.copy(month = month) }
+    fun onDateChange(date: LocalDate) {
+        _uiState.update { it.copy(date = date) }
     }
 
-    fun onYearChange(year: Int) {
-        _uiState.update { it.copy(year = year) }
+    init {
+
     }
 
     fun uploadPost(context: Context) {
         _state.value = PostDataUploadState.Cargando
         val currentUiState = _uiState.value
+
+        if (currentUiState.date == null) {
+            _state.value = PostDataUploadState.Error(R.string.Error_date)
+            return
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -62,13 +68,14 @@ class PostDataUploadViewModel(path: SavedStateHandle): ViewModel()  {
                 val sendImage = sendImageToBucket(context,uriGallery,currentUiState.photoUrl)
 
                 if (sendImage) {
+
                     val respuesta = RetrofitClient.publicacionApi.mandarDatosPost(
                         postData = PostData(
                             idUsuario = userInfo.idUsuario,
                             idPost = currentUiState.postId,
                             message = currentUiState.message,
-                            month = currentUiState.month,
-                            year = currentUiState.year
+                            month = currentUiState.date.monthValue,
+                            year = currentUiState.date.year
                         )
                     )
 

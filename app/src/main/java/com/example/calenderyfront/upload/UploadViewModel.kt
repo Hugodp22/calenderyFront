@@ -35,31 +35,32 @@ class UploadViewModel(path: SavedStateHandle): ViewModel() {
     }
 
     fun uploadPhoto() {
-        _state.value = UploadState.Cargando //PONER CARGANDO QUE EXITO ES PA PROBAR
+        _state.value = UploadState.Cargando
 
         val currentUiState = _uiState.value
 
+        val uriPhoto = currentUiState.fotoSubir
+
+        if (!uriPhoto.startsWith("content://")) {
+            _state.value = UploadState.Error(R.string.Error_no_photo)
+            return
+        }
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val uriPhoto = currentUiState.fotoSubir
+                val respuesta = RetrofitClient.publicacionApi.obtenerUrlSubidaImagenPublicaciones()
 
-                if (uriPhoto.startsWith("content://")) {
+                if (respuesta.isSuccessful) {
+                    val postData = respuesta.body()
 
-                    val respuesta = RetrofitClient.publicacionApi.obtenerUrlSubidaImagenPublicaciones()
-
-                    if (respuesta.isSuccessful) {
-                        val postData = respuesta.body() //Me devuelve, el url y el id de la publicacione y yo llevo eso mas la imagen.
-
-                        if (postData != null) {
-                            _state.value = UploadState.Exito(userInfo,postData.idPost,postData.url)
-                        }
-                    }
-                    else {
-                        _state.value = UploadState.Error(errorMessages(respuesta.code()))
+                    if (postData != null) {
+                        _state.value = UploadState.Exito(userInfo, postData.idPost, postData.url)
                     }
                 }
+                else {
+                    _state.value = UploadState.Error(errorMessages(respuesta.code()))
+                }
             }
-
             catch (e: Exception) {
                 _state.value = UploadState.Error(R.string.Error_Network)
             }

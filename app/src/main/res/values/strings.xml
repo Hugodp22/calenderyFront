@@ -27,6 +27,7 @@
     <string name="Error_500_message">Error interno del servidor (500)</string>
     <string name="Error_Unknow_Message">Error desconocido</string>
     <string name="Error_Profile_Message">Perfil no encontrado</string>
+    <string name="Error_no_photo">Foto no seleccionada</string>
     <string name="Login_title">Inicio de sesión</string>
     <string name="Login_button">Iniciar sesión</string>
     <string name="Settings_Title">Configuración</string>
@@ -60,7 +61,19 @@
     <string name="selected_image">Imagen seleccionada</string>
     <string name="upload">Subir</string>
     <string name="select_image_upload">Selecciona una imagen</string>
+    <string name="date_selection">Selecciona una fecha</string>
     <string name="upload_message">Pon un mensaje!!!</string>
+    <string name="accept_text">Aceptar</string>
+    <string name="cancel_text">Cancelar</string>
+    <string name="selected_date">FECHA SELECCIONADA</string>
+    <string name="day">"dia: "</string>
+    <string name="month">"mes: "</string>
+    <string name="year">"año: "</string>
+    <string name="Error_date">Error: No hay fecha seleccionada</string>
+    <string name="sidebar">/</string>
+    <string name="next">Siguiente</string>
+    <string name="follow_user">Seguir</string>
+    <string name="message_user">Enviar mensaje</string>
 
 
 </resources>

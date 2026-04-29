@@ -29,7 +29,7 @@ interface PublicacionApiService {
     @PUT("")
     suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
 
-    @GET("api/users/app/")
+    @GET("api/publication/app/getPostUrl")
     suspend fun obtenerUrlSubidaImagenPublicaciones(): Response<UrlPost>
 
     @PUT("")

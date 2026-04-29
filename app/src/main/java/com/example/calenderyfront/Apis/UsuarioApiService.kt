@@ -45,6 +45,9 @@ interface UsuarioApiService {
     @GET("api/users/app/getUserProfile")
     suspend fun buscarDatosPerfil(@Query ("idUsuario") idUsuario: Int): Response<UserProfile>
 
+    @GET("")
+    suspend fun buscarDatosDeOtroPerfil(@Query("idUsuario") idUsuario: Int, @Query ("idOtroUsuario") idOtroUsuario: Int): Response<UserProfile>
+
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado
      * para asignarsela

@@ -1,5 +1,6 @@
 package com.example.calenderyfront.Screens
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +20,10 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,8 +53,8 @@ import coil.compose.AsyncImage
 import com.example.calenderyfront.ExpandedPhotoPostProfile
 import com.example.calenderyfront.ExpandedPhotoProfile
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
-import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.TimeData
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.profile.ProfileState
@@ -159,11 +163,12 @@ fun ProfileHeader(
     userName: String,
     photoUser: String,
     onClickPhoto: () -> Unit,
-    onClickSettings: () -> Unit,
-    onClickUpload: () -> Unit,
+    onClickLeft: () -> Unit,
+    onClickRight: () -> Unit,
     description: String?,
     numberOfFollowers: Int = 0,
     numberOfFollowed: Int = 0,
+    otherUser: Boolean
 )
 {
     val width = when (windowSize) {
@@ -182,7 +187,9 @@ fun ProfileHeader(
 
     val fontSizeName = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
-        else -> 22.sp
+        WindowWidthSizeClass.Medium -> 20.sp
+        WindowWidthSizeClass.Expanded -> 15.sp
+        else -> 15.sp
     }
 
     Box(modifier = modifier.fillMaxWidth()) {
@@ -214,63 +221,192 @@ fun ProfileHeader(
 
             Spacer(Modifier.height(12.dp))
 
-            Column(
-                Modifier
+            Row(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = MaterialTheme.colorScheme.onPrimary)
+                    .background(color = MaterialTheme.colorScheme.onPrimary),
+                verticalAlignment = Alignment.CenterVertically
             )
             {
-                Text(
-                    text = userName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = fontSizeName,
-                    color = MaterialTheme.colorScheme.tertiary
+                Column(
+                    modifier = Modifier.weight(1f)
                 )
-
-                if (!description.isNullOrEmpty()) {
+                {
                     Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        text = description,
-                        lineHeight = 18.sp,
+                        text = userName,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = fontSizeName,
                         color = MaterialTheme.colorScheme.tertiary
                     )
+
+                    if (!description.isNullOrEmpty()) {
+                        Text(
+                            modifier = Modifier.padding(top = 7.dp),
+                            text = description,
+                            fontSize = fontSizeName,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
                 }
             }
+
             Spacer(Modifier.padding(bottom = 16.dp))
+
+            if (otherUser) {
+                ButtonsBox(
+                    modifier = Modifier.padding(start = 8.dp),
+                    windowSize = windowSize,
+                    buttonLeft = R.string.follow_user,
+                    buttonRight = R.string.message_user,
+                    onClickLeft = onClickLeft,
+                    onClickRight = onClickRight
+                )
+                Spacer(Modifier.padding(bottom = 16.dp))
+            }
         }
 
-        IconsBox(
-            modifier = Modifier.align(Alignment.TopEnd).padding(top = 24.dp, end = 18.dp),
-            onClickUpload =  onClickUpload,
-            onClickSettings = onClickSettings,
+        if (!otherUser) {
+            IconsBox(
+                modifier = Modifier.align(Alignment.TopEnd).padding(top = 34.dp, end = 18.dp),
+                windowSize = windowSize,
+                leftIcon = R.drawable.upload,
+                descriptionLeft = R.string.upload_message,
+                rightIcon = R.drawable.settings,
+                descriptionRight = R.string.settings_profile,
+                onClickLeft =  onClickLeft,
+                onClickRight = onClickRight,
+            )
+        }
+    }
+}
+
+@Composable
+fun ButtonsBox(
+    modifier : Modifier = Modifier,
+    windowSize: WindowWidthSizeClass,
+    @StringRes buttonLeft: Int,
+    @StringRes buttonRight: Int,
+    onClickLeft: () -> Unit,
+    onClickRight: () -> Unit,
+)
+{
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 150.dp
+        WindowWidthSizeClass.Medium -> 210.dp
+        WindowWidthSizeClass.Expanded -> 200.dp
+        else -> 130.dp
+    }
+
+    val height = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 35.dp
+        WindowWidthSizeClass.Medium -> 50.dp
+        WindowWidthSizeClass.Expanded -> 45.dp
+        else -> 46.dp
+    }
+
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 14.sp
+        WindowWidthSizeClass.Medium -> 22.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
+        else -> 10.sp
+    }
+
+    val spacedBy = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 13.dp
+        WindowWidthSizeClass.Medium -> 25.dp
+        WindowWidthSizeClass.Expanded -> 13.dp
+        else -> 46.dp
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(spacedBy)
+    )
+    {
+        Button(
+            modifier = Modifier.size(width = width, height = height),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSecondary,
+                contentColor = MaterialTheme.colorScheme.tertiary,
+                disabledContentColor = Color.Gray,
+            ),
+            onClick = onClickLeft
         )
+        {
+            Text(
+                text = stringResource(buttonLeft),
+                fontSize = fontSize,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
+        Button(
+            modifier = Modifier.size(width = width, height = height),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onSecondary,
+                contentColor = MaterialTheme.colorScheme.tertiary,
+                disabledContentColor = Color.Gray,
+            ),
+            onClick = onClickRight
+        )
+        {
+            Text(
+                text = stringResource(buttonRight),
+                fontSize = fontSize,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
     }
 }
 
 @Composable
 fun IconsBox(
     modifier : Modifier = Modifier,
-    onClickUpload: () -> Unit,
-    onClickSettings: () -> Unit,
+    windowSize: WindowWidthSizeClass,
+    @DrawableRes leftIcon: Int,
+    @StringRes descriptionLeft: Int,
+    @DrawableRes rightIcon: Int,
+    @StringRes descriptionRight: Int,
+    onClickLeft: () -> Unit,
+    onClickRight: () -> Unit,
 )
 {
+    val iconSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 30.dp
+        WindowWidthSizeClass.Medium -> 50.dp
+        WindowWidthSizeClass.Expanded -> 50.dp
+        else -> 30.dp
+    }
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     )
     {
-        IconButton(onClick = onClickUpload) {
+        IconButton(
+            modifier = Modifier.size(iconSize),
+            onClick = onClickLeft
+        )
+        {
             Icon(
-                painter = painterResource(id = R.drawable.upload),
-                contentDescription = stringResource(R.string.post_profile),
+                modifier = Modifier.size(iconSize),
+                painter = painterResource(leftIcon),
+                contentDescription = stringResource(descriptionLeft),
             )
         }
 
-        IconButton(onClick = onClickSettings) {
+        IconButton(
+            modifier = Modifier.size(iconSize),
+            onClick = onClickRight
+        )
+        {
             Icon(
-                painter = painterResource(R.drawable.settings),
-                contentDescription = stringResource(R.string.settings_profile)
+                modifier = Modifier.size(iconSize),
+                painter = painterResource(rightIcon),
+                contentDescription = stringResource(descriptionRight)
             )
         }
     }
@@ -362,78 +498,95 @@ fun PostProfile(
 
 @Composable
 fun MonthTitle(
-    fistDayOfMonth: LocalDate,
+    localDate: LocalDate,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     canGoNext : Boolean,
     windowSize: WindowWidthSizeClass
 )
 {
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.7F
+        WindowWidthSizeClass.Medium -> 0.5F
+        WindowWidthSizeClass.Expanded -> 0.55F
+        else -> 0.7F
+    }
+
     val fontSizeTitle = when (windowSize) {
         WindowWidthSizeClass.Compact -> 35.sp
+        WindowWidthSizeClass.Medium -> 50.sp
+        WindowWidthSizeClass.Expanded -> 50.sp
         else -> 25.sp
     }
 
     val fontSizeYear = when (windowSize) {
         WindowWidthSizeClass.Compact -> 22.sp
+        WindowWidthSizeClass.Medium -> 33.sp
+        WindowWidthSizeClass.Expanded -> 33.sp
         else -> 22.sp
     }
 
     val fontSizeArrows = when (windowSize) {
         WindowWidthSizeClass.Compact -> 35.sp
-        else -> 25.sp
+        WindowWidthSizeClass.Medium -> 50.sp
+        WindowWidthSizeClass.Expanded -> 50.sp
+        else -> 35.sp
     }
 
     val monthTitle =
-        fistDayOfMonth.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
+        localDate.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.5F)
-            .background(color = MaterialTheme.colorScheme.primary)
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
     )
     {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Card(
+            modifier = Modifier.fillMaxWidth(width),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.onPrimary
+            ),
         )
         {
-            Text(
-                text = stringResource(R.string.left_arrow),
+            Row(
                 modifier = Modifier
-                    .clickable { onPreviousMonth() }
-                    .padding(16.dp),
-                fontSize = fontSizeArrows,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.tertiary
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             )
-
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            {
                 Text(
-                    text = monthTitle,
-                    fontFamily = FjalaOne,
-                    fontSize = fontSizeTitle,
-                    color = MaterialTheme.colorScheme.tertiary,
-                )
-                Text(
-                    text = fistDayOfMonth.year.toString(),
-                    fontSize = fontSizeYear,
+                    text = stringResource(R.string.left_arrow),
+                    modifier = Modifier.clickable { onPreviousMonth() },
+                    fontSize = fontSizeArrows,
                     color = MaterialTheme.colorScheme.tertiary
                 )
-            }
 
-            Text(
-                text = stringResource(R.string.right_arrow),
-                modifier = Modifier
-                    .padding(16.dp)
-                    .then(if (canGoNext) Modifier.clickable { onNextMonth() } else Modifier), //Lo desactivamos si no puede seguir
-                fontSize = fontSizeArrows,
-                fontWeight = FontWeight.Bold,
-                color = if (canGoNext) MaterialTheme.colorScheme.tertiary else Color.Gray
-            )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                )
+                {
+                    Text(
+                        text = monthTitle,
+                        fontFamily = FjalaOne,
+                        fontSize = fontSizeTitle,
+                        color = MaterialTheme.colorScheme.tertiary,
+                    )
+                    Text(
+                        text = localDate.year.toString(),
+                        fontSize = fontSizeYear,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+
+                Text(
+                    text = stringResource(R.string.right_arrow),
+                    modifier = Modifier.then(if (canGoNext) Modifier.clickable { onNextMonth() } else Modifier),
+                    fontSize = fontSizeArrows,
+                    color = if (canGoNext) MaterialTheme.colorScheme.tertiary else Color.Gray
+                )
+            }
         }
     }
 }
@@ -475,6 +628,7 @@ fun ProfileScreen(
     windowSize: WindowWidthSizeClass,
     onNavigateToSettings: (UserInfo) -> Unit,
     onNavigateToUpload: (UserInfo) -> Unit,
+    onNavigateToChat: (UserInfo,Int) -> Unit,
     viewModel: ProfileViewModel = viewModel(),
 )
 {
@@ -489,6 +643,8 @@ fun ProfileScreen(
     var selectedMonth by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes que puede variar
     val realCurrentMonth = remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
     val canGoNext = selectedMonth.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
+
+    val otherUser = uiState.otherUserId != null //Para saber si hemos entrado en el perfil nuestro o de otro usuario
 
 
     //Para detectar cuando el scroll esta en el final
@@ -542,17 +698,32 @@ fun ProfileScreen(
                 userName = uiState.nombreUsuario,
                 photoUser = uiState.fotoUsuario,
                 onClickPhoto = { expandedPhotoProfile = true },
-                onClickSettings = {onNavigateToSettings(uiState.usuario)},
-                onClickUpload = { onNavigateToUpload(uiState.usuario) },
+                onClickLeft = {
+                    if (otherUser) {
+                        viewModel.followUser()
+                    }
+                    else {
+                        onNavigateToUpload(uiState.usuario)
+                    }
+                                  },
+                onClickRight = {
+                    if (otherUser) {
+                        onNavigateToChat(uiState.usuario,uiState.mainId)
+                    }
+                    else {
+                        onNavigateToSettings(uiState.usuario)
+                    }
+                                   },
                 description = uiState.descripcion,
                 numberOfFollowers = uiState.cantidadSeguidores,
-                numberOfFollowed = uiState.cantidadSeguidos
+                numberOfFollowed = uiState.cantidadSeguidos,
+                otherUser = otherUser
             )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             MonthTitle(
-                fistDayOfMonth = selectedMonth,
+                localDate = selectedMonth,
                 windowSize = windowSize,
                 onPreviousMonth = { selectedMonth = selectedMonth.minusMonths(1) }, //Va restando todo, incluido año al llegar
                 onNextMonth = {
