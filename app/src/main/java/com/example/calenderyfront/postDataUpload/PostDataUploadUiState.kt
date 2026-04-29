@@ -1,6 +1,7 @@
 package com.example.calenderyfront.postDataUpload
 
 import com.example.calenderyfront.Model.DataObjects.UserInfo
+import java.time.LocalDate
 
 data class PostDataUploadUiState (
     val userInfo: UserInfo,
@@ -8,6 +9,5 @@ data class PostDataUploadUiState (
     val photoPath: String,
     val photoUrl: String,
     val message: String,
-    val month: Int,
-    val year: Int,
+    val date: LocalDate? = null,
 )

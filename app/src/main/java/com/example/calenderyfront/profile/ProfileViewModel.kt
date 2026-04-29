@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
@@ -21,11 +22,17 @@ import kotlin.reflect.typeOf
 
 class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
-    private val userInfo = path.toRoute<Settings>(
+    private val userInfo = path.toRoute<Profile>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, "", "Perfil_defecto.png", "", 0, 0))
+    private val otherUserId = path.toRoute<Profile>(
+        typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+    ).otherUserID
+
+    private val mainId: Int = otherUserId ?: userInfo.idUsuario
+
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, otherUserId, mainId,"", "Perfil_defecto.png", "", 0, 0))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
@@ -38,14 +45,60 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
     private var lastLoadedMonth: Int? = null
 
+    //Seleccionamos el Id con el que se van a cargar los datos o ciertas cosas
+
     init {
-        loadProfile()
+        if (otherUserId == null) {
+            loadProfile()
+        }
+        else {
+            loadOtherProfile()
+        }
     }
 
     private fun loadProfile() {
+        val currentUiState = _uiState.value
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.usuarioApi.buscarDatosPerfil(userInfo.idUsuario)
+                val respuesta = RetrofitClient.usuarioApi.buscarDatosPerfil(currentUiState.mainId)
+
+                if (respuesta.isSuccessful) {
+                    val userData = respuesta.body()
+
+                    if (userData != null) {
+                        _uiState.update {
+                            it.copy(
+                                nombreUsuario = userData.nombre,
+                                fotoUsuario = userData.fotoPerfil,
+                                descripcion = userData.descripcion,
+                                cantidadSeguidos = userData.cantidadSeguidos,
+                                cantidadSeguidores = userData.cantidadSeguidores
+                            )
+                        }
+                        //loadPublications()
+                    }
+                    else {
+                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                    }
+                }
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    private fun loadOtherProfile() {
+        val currentUiState = _uiState.value
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.buscarDatosDeOtroPerfil(
+                    idUsuario = userInfo.idUsuario,
+                    idOtroUsuario = currentUiState.mainId
+                )
 
                 if (respuesta.isSuccessful) {
                     val userData = respuesta.body()
@@ -97,7 +150,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             try {
                 //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
                 val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
-                    userId = userInfo.idUsuario,
+                    userId = currentState.mainId,
                     month = month,
                     year = year,
                     page = currentPage,
@@ -127,5 +180,12 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
+    }
+    fun followUser() {
+
+    }
+
+    fun messageUser() {
+
     }
 }

@@ -26,7 +26,7 @@ data class VerifyLink(val userInfo: UserInfo)
 data class Home(val userInfo: UserInfo)
 
 @Serializable
-data class Profile(val userInfo: UserInfo)
+data class Profile(val userInfo: UserInfo, val otherUserID: Int? = null)
 
 @Serializable
 data class Upload(val userInfo: UserInfo)

@@ -39,14 +39,6 @@ import com.example.calenderyfront.upload.UploadState
 import com.example.calenderyfront.upload.UploadViewModel
 
 @Composable
-fun PostMessageInput(
-    windowSize: WindowWidthSizeClass
-)
-{
-
-}
-
-@Composable
 fun UploadScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
@@ -73,15 +65,15 @@ fun UploadScreen(
 
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.8F
-        WindowWidthSizeClass.Medium -> 0.8F
-        WindowWidthSizeClass.Expanded -> 0.8F
+        WindowWidthSizeClass.Medium -> 0.6F
+        WindowWidthSizeClass.Expanded -> 0.7F
         else -> 0.8F
     }
 
     val height = when (windowSize) {
         WindowWidthSizeClass.Compact -> 400.dp
         WindowWidthSizeClass.Medium -> 450.dp
-        WindowWidthSizeClass.Expanded -> 450.dp
+        WindowWidthSizeClass.Expanded -> 350.dp
         else -> 400.dp
     }
 
@@ -109,7 +101,9 @@ fun UploadScreen(
             fontFamily = BebasNeue,
             fontSize = fontSize,
             color = MaterialTheme.colorScheme.tertiary,
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 60.dp, bottom = 20.dp)
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 60.dp, bottom = 20.dp)
         )
 
         Column(
@@ -118,8 +112,14 @@ fun UploadScreen(
         )
         {
             Card(
-                modifier = Modifier.fillMaxWidth(0.9f).height(height).clickable { openGallery() },
-                colors = CardDefaults.cardColors(containerColor = Color.LightGray),
+                modifier = Modifier
+                    .fillMaxWidth(width)
+                    .height(height)
+                    .clickable { openGallery() },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.tertiary
+                ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             )
             {
@@ -149,11 +149,13 @@ fun UploadScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             SaveButton(
-                textButton = R.string.upload,
+                textButton = R.string.next,
                 windowSize = windowSize,
                 onClick = { viewModel.uploadPhoto() },
                 enable = enableButton
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (stateProcess is UploadState.Cargando) {
                 CircularProgressIndicator(
