@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.typeOf
 
 class PostDataUploadViewModel(path: SavedStateHandle): ViewModel()  {
@@ -65,17 +66,19 @@ class PostDataUploadViewModel(path: SavedStateHandle): ViewModel()  {
             try {
                 val uriGallery = currentUiState.photoPath.toUri()
 
+                val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                val dateString = currentUiState.date.format(dateFormatter)
+
                 val sendImage = sendImageToBucket(context,uriGallery,currentUiState.photoUrl)
 
                 if (sendImage) {
 
                     val respuesta = RetrofitClient.publicacionApi.mandarDatosPost(
                         postData = PostData(
-                            idUsuario = userInfo.idUsuario,
                             idPost = currentUiState.postId,
+                            idUsuario = userInfo.idUsuario,
                             message = currentUiState.message,
-                            month = currentUiState.date.monthValue,
-                            year = currentUiState.date.year
+                            calendarDate = dateString
                         )
                     )
 

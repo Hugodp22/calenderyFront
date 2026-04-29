@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,100 +63,132 @@ import com.example.calenderyfront.profile.ProfileViewModel
 import com.example.calenderyfront.rowProfilePostSize
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.FjalaOne
-import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.TextStyle
-import java.time.temporal.ChronoUnit
 import java.time.temporal.WeekFields
+import java.util.Locale
 import java.util.Locale.getDefault
-import java.util.SortedMap
+
 
 val publicacionesDePrueba = listOf(
     PublicacionProfile(
         id = 1,
-        fotoPublicacion = "https://picsum.photos/id/10/500/500",
-        mensaje = "Publicación de la tarde",
+        fotoPublicacion = "https://picsum.photos/id/10/400/400",
+        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
         cantidadLikes = 120,
-        fechaCalendario = LocalDate.of(2026, 4, 20),
-        fechaPublicacion = Instant.parse("2026-04-20T18:30:00Z")
+        cantidadComentarios = 15,
+        fechaCalendario = LocalDate.of(2026, 3, 1),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
+    ),
+    PublicacionProfile(
+        id = 222,
+        fotoPublicacion = "https://picsum.photos/id/10/400/400",
+        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
+        cantidadLikes = 120,
+        cantidadComentarios = 15,
+        fechaCalendario = LocalDate.of(2026, 3, 1),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
+    ),PublicacionProfile(
+        id = 334,
+        fotoPublicacion = "https://picsum.photos/id/10/400/400",
+        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
+        cantidadLikes = 120,
+        cantidadComentarios = 15,
+        fechaCalendario = LocalDate.of(2026, 3, 1),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
+    ),
+    PublicacionProfile(
+        id = 333,
+        fotoPublicacion = "https://picsum.photos/id/10/400/400",
+        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
+        cantidadLikes = 120,
+        cantidadComentarios = 15,
+        fechaCalendario = LocalDate.of(2026, 3, 1),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
     ),
     PublicacionProfile(
         id = 2,
-        fotoPublicacion = "https://picsum.photos/id/20/500/500",
-        mensaje = "Publicación de la mañana",
-        cantidadLikes = 85,
-        fechaCalendario = LocalDate.of(2026, 4, 20),
-        fechaPublicacion = Instant.parse("2026-04-20T09:15:00Z")
+        fotoPublicacion = null,
+        mensaje = "Un pensamiento rápido de lunes por la tarde...",
+        cantidadLikes = 45,
+        cantidadComentarios = 2,
+        fechaCalendario = LocalDate.of(2026, 3, 9),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 9, 18, 15)
     ),
-
     PublicacionProfile(
         id = 3,
-        fotoPublicacion = "https://picsum.photos/id/30/500/500",
-        mensaje = "Día de relax",
-        cantidadLikes = 250,
-        fechaCalendario = LocalDate.of(2026, 4, 20),
-        fechaPublicacion = Instant.now().minus(1, ChronoUnit.DAYS)
+        fotoPublicacion = "https://picsum.photos/id/20/400/400",
+        mensaje = "Día de campo, desconexión total.",
+        cantidadLikes = 350,
+        cantidadComentarios = 42,
+        fechaCalendario = LocalDate.of(2026, 3, 15),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 15, 12, 0)
     ),
     PublicacionProfile(
         id = 4,
-        fotoPublicacion = "https://picsum.photos/id/40/500/500",
-        mensaje = "Café mañanero",
-        cantidadLikes = 45,
-        fechaCalendario = LocalDate.of(2026, 4, 20),
-        fechaPublicacion = Instant.now().minus(2, ChronoUnit.DAYS)
+        fotoPublicacion = "https://picsum.photos/id/30/400/400",
+        mensaje = "Preparando grandes cosas para abril.",
+        cantidadLikes = 89,
+        cantidadComentarios = 8,
+        fechaCalendario = LocalDate.of(2026, 3, 25),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 25, 20, 45)
     ),
     PublicacionProfile(
         id = 5,
-        fotoPublicacion = "https://picsum.photos/id/50/500/500",
-        mensaje = "Nuevas metas",
-        cantidadLikes = 300,
-        fechaCalendario = LocalDate.of(2026, 4, 17),
-        fechaPublicacion = Instant.now().minus(3, ChronoUnit.DAYS)
+        fotoPublicacion = null,
+        mensaje = "¡Adiós marzo, fuiste increíble!",
+        cantidadLikes = 67,
+        cantidadComentarios = 4,
+        fechaCalendario = LocalDate.of(2026, 3, 31),
+        fechaPublicacion = LocalDateTime.of(2026, 3, 31, 23, 50)
     ),
     PublicacionProfile(
         id = 6,
-        fotoPublicacion = "https://picsum.photos/id/60/500/500",
-        mensaje = "Vistas increíbles",
-        cantidadLikes = 156,
-        fechaCalendario = LocalDate.of(2026, 4, 16),
-        fechaPublicacion = Instant.now().minus(4, ChronoUnit.DAYS)
+        fotoPublicacion = "https://picsum.photos/id/40/400/400",
+        mensaje = "Primer día de abril, ¡vamos con todo!",
+        cantidadLikes = 210,
+        cantidadComentarios = 25,
+        fechaCalendario = LocalDate.of(2026, 4, 1),
+        fechaPublicacion = LocalDateTime.of(2026, 4, 1, 10, 15)
     ),
     PublicacionProfile(
         id = 7,
-        fotoPublicacion = "https://picsum.photos/id/70/500/500",
-        mensaje = "Working hard",
-        cantidadLikes = 92,
-        fechaCalendario = LocalDate.of(2026, 4, 15),
-        fechaPublicacion = Instant.now().minus(5, ChronoUnit.DAYS)
+        fotoPublicacion = "https://picsum.photos/id/50/400/400",
+        mensaje = "Disfrutando de las flores de primavera.",
+        cantidadLikes = 540,
+        cantidadComentarios = 63,
+        fechaCalendario = LocalDate.of(2026, 4, 10),
+        fechaPublicacion = LocalDateTime.of(2026, 4, 10, 16, 20)
     ),
     PublicacionProfile(
         id = 8,
-        fotoPublicacion = "https://picsum.photos/id/82/500/500",
-        mensaje = "TBT de vacaciones",
-        cantidadLikes = 410,
-        fechaCalendario = LocalDate.of(2026, 4, 14),
-        fechaPublicacion = Instant.now().minus(6, ChronoUnit.DAYS)
+        fotoPublicacion = null,
+        mensaje = "¿Alguien más siente que abril vuela?",
+        cantidadLikes = 32,
+        cantidadComentarios = 12,
+        fechaCalendario = LocalDate.of(2026, 4, 18),
+        fechaPublicacion = LocalDateTime.of(2026, 4, 18, 14, 0)
     ),
     PublicacionProfile(
         id = 9,
-        fotoPublicacion = "https://picsum.photos/id/90/500/500",
-        mensaje = "Cena con amigos",
-        cantidadLikes = 112,
-        fechaCalendario = LocalDate.of(2026, 4, 13),
-        fechaPublicacion = Instant.now().minus(7, ChronoUnit.DAYS)
+        fotoPublicacion = "https://picsum.photos/id/60/400/400",
+        mensaje = "Working late en nuevos proyectos.",
+        cantidadLikes = 156,
+        cantidadComentarios = 19,
+        fechaCalendario = LocalDate.of(2026, 4, 25),
+        fechaPublicacion = LocalDateTime.of(2026, 4, 25, 22, 30)
     ),
     PublicacionProfile(
         id = 10,
-        fotoPublicacion = "https://picsum.photos/id/102/500/500",
-        mensaje = "Último post del pack",
-        cantidadLikes = 67,
-        fechaCalendario = LocalDate.of(2026, 4, 12),
-        fechaPublicacion = Instant.now().minus(8, ChronoUnit.DAYS)
-    ),
-    //Publicacion en mes diferente para ver si funciona, espero que si
-    PublicacionProfile(id = 11, fotoPublicacion = "https://picsum.photos/id/102/500/500", mensaje = "Último post del pack", cantidadLikes = 67, fechaCalendario = LocalDate.of(2026, 3, 12), fechaPublicacion = Instant.now().minus(8, ChronoUnit.DAYS))
+        fotoPublicacion = "https://picsum.photos/id/70/400/400",
+        mensaje = "Cerrando el mes con broche de oro.",
+        cantidadLikes = 890,
+        cantidadComentarios = 104,
+        fechaCalendario = LocalDate.of(2026, 4, 29),
+        fechaPublicacion = LocalDateTime.of(2026, 4, 29, 11, 0)
+    )
 )
-
 @Composable
 fun ProfileHeader(
     modifier: Modifier = Modifier,
@@ -168,7 +201,8 @@ fun ProfileHeader(
     description: String?,
     numberOfFollowers: Int = 0,
     numberOfFollowed: Int = 0,
-    otherUser: Boolean
+    otherUser: Boolean,
+    follow : Boolean
 )
 {
     val width = when (windowSize) {
@@ -259,7 +293,8 @@ fun ProfileHeader(
                     buttonLeft = R.string.follow_user,
                     buttonRight = R.string.message_user,
                     onClickLeft = onClickLeft,
-                    onClickRight = onClickRight
+                    onClickRight = onClickRight,
+                    follow = follow
                 )
                 Spacer(Modifier.padding(bottom = 16.dp))
             }
@@ -267,7 +302,9 @@ fun ProfileHeader(
 
         if (!otherUser) {
             IconsBox(
-                modifier = Modifier.align(Alignment.TopEnd).padding(top = 34.dp, end = 18.dp),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 34.dp, end = 18.dp),
                 windowSize = windowSize,
                 leftIcon = R.drawable.upload,
                 descriptionLeft = R.string.upload_message,
@@ -288,6 +325,7 @@ fun ButtonsBox(
     @StringRes buttonRight: Int,
     onClickLeft: () -> Unit,
     onClickRight: () -> Unit,
+    follow: Boolean
 )
 {
     val width = when (windowSize) {
@@ -318,6 +356,17 @@ fun ButtonsBox(
         else -> 46.dp
     }
 
+    val colorsLeftButton = when (follow) {
+        true -> buttonColors(
+            containerColor = MaterialTheme.colorScheme.onSecondary,
+            contentColor = MaterialTheme.colorScheme.tertiary,
+        )
+        else -> buttonColors(
+            containerColor = MaterialTheme.colorScheme.onSecondary,
+            contentColor = MaterialTheme.colorScheme.tertiary,
+        )
+    }
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -326,16 +375,12 @@ fun ButtonsBox(
     {
         Button(
             modifier = Modifier.size(width = width, height = height),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.onSecondary,
-                contentColor = MaterialTheme.colorScheme.tertiary,
-                disabledContentColor = Color.Gray,
-            ),
+            colors = colorsLeftButton,
             onClick = onClickLeft
         )
         {
             Text(
-                text = stringResource(buttonLeft),
+                text = if (!follow) stringResource(buttonLeft) else stringResource(R.string.unfollow_text),
                 fontSize = fontSize,
                 maxLines = 1,
                 color = MaterialTheme.colorScheme.tertiary
@@ -592,34 +637,27 @@ fun MonthTitle(
 }
 
 /**
- * Funcion para ordenar las publicaciones, mediante su mes, y dentro del mes, mediante numero de semana
+ * Función para ordenar las publicaciones, mediante su mes, y dentro del mes, mediante número de semana
  */
-fun getGroupedPosts(publicaciones: List<PublicacionProfile>): SortedMap<LocalDate, SortedMap<TimeData, List<PublicacionProfile>>> {
-    //Obtenemos cuando acaba una semana a nivel regional
-    val weekFields = WeekFields.of(getDefault())
+fun getGroupedPosts(posts: List<PublicacionProfile>): Map<LocalDate, Map<TimeData, List<PublicacionProfile>>> {
+    val weekFields = WeekFields.of(Locale.getDefault())
 
-    return publicaciones
-        .sortedBy { it.fechaCalendario } // Ordenamos por fecha de calendario
-        .groupBy { it.fechaCalendario.withDayOfMonth(1) } // Agrupamos por el inicio del mes
-        //Ordenamos cada mes
-        .mapValues { monthEntry ->
-            monthEntry.value //Obtenemos el mes
+    return posts
+        .sortedByDescending { it.fechaPublicacion }
+        .groupBy { it.fechaCalendario.withDayOfMonth(1) }
+        .toSortedMap(compareByDescending { it })
+        .mapValues { (month, postsInMonth) ->
+            postsInMonth
                 .groupBy { post ->
-                    // Calculamos el numero de semana del mes
-                    val numSemana = post.fechaCalendario.get(weekFields.weekOfMonth())
-
+                    val numSemana = post.fechaCalendario.get(weekFields.weekOfMonth()).coerceAtLeast(1)
                     TimeData(
                         anio = post.fechaCalendario.year,
                         semana = numSemana,
-                        fechaReferencia = monthEntry.key //Obtenemos el dia 1 de ese mes
+                        fechaReferencia = month
                     )
                 }
-                .mapValues { weekEntry ->
-                    weekEntry.value.sortedByDescending { it.fechaPublicacion } //Ordenamos por fecha de publicacion dentro de una misma semana
-                }
-                .toSortedMap(compareBy { it.semana }) //Ordenamos las semanas
+                .toSortedMap(compareBy { it.semana })
         }
-        .toSortedMap(compareByDescending { it })
 }
 
 @Composable
@@ -717,7 +755,8 @@ fun ProfileScreen(
                 description = uiState.descripcion,
                 numberOfFollowers = uiState.cantidadSeguidores,
                 numberOfFollowed = uiState.cantidadSeguidos,
-                otherUser = otherUser
+                otherUser = otherUser,
+                follow = uiState.seguidor
             )
         }
 

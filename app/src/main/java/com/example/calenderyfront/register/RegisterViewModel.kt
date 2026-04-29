@@ -129,7 +129,8 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     val codigoError = respuesta.code()
                     _state.value = RegisterState.Error(errorMessages(codigoError))
                 }
-            } catch (e: Exception) {
+            }
+            catch (e: Exception) {
                 // Error de red
                 _state.value = RegisterState.Error(R.string.Error_Network)
             }
