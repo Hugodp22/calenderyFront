@@ -1,4 +1,4 @@
-package com.example.calenderyfront.Screens.home
+package com.example.calenderyfront.home
 
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 import com.example.calenderyfront.Model.DataObjects.UserInfo
