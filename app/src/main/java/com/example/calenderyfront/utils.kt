@@ -159,14 +159,21 @@ fun InputCreation(
  * para que el usuario no se pase demasiado
  */
 @Composable
-fun MessageLimitContent(modifier: Modifier = Modifier, @StringRes placeHolder: Int, description: String?, onValueChange: (String) -> Unit, limite : Int = 150) {
-    val cantidadMaxima: Int = limite
+fun MessageLimitContent(
+    modifier: Modifier = Modifier,
+    @StringRes placeHolder: Int,
+    description: String?,
+    onValueChange: (String) -> Unit,
+    wordsLimit : Int = 150,
+    postMessage: Boolean = false
+)
+{
 
     OutlinedTextField (
         value = description ?: "",
         onValueChange = {
             //Le ponemos limite a la descripcion
-            if (it.length <= cantidadMaxima) {
+            if (it.length <= wordsLimit) {
                 onValueChange(it)
             }
         },
@@ -174,12 +181,12 @@ fun MessageLimitContent(modifier: Modifier = Modifier, @StringRes placeHolder: I
         placeholder = { Text(stringResource(placeHolder))},
         maxLines = 3,
         singleLine = false,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(if (!postMessage) 16.dp else 0.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.primary,
             unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-            focusedBorderColor = Color(0xFF4285F4),
-            unfocusedBorderColor = Color.Gray,
+            focusedBorderColor = if (!postMessage) Color(0xFF4285F4) else MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = if (!postMessage) Color.Gray else MaterialTheme.colorScheme.primary,
             cursorColor = MaterialTheme.colorScheme.tertiary,
             unfocusedTextColor = Color.Gray,
             focusedTextColor = MaterialTheme.colorScheme.tertiary
@@ -394,6 +401,19 @@ fun ExpandedPhotoPostProfile(
                 IconPostDialog(Modifier.size(iconSize),R.drawable.favourite,R.string.like_Message,{onClickLikes})
                 IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,{onClickComments})
             }
+            if (post.mensaje != null) {
+                Column(
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 30.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                )
+                {
+                    Text(
+                        text = post.mensaje,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+            }
+
         }
     }
 }

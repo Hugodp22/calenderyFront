@@ -32,7 +32,7 @@ interface PublicacionApiService {
     @GET("api/publication/app/getPostUrl")
     suspend fun obtenerUrlSubidaImagenPublicaciones(): Response<UrlPost>
 
-    @PUT("")
+    @PUT("api/publication/app/putPublicationData")
     suspend fun mandarDatosPost(@Body postData: PostData):Response<Unit>
 
     @GET("")

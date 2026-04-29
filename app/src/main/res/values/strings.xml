@@ -74,6 +74,7 @@
     <string name="next">Siguiente</string>
     <string name="follow_user">Seguir</string>
     <string name="message_user">Enviar mensaje</string>
+    <string name="unfollow_text">Dejar de seguir</string>
 
 
 </resources>

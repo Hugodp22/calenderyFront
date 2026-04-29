@@ -65,6 +65,7 @@ fun PostDataUploadScreen(
     }
 
     val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = System.currentTimeMillis(),
         selectableDates = dateValidator
     )
 
@@ -136,20 +137,19 @@ fun PostDataUploadScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         MessageLimitContent(
-            modifier = Modifier.fillMaxWidth( messageWidth),
+            modifier = Modifier.fillMaxWidth( width),
             placeHolder = R.string.upload_message,
             description = uiState.message,
-            onValueChange = { viewModel.onMessageChange(it) }
+            onValueChange = { viewModel.onMessageChange(it) },
+            postMessage = true
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         SaveButton(R.string.upload, windowSize, { viewModel.uploadPost(context) }, enableButton)
 
-        Spacer(modifier = Modifier.height(64.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         if (stateProcess is PostDataUploadState.Cargando) {
             CircularProgressIndicator(
@@ -164,5 +164,9 @@ fun PostDataUploadScreen(
                 color = Color.Red
             )
         }
+
+
+        Spacer(modifier = Modifier.height(64.dp))
+
     }
 }

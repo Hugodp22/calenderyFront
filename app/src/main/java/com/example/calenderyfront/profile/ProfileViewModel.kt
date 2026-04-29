@@ -75,7 +75,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 cantidadSeguidores = userData.cantidadSeguidores
                             )
                         }
-                        //loadPublications()
+                        //loadPublicationsByDate()
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -113,7 +113,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 cantidadSeguidores = userData.cantidadSeguidores
                             )
                         }
-                        //loadPublications()
+                        //loadPublicationsByDate()
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -182,10 +182,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
     fun followUser() {
-
-    }
-
-    fun messageUser() {
 
     }
 }

@@ -13,5 +13,6 @@ data class ProfileUiState(
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
     val publicaciones: List<PublicacionProfile> = emptyList(),
-    val ultimaPagina: Boolean = false
+    val ultimaPagina: Boolean = false,
+    val seguidor: Boolean = false,
 )
