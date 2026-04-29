@@ -45,8 +45,8 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.rowProfilePostSize
-import com.example.calenderyfront.Screens.home.HomeState
-import com.example.calenderyfront.Screens.home.HomeViewModel
+import com.example.calenderyfront.home.HomeState
+import com.example.calenderyfront.home.HomeViewModel
 
 val listaPublicaciones = listOf(
     PublicacionHome(
