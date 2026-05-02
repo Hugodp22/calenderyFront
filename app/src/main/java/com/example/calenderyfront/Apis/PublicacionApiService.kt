@@ -1,5 +1,6 @@
 package com.example.calenderyfront.Apis
 
+import com.example.calenderyfront.Model.DataObjects.PageResponse
 import com.example.calenderyfront.Model.DataObjects.PostData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
@@ -17,14 +18,14 @@ interface PublicacionApiService {
      * Funcion para cargar paginas por el id pensado para el perfil, enviandole la pagina actual
      * y el tamaño de cada pagina. Tambien se le enviara mes y año para filtrar por estos
      */
-    @GET("")
+    @GET("api/publication/app/getProfilePosts")
     suspend fun obtenerPublicacionesPerfil(
-        @Query("userId") userId: Int,
+        @Query("idUsuario") idUsuario: Int,
         @Query("month") month: Int,
         @Query("year") year: Int,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
-    ): Response<List<PublicacionProfile>>
+    ): Response<PageResponse<PublicacionProfile>>
 
     @PUT("")
     suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>

@@ -94,7 +94,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     _state.value = LoginState.Error(errorMessages(codigoError))
                 }
 
-            } catch(e: Exception) {
+            }
+            catch(e: Exception) {
                 //Error de red
                 _state.value = LoginState.Error(R.string.Error_Network)
             }

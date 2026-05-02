@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
@@ -21,11 +22,11 @@ import kotlin.reflect.typeOf
 
 class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
-    private val userInfo = path.toRoute<Settings>(
+    private val userInfo = path.toRoute<Home>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).userInfo
 
-    private val _uiState = MutableStateFlow(HomeUiState(userInfo,0,emptyList()))
+    private val _uiState = MutableStateFlow(HomeUiState(userInfo,emptyList()))
     val uiState: StateFlow<HomeUiState> = _uiState
 
     private val _state = MutableStateFlow<HomeState>(HomeState.Iniciado)

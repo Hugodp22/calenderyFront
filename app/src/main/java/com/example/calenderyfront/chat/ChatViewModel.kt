@@ -4,10 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.Message
 import com.example.calenderyfront.Model.DataObjects.UserInfo
-import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,10 +30,10 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     private val _state = MutableStateFlow<ChatState>(ChatState.Loading) // Estado inicial
     val state: StateFlow<ChatState> = _state.asStateFlow()
 
-    private val _uiState = MutableStateFlow(
-        ChatUiState(
-            userInfo = userInfo,
-            otherUserId = otherUserId
+    private val _uiState = MutableStateFlow(ChatUiState(
+        userInfo = userInfo,
+            otherUserId = otherUserId,
+            sendMessage = ""
         )
     )
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
@@ -78,24 +79,25 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     }
 
     // enviar mensaje
-    fun sendMessage(text: String) {
+    fun sendMessage() {
 
-        val currentMessages = _uiState.value.messages // mensajes actuales
+        val currentUiState = _uiState.value // mensajes actuales
 
         // mensaje nuevo del usuario
         val newMessage = Message(
             idUsuario = userInfo.idUsuario,
-            mensaje = text,
+            mensaje = currentUiState.sendMessage,
             cifrado = false
         )
 
-        val updatedList = listOf(newMessage) + currentMessages // añade arriba el mensaje
+        val updatedList = listOf(newMessage) + currentUiState.messages // añade arriba el mensaje
 
         _uiState.update {
             it.copy(messages = updatedList)
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+
         }
     }
 

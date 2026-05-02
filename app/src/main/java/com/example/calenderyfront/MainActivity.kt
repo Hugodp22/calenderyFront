@@ -38,6 +38,7 @@ import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.Screens.HomeScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -79,7 +80,7 @@ fun CalenderyApp(
                     navController.navigate(VerifyLink(userInfo))
                 },
                 onNavigateToProfile = { userInfo ->
-                    navController.navigate(Profile(userInfo))
+                    navController.navigate(Home(userInfo))
                 }
             )
         }

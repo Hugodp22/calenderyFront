@@ -1,11 +1,11 @@
 package com.example.calenderyfront.profile
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Profile
-import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
@@ -13,11 +13,13 @@ import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import kotlin.reflect.typeOf
 
 class ProfileViewModel(path: SavedStateHandle): ViewModel() {
@@ -44,6 +46,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     private var lastLoadedYear: Int? = null
 
     private var lastLoadedMonth: Int? = null
+
+    private var searchJob: Job? = null
 
     //Seleccionamos el Id con el que se van a cargar los datos o ciertas cosas
 
@@ -75,7 +79,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 cantidadSeguidores = userData.cantidadSeguidores
                             )
                         }
-                        //loadPublicationsByDate()
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -110,10 +113,9 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 fotoUsuario = userData.fotoPerfil + "?width=500&quality=7",
                                 descripcion = userData.descripcion,
                                 cantidadSeguidos = userData.cantidadSeguidos,
-                                cantidadSeguidores = userData.cantidadSeguidores
+                                cantidadSeguidores = userData.cantidadSeguidores,
                             )
                         }
-                        //loadPublicationsByDate()
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -132,41 +134,36 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun loadPublicationsByDate(year: Int, month: Int) {
         val currentState = _uiState.value
 
-        // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
-        if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
-            return
-        }
-
-        //Si cambiamos de mes en el perfil, reseteamos todo
         if (year != lastLoadedYear || month != lastLoadedMonth) {
             currentPage = 0
             _uiState.update { it.copy(ultimaPagina = false, publicaciones = emptyList()) }
             lastLoadedYear = year
             lastLoadedMonth = month
+            _state.value = ProfileState.Iniciado
         }
 
+        // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
+            return
+        }
+
+        _state.value = ProfileState.Cargando
+
         viewModelScope.launch(Dispatchers.IO) {
-            _state.value = ProfileState.Cargando
             try {
                 //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
-                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
-                    userId = currentState.mainId,
-                    month = month,
-                    year = year,
-                    page = currentPage,
-                    size = currentPageSize,
-                )
+                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(idUsuario = currentState.mainId, month = month, year = year, page = currentPage, size = currentPageSize)
 
                 if (respuesta.isSuccessful) {
                     val publicacionesCargadas = respuesta.body()
 
                     if (publicacionesCargadas != null) {
                         _uiState.update { it.copy(
-                            publicaciones = it.publicaciones + publicacionesCargadas,
+                            publicaciones = it.publicaciones + publicacionesCargadas.content,
 
                             //Si nos devuelven menos del tamaño de cada pagina, es que ya no hay mas en el server
                             //asi que lo guardamos para evitar hacer peticiones de mas
-                            ultimaPagina = publicacionesCargadas.size < currentPageSize
+                            ultimaPagina = publicacionesCargadas.content.size < currentPageSize
                         )}
                         _state.value = ProfileState.PaginaCargada
                         currentPage++
@@ -174,6 +171,9 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     }
+                }
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {

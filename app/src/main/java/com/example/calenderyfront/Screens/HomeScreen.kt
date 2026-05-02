@@ -5,16 +5,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -40,17 +46,21 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
+import com.example.calenderyfront.ExpandedPhotoPost
+import com.example.calenderyfront.Model.DataObjects.PostUIData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
-import com.example.calenderyfront.rowProfilePostSize
 import com.example.calenderyfront.home.HomeState
 import com.example.calenderyfront.home.HomeViewModel
+import com.example.calenderyfront.rowProfilePostSize
+
 
 val listaPublicaciones = listOf(
     PublicacionHome(
         idUsuario = 1,
+        idPost = 1,
         nombreUsuario = "marcos_dev",
         fotoUsuario = "https://randomuser.me/api/portraits/men/1.jpg",
         fotoPublicacion = "https://picsum.photos/id/10/800/600",
@@ -59,16 +69,18 @@ val listaPublicaciones = listOf(
         cantidadLikes = 150
     ),
     PublicacionHome(
-        idUsuario = 2,
+        idUsuario = 286,
+        idPost = 2,
         nombreUsuario = "ana.tech",
         fotoUsuario = "https://randomuser.me/api/portraits/women/2.jpg",
-        fotoPublicacion = "https://picsum.photos/id/20/800/600",
+        fotoPublicacion = "https://picsum.photos/id/10/800/600",
         mensaje = "Mi nuevo setup de escritorio finalmente terminado. ¿Qué les parece?",
         cantidadComentarios = 45,
         cantidadLikes = 890
     ),
     PublicacionHome(
         idUsuario = 3,
+        idPost = 3,
         nombreUsuario = "foodie_traveler",
         fotoUsuario = "https://randomuser.me/api/portraits/men/3.jpg",
         fotoPublicacion = "https://picsum.photos/id/42/800/600",
@@ -78,6 +90,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 4,
+        idPost = 4,
         nombreUsuario = "clara_reads",
         fotoUsuario = "https://randomuser.me/api/portraits/women/4.jpg",
         fotoPublicacion = null, // Publicación solo de texto
@@ -87,6 +100,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 5,
+        idPost = 5,
         nombreUsuario = "pixel_art",
         fotoUsuario = "https://randomuser.me/api/portraits/men/5.jpg",
         fotoPublicacion = "https://picsum.photos/id/60/800/600",
@@ -96,6 +110,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 6,
+        idPost = 6,
         nombreUsuario = "fitness_journey",
         fotoUsuario = "https://randomuser.me/api/portraits/women/6.jpg",
         fotoPublicacion = "https://picsum.photos/id/103/800/600",
@@ -105,6 +120,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 7,
+        idPost = 7,
         nombreUsuario = "urban_explorer",
         fotoUsuario = "https://randomuser.me/api/portraits/men/7.jpg",
         fotoPublicacion = "https://picsum.photos/id/122/800/600",
@@ -114,6 +130,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 8,
+        idPost = 8,
         nombreUsuario = "code_master",
         fotoUsuario = "https://randomuser.me/api/portraits/men/8.jpg",
         fotoPublicacion = "https://picsum.photos/id/160/800/600",
@@ -123,6 +140,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 9,
+        idPost = 9,
         nombreUsuario = "minimal_vibes",
         fotoUsuario = "https://randomuser.me/api/portraits/women/9.jpg",
         fotoPublicacion = "https://picsum.photos/id/201/800/600",
@@ -132,6 +150,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 10,
+        idPost = 10,
         nombreUsuario = "nature_lover",
         fotoUsuario = "https://randomuser.me/api/portraits/women/10.jpg",
         fotoPublicacion = "https://picsum.photos/id/237/800/600",
@@ -152,48 +171,66 @@ fun PostHomeCreation(
     onClickCommentIcon: () -> Unit
 )
 {
-    val photoSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 20.dp
+    val photoUserSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 40.dp
         WindowWidthSizeClass.Medium -> 30.dp
         WindowWidthSizeClass.Expanded -> 33.dp
         else -> 20.dp
     }
 
     val fontSizeUser = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 15.sp
-        WindowWidthSizeClass.Medium -> 15.sp
+        WindowWidthSizeClass.Compact -> 17.sp
+        WindowWidthSizeClass.Medium -> 40.sp
         WindowWidthSizeClass.Expanded -> 15.sp
         else -> 15.sp
     }
 
     val fontSizeMessage = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
-        WindowWidthSizeClass.Medium -> 15.sp
+        WindowWidthSizeClass.Medium -> 30.sp
         WindowWidthSizeClass.Expanded -> 15.sp
         else -> 15.sp
     }
 
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.8F
-        WindowWidthSizeClass.Medium -> 0.8F
-        WindowWidthSizeClass.Expanded -> 0.8F
+        WindowWidthSizeClass.Medium -> 0.6F
+        WindowWidthSizeClass.Expanded -> 0.6F
         else -> 0.8F
     }
 
+    val horizontalPadding = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 15.dp
+        WindowWidthSizeClass.Medium -> 30.dp
+        WindowWidthSizeClass.Expanded -> 30.dp
+        else -> 15.dp
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(width)
+        modifier = Modifier
+            .fillMaxWidth()
+            .widthIn(max = 600.dp)
+            .padding(horizontal = horizontalPadding)
     )
     {
         Column(
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         )
         {
             Row(
-                modifier = Modifier.fillMaxWidth(0.5F),
+                modifier = Modifier.fillMaxWidth().padding(top = 5.dp, start = 5.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             )
             {
-                PhotoUserContainer(modifier = Modifier.size(photoSize),post.fotoPublicacion,{onClickPostProfile(userInfo, post.idUsuario)}, R.string.post_description)
+                PhotoUserContainer(
+                    modifier = Modifier.size(photoUserSize),
+                    photoPath = post.fotoPublicacion,
+                    onClick =  {onClickPostProfile(userInfo, post.idUsuario)},
+                    contentDescription =  R.string.post_description
+                )
+
                 Text(
                     text = post.nombreUsuario,
                     fontSize = fontSizeUser,
@@ -201,10 +238,13 @@ fun PostHomeCreation(
                 )
             }
 
-            PostHome(Modifier,post.fotoPublicacion,windowSize,{onClickPostPhoto()})
+            if (post.fotoPublicacion != null) {
+                PostHome(Modifier,post.fotoPublicacion,windowSize,{onClickPostPhoto()})
+            }
 
             if (post.mensaje != null) {
                 Text(
+                    modifier = Modifier.padding(start = 2.dp),
                     text = post.mensaje,
                     fontSize = fontSizeMessage,
                     color = MaterialTheme.colorScheme.tertiary,
@@ -220,6 +260,7 @@ fun PostHomeCreation(
                 likes = post.cantidadLikes,
                 currentComments = post.cantidadComentarios
             )
+            Spacer(Modifier.padding(bottom = 5.dp))
         }
     }
 }
@@ -232,18 +273,9 @@ fun PostHome(
     onClickPostPhoto: () -> Unit
 )
 {
-    val width = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 0.6F
-        WindowWidthSizeClass.Medium -> 0.6F
-        WindowWidthSizeClass.Expanded -> 0.6F
-        else -> 0.6F
-    }
-
-    val height = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 0.6F
-        WindowWidthSizeClass.Medium -> 0.6F
-        WindowWidthSizeClass.Expanded -> 0.6F
-        else -> 0.6F
+    val aspect = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 1F
+        else -> 1.5F
     }
 
     AsyncImage(
@@ -256,8 +288,8 @@ fun PostHome(
             .build(),
         contentDescription = stringResource(R.string.post_description),
         modifier = modifier
-            .fillMaxWidth(width)
-            .fillMaxHeight(height)
+            .fillMaxWidth()
+            .aspectRatio(aspect)
             .clickable { onClickPostPhoto() }
             .background(MaterialTheme.colorScheme.primary),
         placeholder = painterResource(R.drawable.ic_launcher_background),
@@ -285,9 +317,9 @@ fun RowIcons(
 
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
-        WindowWidthSizeClass.Medium -> 25.sp
-        WindowWidthSizeClass.Expanded -> 25.sp
-        else -> 20.sp
+        WindowWidthSizeClass.Medium -> 18.sp
+        WindowWidthSizeClass.Expanded -> 15.sp
+        else -> 15.sp
     }
 
     Row(
@@ -296,15 +328,11 @@ fun RowIcons(
     )
     {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+
         )
         {
-            Text(
-                text = likes.toString(),
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-
             IconButton(
                 onClick = onClickLikeIcon,
                 modifier = Modifier.size(iconSize)
@@ -315,18 +343,18 @@ fun RowIcons(
                     contentDescription = stringResource(R.string.like_Message)
                 )
             }
-        }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        )
-        {
             Text(
-                text = currentComments.toString(),
+                text = likes.toString(),
                 fontSize = fontSize,
                 color = MaterialTheme.colorScheme.tertiary
             )
+        }
 
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        )
+        {
             IconButton(
                 onClick = onClickCommentIcon,
                 modifier = Modifier.size(iconSize)
@@ -338,6 +366,12 @@ fun RowIcons(
                     contentDescription = stringResource(R.string.like_Message)
                 )
             }
+
+            Text(
+                text = currentComments.toString(),
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.tertiary
+            )
         }
     }
 }
@@ -369,6 +403,11 @@ fun HomeScreen(
         }
     }
 
+    val horizontalSpaced = when (windowSize) {
+        WindowWidthSizeClass.Medium -> 16.dp
+        else -> 10.dp
+    }
+
     //LaunchedEffect(scrollEnElFinal) {
     //    if (scrollEnElFinal && stateProcess != HomeState.Cargando && !uiState.ultimaPagina) {
     //        viewModel.loadPosts()
@@ -376,9 +415,9 @@ fun HomeScreen(
     //}
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(1),
+        columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(2),
         state = gridState,
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.spacedBy(horizontalSpaced),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = Modifier.fillMaxSize(),
     )
@@ -404,11 +443,28 @@ fun HomeScreen(
                     color = Color.Red
                 )
             }
+            else if (stateProcess is HomeState.Cargando) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onTertiary
+                )
+            }
         }
     }
 
-    if (selectedPost != null) {
-        //ExpandedPhotoPostProfile()
+    selectedPost?.let {
+        ExpandedPhotoPost(
+            post = PostUIData(
+                postId = it.idPost,
+                fotoPublicacion = it.fotoPublicacion,
+                mensaje = it.mensaje,
+                cantidadLikes = it.cantidadLikes,
+                cantidadComentarios = it.cantidadComentarios
+            ),
+            onDismiss = { selectedPost = null },
+            onClickLikes = {},
+            onClickComments = {},
+            windowSize = windowSize
+        )
     }
 
 }

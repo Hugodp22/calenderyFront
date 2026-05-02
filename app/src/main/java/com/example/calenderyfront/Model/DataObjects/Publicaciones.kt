@@ -1,11 +1,10 @@
 package com.example.calenderyfront.Model.DataObjects
 
-import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class PublicacionHome(
     val idUsuario: Int, //Para ir a su perfil
+    val idPost: Int,
     val nombreUsuario: String,
     val fotoUsuario: String,
     val fotoPublicacion: String?,
@@ -20,8 +19,16 @@ data class PublicacionProfile(
     val mensaje: String?,
     val cantidadLikes: Int = 0,
     val cantidadComentarios: Int = 0,
-    val fechaCalendario: LocalDate, //Fecha que seleccionaste para subirlo
-    val fechaPublicacion: LocalDateTime, //Fecha real en la que lo subiste
+    val fechaCalendario: String, //Fecha que seleccionaste para subirlo
+    val fechaPublicacion: String, //Fecha real en la que lo subiste
+)
+
+data class PostUIData(
+    val postId: Int,
+    val fotoPublicacion: String?,
+    val mensaje: String?,
+    val cantidadLikes: Int,
+    val cantidadComentarios: Int
 )
 
 data class PostData(
@@ -29,6 +36,13 @@ data class PostData(
     val idUsuario: Int,
     val message: String,
     val calendarDate: String
+)
+
+data class PageResponse<PublicacionProfile>(
+    val content: List<PublicacionProfile>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
 )
 
 data class TimeData(

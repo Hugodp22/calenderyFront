@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,8 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.calenderyfront.ExpandedPhotoPostProfile
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.size.Precision
+import com.example.calenderyfront.ExpandedPhotoPost
 import com.example.calenderyfront.ExpandedPhotoProfile
+import com.example.calenderyfront.Model.DataObjects.PostUIData
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.TimeData
 import com.example.calenderyfront.Model.DataObjects.UserInfo
@@ -64,131 +69,12 @@ import com.example.calenderyfront.rowProfilePostSize
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.FjalaOne
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.Locale
 import java.util.Locale.getDefault
 
-
-val publicacionesDePrueba = listOf(
-    PublicacionProfile(
-        id = 1,
-        fotoPublicacion = "https://picsum.photos/id/10/400/400",
-        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
-        cantidadLikes = 120,
-        cantidadComentarios = 15,
-        fechaCalendario = LocalDate.of(2026, 3, 1),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
-    ),
-    PublicacionProfile(
-        id = 222,
-        fotoPublicacion = "https://picsum.photos/id/10/400/400",
-        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
-        cantidadLikes = 120,
-        cantidadComentarios = 15,
-        fechaCalendario = LocalDate.of(2026, 3, 1),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
-    ),PublicacionProfile(
-        id = 334,
-        fotoPublicacion = "https://picsum.photos/id/10/400/400",
-        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
-        cantidadLikes = 120,
-        cantidadComentarios = 15,
-        fechaCalendario = LocalDate.of(2026, 3, 1),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
-    ),
-    PublicacionProfile(
-        id = 333,
-        fotoPublicacion = "https://picsum.photos/id/10/400/400",
-        mensaje = "¡Bienvenido marzo! Empezando el mes con toda la energía.",
-        cantidadLikes = 120,
-        cantidadComentarios = 15,
-        fechaCalendario = LocalDate.of(2026, 3, 1),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 1, 9, 30)
-    ),
-    PublicacionProfile(
-        id = 2,
-        fotoPublicacion = null,
-        mensaje = "Un pensamiento rápido de lunes por la tarde...",
-        cantidadLikes = 45,
-        cantidadComentarios = 2,
-        fechaCalendario = LocalDate.of(2026, 3, 9),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 9, 18, 15)
-    ),
-    PublicacionProfile(
-        id = 3,
-        fotoPublicacion = "https://picsum.photos/id/20/400/400",
-        mensaje = "Día de campo, desconexión total.",
-        cantidadLikes = 350,
-        cantidadComentarios = 42,
-        fechaCalendario = LocalDate.of(2026, 3, 15),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 15, 12, 0)
-    ),
-    PublicacionProfile(
-        id = 4,
-        fotoPublicacion = "https://picsum.photos/id/30/400/400",
-        mensaje = "Preparando grandes cosas para abril.",
-        cantidadLikes = 89,
-        cantidadComentarios = 8,
-        fechaCalendario = LocalDate.of(2026, 3, 25),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 25, 20, 45)
-    ),
-    PublicacionProfile(
-        id = 5,
-        fotoPublicacion = null,
-        mensaje = "¡Adiós marzo, fuiste increíble!",
-        cantidadLikes = 67,
-        cantidadComentarios = 4,
-        fechaCalendario = LocalDate.of(2026, 3, 31),
-        fechaPublicacion = LocalDateTime.of(2026, 3, 31, 23, 50)
-    ),
-    PublicacionProfile(
-        id = 6,
-        fotoPublicacion = "https://picsum.photos/id/40/400/400",
-        mensaje = "Primer día de abril, ¡vamos con todo!",
-        cantidadLikes = 210,
-        cantidadComentarios = 25,
-        fechaCalendario = LocalDate.of(2026, 4, 1),
-        fechaPublicacion = LocalDateTime.of(2026, 4, 1, 10, 15)
-    ),
-    PublicacionProfile(
-        id = 7,
-        fotoPublicacion = "https://picsum.photos/id/50/400/400",
-        mensaje = "Disfrutando de las flores de primavera.",
-        cantidadLikes = 540,
-        cantidadComentarios = 63,
-        fechaCalendario = LocalDate.of(2026, 4, 10),
-        fechaPublicacion = LocalDateTime.of(2026, 4, 10, 16, 20)
-    ),
-    PublicacionProfile(
-        id = 8,
-        fotoPublicacion = null,
-        mensaje = "¿Alguien más siente que abril vuela?",
-        cantidadLikes = 32,
-        cantidadComentarios = 12,
-        fechaCalendario = LocalDate.of(2026, 4, 18),
-        fechaPublicacion = LocalDateTime.of(2026, 4, 18, 14, 0)
-    ),
-    PublicacionProfile(
-        id = 9,
-        fotoPublicacion = "https://picsum.photos/id/60/400/400",
-        mensaje = "Working late en nuevos proyectos.",
-        cantidadLikes = 156,
-        cantidadComentarios = 19,
-        fechaCalendario = LocalDate.of(2026, 4, 25),
-        fechaPublicacion = LocalDateTime.of(2026, 4, 25, 22, 30)
-    ),
-    PublicacionProfile(
-        id = 10,
-        fotoPublicacion = "https://picsum.photos/id/70/400/400",
-        mensaje = "Cerrando el mes con broche de oro.",
-        cantidadLikes = 890,
-        cantidadComentarios = 104,
-        fechaCalendario = LocalDate.of(2026, 4, 29),
-        fechaPublicacion = LocalDateTime.of(2026, 4, 29, 11, 0)
-    )
-)
 @Composable
 fun ProfileHeader(
     modifier: Modifier = Modifier,
@@ -256,9 +142,7 @@ fun ProfileHeader(
             Spacer(Modifier.height(12.dp))
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = MaterialTheme.colorScheme.onPrimary),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             )
             {
@@ -288,7 +172,7 @@ fun ProfileHeader(
 
             if (otherUser) {
                 ButtonsBox(
-                    modifier = Modifier.padding(start = 8.dp),
+                    modifier = Modifier.padding(start = 3.dp),
                     windowSize = windowSize,
                     buttonLeft = R.string.follow_user,
                     buttonRight = R.string.message_user,
@@ -351,9 +235,9 @@ fun ButtonsBox(
 
     val spacedBy = when (windowSize) {
         WindowWidthSizeClass.Compact -> 13.dp
-        WindowWidthSizeClass.Medium -> 25.dp
+        WindowWidthSizeClass.Medium -> 13.dp
         WindowWidthSizeClass.Expanded -> 13.dp
-        else -> 46.dp
+        else -> 13.dp
     }
 
     val colorsLeftButton = when (follow) {
@@ -495,8 +379,8 @@ fun WeekTitle(
 {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 24.sp
-        WindowWidthSizeClass.Medium -> 34.sp
-        WindowWidthSizeClass.Expanded -> 36.sp
+        WindowWidthSizeClass.Medium -> 50.sp
+        WindowWidthSizeClass.Expanded -> 46.sp
         else -> 24.sp
     }
 
@@ -521,19 +405,33 @@ fun WeekTitle(
 @Composable
 fun PostProfile(
     modifier: Modifier = Modifier,
+    windowSize: WindowWidthSizeClass,
     post: PublicacionProfile,
     onClick : () -> Unit
 )
 {
+    val photoSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 1F
+        WindowWidthSizeClass.Medium -> 0.9F
+        WindowWidthSizeClass.Expanded -> 0.9F
+        else -> 1F
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .aspectRatio(1f)
+            .aspectRatio(photoSize)
             .clickable { onClick() }
     )
     {
         AsyncImage(
-            model = post.fotoPublicacion,
+            model = ImageRequest
+                .Builder(LocalContext.current)
+                .data(post.fotoPublicacion).crossfade(true)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .diskCacheKey(post.id.toString())
+                .precision(Precision.INEXACT)
+                .build(),
             contentDescription = stringResource(R.string.post_description) + post.mensaje,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -589,7 +487,7 @@ fun MonthTitle(
         Card(
             modifier = Modifier.fillMaxWidth(width),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = Color.Transparent
             ),
         )
         {
@@ -626,10 +524,10 @@ fun MonthTitle(
                 }
 
                 Text(
-                    text = stringResource(R.string.right_arrow),
                     modifier = Modifier.then(if (canGoNext) Modifier.clickable { onNextMonth() } else Modifier),
+                    color = if (canGoNext) MaterialTheme.colorScheme.tertiary else Color.Gray,
+                    text = stringResource(R.string.right_arrow),
                     fontSize = fontSizeArrows,
-                    color = if (canGoNext) MaterialTheme.colorScheme.tertiary else Color.Gray
                 )
             }
         }
@@ -640,23 +538,33 @@ fun MonthTitle(
  * Función para ordenar las publicaciones, mediante su mes, y dentro del mes, mediante número de semana
  */
 fun getGroupedPosts(posts: List<PublicacionProfile>): Map<LocalDate, Map<TimeData, List<PublicacionProfile>>> {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val weekFields = WeekFields.of(Locale.getDefault())
 
     return posts
-        .sortedByDescending { it.fechaPublicacion }
-        .groupBy { it.fechaCalendario.withDayOfMonth(1) }
+        .groupBy { post ->
+            val fechaCal = LocalDate.parse(post.fechaCalendario, formatter)
+            fechaCal.withDayOfMonth(1)
+        }
         .toSortedMap(compareByDescending { it })
-        .mapValues { (month, postsInMonth) ->
+        .mapValues { (monthKey, postsInMonth) ->
             postsInMonth
                 .groupBy { post ->
-                    val numSemana = post.fechaCalendario.get(weekFields.weekOfMonth()).coerceAtLeast(1)
+                    val fechaCal = LocalDate.parse(post.fechaCalendario, formatter)
+                    val numSemana = fechaCal.get(weekFields.weekOfMonth()).coerceAtLeast(1)
+
                     TimeData(
-                        anio = post.fechaCalendario.year,
+                        anio = fechaCal.year,
                         semana = numSemana,
-                        fechaReferencia = month
+                        fechaReferencia = monthKey
                     )
                 }
                 .toSortedMap(compareBy { it.semana })
+                .mapValues { (_, postsInWeek) ->
+                    postsInWeek.sortedByDescending { post ->
+                        LocalDate.parse(post.fechaCalendario, formatter)
+                    }
+                }
         }
 }
 
@@ -706,18 +614,18 @@ fun ProfileScreen(
 
     LaunchedEffect(selectedMonth) {
         gridState.scrollToItem(0) //Cuando cambiemos de mes, vamos al indice 0 para volver arriba y no quedarnos abajo
-        //viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
+        viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
     }
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
-    //LaunchedEffect(scrollEnElFinal) {
-    //    if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
-    //        viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
-    //    }
-    //}
+    LaunchedEffect(scrollEnElFinal) {
+        if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
+            viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
+        }
+    }
 
-    val groupedPost = remember(publicacionesDePrueba) {
-        getGroupedPosts(publicacionesDePrueba)
+    val groupedPost = remember(uiState.publicaciones) {
+        getGroupedPosts(uiState.publicaciones)
     }
 
     LazyVerticalGrid(
@@ -764,10 +672,16 @@ fun ProfileScreen(
             MonthTitle(
                 localDate = selectedMonth,
                 windowSize = windowSize,
-                onPreviousMonth = { selectedMonth = selectedMonth.minusMonths(1) }, //Va restando todo, incluido año al llegar
+                onPreviousMonth = {
+                    val newMonth = selectedMonth.minusMonths(1)
+                    selectedMonth = newMonth
+                    viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
+                                  },
                 onNextMonth = {
                     if (canGoNext) {
-                        selectedMonth = selectedMonth.plusMonths(1)
+                        val newMonth = selectedMonth.plusMonths(1)
+                        selectedMonth = newMonth
+                        viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
                     }
                 },
                 canGoNext = canGoNext
@@ -784,9 +698,11 @@ fun ProfileScreen(
                     }
 
                     items(postsOfWeek, key = { it.id }) { post ->
-                        PostProfile(post = post, onClick = { selectedPost = post })
+                        PostProfile(
+                            post = post,
+                            windowSize = windowSize,
+                            onClick = { selectedPost = post })
                     }
-
                 }
             }
             else {
@@ -798,10 +714,19 @@ fun ProfileScreen(
                         contentAlignment = Alignment.Center
                     )
                     {
-                        Text(
-                            text = stringResource(R.string.no_post_month_message),
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
+                        if (stateProcess is ProfileState.Cargando) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(250.dp),
+                                color = MaterialTheme.colorScheme.onTertiary,
+                                strokeWidth = 12.dp
+                            )
+                        }
+                        else {
+                            Text(
+                                text = stringResource(R.string.no_post_month_message),
+                                color = MaterialTheme.colorScheme.tertiary
+                            )
+                        }
                     }
                 }
             }
@@ -817,18 +742,18 @@ fun ProfileScreen(
 
     //Si le has dado click a una publicacion
     selectedPost?.let {
-        ExpandedPhotoPostProfile(
-            post = it,
+        ExpandedPhotoPost(
+            post = PostUIData(
+                postId = it.id,
+                fotoPublicacion = it.fotoPublicacion,
+                mensaje = it.mensaje,
+                cantidadLikes = it.cantidadLikes,
+                cantidadComentarios = it.cantidadComentarios
+            ),
             onDismiss = { selectedPost = null },
             onClickLikes = {},
             onClickComments = {},
             windowSize = windowSize
-        )
-    }
-
-    if (stateProcess is ProfileState.Cargando) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.onTertiary
         )
     }
 }
