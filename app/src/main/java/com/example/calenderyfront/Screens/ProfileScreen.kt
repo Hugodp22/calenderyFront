@@ -36,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,8 +56,10 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
+import com.example.calenderyfront.CommentsPostWindow
 import com.example.calenderyfront.ExpandedPhotoPost
 import com.example.calenderyfront.ExpandedPhotoProfile
+import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostUIData
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.TimeData
@@ -74,6 +77,39 @@ import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.Locale
 import java.util.Locale.getDefault
+
+val comentariosPrueba = listOf(
+    Comment(
+        idUsuario = 101,
+        nombreUsuario = "Aris_Kotlin",
+        fotoUsuario = "https://picsum.photos/id/64/200/200",
+        comentario = "¡Qué buena foto! Me encanta el enfoque que le has dado."
+    ),
+    Comment(
+        idUsuario = 268,
+        nombreUsuario = "Jetpack_Compose_Fan",
+        fotoUsuario = "https://picsum.photos/id/91/200/200",
+        comentario = "Increíble. ¿Con qué cámara la has hecho?"
+    ),
+    Comment(
+        idUsuario = 103,
+        nombreUsuario = "Dev_Moure",
+        fotoUsuario = "https://picsum.photos/id/177/200/200",
+        comentario = "Este es un comentario bastante más largo para probar cómo se comporta el componente de texto cuando el usuario decide escribir un párrafo entero sobre lo que está viendo en la publicación."
+    ),
+    Comment(
+        idUsuario = 104,
+        nombreUsuario = "Brais_Dev",
+        fotoUsuario = "https://picsum.photos/id/447/200/200",
+        comentario = "🚀🚀🚀"
+    ),
+    Comment(
+        idUsuario = 105,
+        nombreUsuario = "User_Testing",
+        fotoUsuario = "https://invalid-url-to-test-error.com/photo.jpg", // URL inválida para probar el 'error' en AsyncImage
+        comentario = "Probando qué pasa si la imagen no carga."
+    )
+)
 
 @Composable
 fun ProfileHeader(
@@ -575,6 +611,7 @@ fun ProfileScreen(
     onNavigateToSettings: (UserInfo) -> Unit,
     onNavigateToUpload: (UserInfo) -> Unit,
     onNavigateToChat: (UserInfo,Int) -> Unit,
+    onNavigateToOtherProfile: (UserInfo, Int) -> Unit,
     viewModel: ProfileViewModel = viewModel(),
 )
 {
@@ -585,6 +622,9 @@ fun ProfileScreen(
 
     var expandedPhotoProfile by remember { mutableStateOf(false) } //Para saber cuando la foto esta ampliada
     var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Para saber que publicacion mostrar al hacer click
+
+    var showComments by remember { mutableStateOf(false) }
+    var commentsPostId by remember { mutableIntStateOf(-1) }
 
     var selectedMonth by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes que puede variar
     val realCurrentMonth = remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
@@ -619,7 +659,7 @@ fun ProfileScreen(
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
     LaunchedEffect(scrollEnElFinal) {
-        if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPagina) {
+        if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPaginaPosts) {
             viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
         }
     }
@@ -752,8 +792,32 @@ fun ProfileScreen(
             ),
             onDismiss = { selectedPost = null },
             onClickLikes = {},
-            onClickComments = {},
+            onClickComments = {
+                commentsPostId = it.id
+                viewModel.deleteCommentsLoaded()
+                viewModel.getCommentsPost(idPost = it.id)
+                showComments = true
+            },
             windowSize = windowSize
+        )
+    }
+
+    if (showComments) {
+        CommentsPostWindow(
+            userInfo = uiState.usuario,
+            comments = comentariosPrueba,
+            isLastPage = uiState.ultimaPaginaComments,
+            onClose = { showComments = false },
+            onCommentChange = { viewModel.onCommentChange(it) },
+            onLoadComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
+            onClickPhoto = { idUserComment ->
+                onNavigateToOtherProfile(uiState.usuario, idUserComment)
+            },
+            onSendComment = {
+                viewModel.sendCommentToPost(commentsPostId)
+            },
+            windowSize = windowSize,
+            currentComent = uiState.coment
         )
     }
 }

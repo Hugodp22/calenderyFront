@@ -1,6 +1,8 @@
 package com.example.calenderyfront.Apis
 
-import com.example.calenderyfront.Model.DataObjects.PageResponse
+import com.example.calenderyfront.Model.DataObjects.Comment
+import com.example.calenderyfront.Model.DataObjects.PagePostComments
+import com.example.calenderyfront.Model.DataObjects.PageProfilePosts
 import com.example.calenderyfront.Model.DataObjects.PostData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
@@ -25,7 +27,21 @@ interface PublicacionApiService {
         @Query("year") year: Int,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
-    ): Response<PageResponse<PublicacionProfile>>
+    ): Response<PageProfilePosts<PublicacionProfile>>
+
+    @GET("")
+    suspend fun obtenerComentariosPublicacion(
+        @Query("idPublicacion") idPublicacion: Int,
+        @Query("page") page: Int,
+        @Query("size") size : Int = pageSize
+    ): Response<PagePostComments<Comment>>
+
+    @PUT("")
+    suspend fun enviarComentarioPublicacion(
+        @Query("idUsuario") idUsuario: Int,
+        @Query("idPublicacion") idPublicacion: Int,
+        @Query("comentario") comentario: String
+    ): Response<Unit>
 
     @PUT("")
     suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>

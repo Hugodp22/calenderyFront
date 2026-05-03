@@ -28,6 +28,8 @@
     <string name="Error_Unknow_Message">Error desconocido</string>
     <string name="Error_Profile_Message">Perfil no encontrado</string>
     <string name="Error_no_photo">Foto no seleccionada</string>
+    <string name="Error_comment_send">Comentario vacio</string>
+    <string name="Error_comment_loading">Error al cargar los comentarios</string>
     <string name="Login_title">Inicio de sesión</string>
     <string name="Login_button">Iniciar sesión</string>
     <string name="Settings_Title">Configuración</string>
@@ -75,6 +77,10 @@
     <string name="follow_user">Seguir</string>
     <string name="message_user">Enviar mensaje</string>
     <string name="unfollow_text">Dejar de seguir</string>
+    <string name="comments_title">Comentarios</string>
+    <string name="comment">Comentario</string>
+    <string name="comment_input">Comenta algo!!!</string>
+    <string name="send_comment">Enviar</string>
 
 
 </resources>

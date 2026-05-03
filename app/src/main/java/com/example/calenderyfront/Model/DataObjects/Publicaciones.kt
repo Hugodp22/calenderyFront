@@ -38,8 +38,22 @@ data class PostData(
     val calendarDate: String
 )
 
-data class PageResponse<PublicacionProfile>(
+data class Comment(
+    val idUsuario: Int,
+    val nombreUsuario: String,
+    val fotoUsuario: String,
+    val comentario: String
+)
+
+data class PageProfilePosts<PublicacionProfile>(
     val content: List<PublicacionProfile>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
+)
+
+data class PagePostComments<Comment>(
+    val content: List<Comment>,
     val totalElements: Int,
     val totalPages: Int,
     val last: Boolean

@@ -1,6 +1,6 @@
 package com.example.calenderyfront.profile
 
-import android.util.Log
+import android.annotation.SuppressLint
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import kotlin.reflect.typeOf
 
 class ProfileViewModel(path: SavedStateHandle): ViewModel() {
@@ -40,11 +39,10 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
     val state: StateFlow<ProfileState> = _state.asStateFlow()
 
-    private var currentPage = 0
+    private var currentPagePosts = 0
+    private var currentPageComments = 0
     private val currentPageSize = pageSize
-
     private var lastLoadedYear: Int? = null
-
     private var lastLoadedMonth: Int? = null
 
     private var searchJob: Job? = null
@@ -58,6 +56,10 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         else {
             loadOtherProfile()
         }
+    }
+
+    fun onCommentChange(comment: String) {
+        _uiState.update { it.copy(coment = comment) }
     }
 
     private fun loadProfile() {
@@ -135,15 +137,15 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         val currentState = _uiState.value
 
         if (year != lastLoadedYear || month != lastLoadedMonth) {
-            currentPage = 0
-            _uiState.update { it.copy(ultimaPagina = false, publicaciones = emptyList()) }
+            currentPagePosts = 0
+            _uiState.update { it.copy(ultimaPaginaPosts = false, publicaciones = emptyList()) }
             lastLoadedYear = year
             lastLoadedMonth = month
             _state.value = ProfileState.Iniciado
         }
 
         // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
-        if (_state.value is ProfileState.Cargando || currentState.ultimaPagina) {
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPaginaPosts) {
             return
         }
 
@@ -152,7 +154,13 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
-                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(idUsuario = currentState.mainId, month = month, year = year, page = currentPage, size = currentPageSize)
+                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
+                    idUsuario = currentState.mainId,
+                    month = month,
+                    year = year,
+                    page = currentPagePosts,
+                    size = currentPageSize
+                )
 
                 if (respuesta.isSuccessful) {
                     val publicacionesCargadas = respuesta.body()
@@ -163,10 +171,10 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
                             //Si nos devuelven menos del tamaño de cada pagina, es que ya no hay mas en el server
                             //asi que lo guardamos para evitar hacer peticiones de mas
-                            ultimaPagina = publicacionesCargadas.content.size < currentPageSize
+                            ultimaPaginaPosts = publicacionesCargadas.content.size < currentPageSize
                         )}
                         _state.value = ProfileState.PaginaCargada
-                        currentPage++
+                        currentPagePosts++
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -183,5 +191,85 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     }
     fun followUser() {
 
+    }
+
+    @SuppressLint("SuspiciousIndentation")
+    fun getCommentsPost(idPost: Int) {
+        val currentState = _uiState.value
+
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPaginaComments) {
+            return
+        }
+
+        _state.value = ProfileState.Cargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.obtenerComentariosPublicacion(
+                    idPublicacion = idPost,
+                    page = currentPageComments,
+                    size = currentPageSize
+                )
+
+                    if (respuesta.isSuccessful) {
+                        val comentariosCargados = respuesta.body()
+
+                        if (comentariosCargados != null) {
+                            _uiState.update { it.copy(
+                                comentarios = it.comentarios + comentariosCargados.content,
+                                ultimaPaginaComments = comentariosCargados.content.size < currentPageSize
+                            )}
+                            _state.value = ProfileState.PaginaCargada
+                            currentPageComments++
+                        }
+
+                    }
+                    else {
+                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                    }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun sendCommentToPost(idPost: Int) {
+        val currentState = _uiState.value
+
+        if (currentState.coment.isEmpty()) {
+            _state.value = ProfileState.Error(R.string.Error_comment_send)
+            return
+        }
+
+        _state.value = ProfileState.Cargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(
+                    idUsuario = userInfo.idUsuario,
+                    idPublicacion = idPost,
+                    comentario = currentState.coment
+                )
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update { it.copy(coment = "") }
+                    _state.value = ProfileState.Iniciado
+                }
+
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+
+    }
+
+    fun deleteCommentsLoaded() {
+        currentPageComments = 0
+        _uiState.update { it.copy(ultimaPaginaComments = false, comentarios = emptyList()) }
     }
 }

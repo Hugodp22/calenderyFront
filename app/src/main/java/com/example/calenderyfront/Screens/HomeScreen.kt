@@ -1,5 +1,7 @@
 package com.example.calenderyfront.Screens
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -7,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -257,7 +259,7 @@ fun PostHomeCreation(
                 windowSize = windowSize,
                 onClickLikeIcon ={onClickLikeIcon()},
                 onClickCommentIcon = {onClickCommentIcon()},
-                likes = post.cantidadLikes,
+                currentLikes = post.cantidadLikes,
                 currentComments = post.cantidadComentarios
             )
             Spacer(Modifier.padding(bottom = 5.dp))
@@ -304,7 +306,7 @@ fun RowIcons(
     windowSize: WindowWidthSizeClass,
     onClickLikeIcon: () -> Unit,
     onClickCommentIcon: () -> Unit,
-    likes: Int,
+    currentLikes: Int,
     currentComments: Int
 )
 {
@@ -327,52 +329,57 @@ fun RowIcons(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     )
     {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+        IconRow(
+            modifier = Modifier.size(iconSize),
+            onClick = onClickLikeIcon,
+            icon = R.drawable.favourite,
+            contentDescription = R.string.like_Message,
+            quantity = currentLikes,
+            fontSize = fontSize
+        )
 
+        IconRow(
+            modifier = Modifier.size(iconSize),
+            onClick = onClickCommentIcon,
+            icon = R.drawable.comment,
+            contentDescription = R.string.comment_Message,
+            quantity = currentComments,
+            fontSize = fontSize
+        )
+    }
+}
+
+@Composable
+fun IconRow(
+    modifier: Modifier = Modifier,
+    onClick : () -> Unit,
+    @DrawableRes icon: Int,
+    @StringRes contentDescription: Int,
+    quantity: Int,
+    fontSize: TextUnit
+)
+{
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+
+    )
+    {
+        IconButton(
+            onClick = onClick,
+            modifier = modifier
         )
         {
-            IconButton(
-                onClick = onClickLikeIcon,
-                modifier = Modifier.size(iconSize)
-            )
-            {
-                Icon(
-                    painter = painterResource(R.drawable.favourite),
-                    contentDescription = stringResource(R.string.like_Message)
-                )
-            }
-            Text(
-                text = likes.toString(),
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.tertiary
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = stringResource(contentDescription)
             )
         }
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Text(
+            text = quantity.toString(),
+            fontSize = fontSize,
+            color = MaterialTheme.colorScheme.tertiary
         )
-        {
-            IconButton(
-                onClick = onClickCommentIcon,
-                modifier = Modifier.size(iconSize)
-            )
-
-            {
-                Icon(
-                    painter = painterResource(R.drawable.comment),
-                    contentDescription = stringResource(R.string.like_Message)
-                )
-            }
-
-            Text(
-                text = currentComments.toString(),
-                fontSize = fontSize,
-                color = MaterialTheme.colorScheme.tertiary
-            )
-        }
     }
 }
 

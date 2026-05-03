@@ -16,26 +16,36 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +74,9 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
+import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostUIData
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.clients.PhotoClient
 import com.example.calenderyfront.userAuth.SessionManager
 import okhttp3.Credentials
@@ -274,11 +286,16 @@ fun ExpandedPhotoProfile(
                                 val maxY = (containerSize.height * (scale - 1)) / 2
 
                                 offset = Offset(
-                                    x = newOffset.x.coerceIn(-maxX, maxX), //Cambiamos su valor, pero respetando el tamaño
-                                    y = newOffset.y.coerceIn(-maxY, maxY) //Por que si no, nos vamos al limbo
+                                    x = newOffset.x.coerceIn(
+                                        -maxX,
+                                        maxX
+                                    ), //Cambiamos su valor, pero respetando el tamaño
+                                    y = newOffset.y.coerceIn(
+                                        -maxY,
+                                        maxY
+                                    ) //Por que si no, nos vamos al limbo
                                 )
-                            }
-                            else {
+                            } else {
                                 offset = Offset.Zero
                             }
                         }
@@ -378,11 +395,16 @@ fun ExpandedPhotoPost(
                                 val maxY = (containerSize.height * (scale - 1)) / 2
 
                                 offset = Offset(
-                                    x = newOffset.x.coerceIn(-maxX, maxX), //Cambiamos su valor, pero respetando el tamaño
-                                    y = newOffset.y.coerceIn(-maxY, maxY) //Por que si no, nos vamos al limbo
+                                    x = newOffset.x.coerceIn(
+                                        -maxX,
+                                        maxX
+                                    ), //Cambiamos su valor, pero respetando el tamaño
+                                    y = newOffset.y.coerceIn(
+                                        -maxY,
+                                        maxY
+                                    ) //Por que si no, nos vamos al limbo
                                 )
-                            }
-                            else {
+                            } else {
                                 offset = Offset.Zero
                             }
                         }
@@ -399,11 +421,13 @@ fun ExpandedPhotoPost(
 
             {
                 IconPostDialog(Modifier.size(iconSize),R.drawable.favourite,R.string.like_Message,{onClickLikes})
-                IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,{onClickComments})
+                IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,onClickComments)
             }
             if (post.mensaje != null) {
                 Column(
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 30.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 30.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 )
                 {
@@ -414,6 +438,183 @@ fun ExpandedPhotoPost(
                 }
             }
 
+        }
+    }
+}
+
+@Composable
+fun CommentCreation(
+    comment: Comment,
+    onClickPhoto: (Int) -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val photoUserSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.dp
+        else -> 20.dp
+    }
+
+    val fontSizeUser = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.sp
+        else -> 20.sp
+    }
+
+    val fontSizeComment =  when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.sp
+        else -> 20.sp
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Center
+    )
+    {
+        Row(
+
+        )
+        {
+            PhotoUserContainer(
+                modifier = Modifier.size(photoUserSize),
+                photoPath = comment.fotoUsuario,
+                onClick =  {onClickPhoto(comment.idUsuario)},
+                contentDescription =  R.string.post_description
+            )
+
+            Text(
+                text = comment.nombreUsuario,
+                fontSize = fontSizeUser,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
+
+        Text(
+            text = comment.comentario,
+            fontSize = fontSizeComment,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+    }
+}
+
+@Composable
+fun InputComment(
+    modifier: Modifier,
+    value : String,
+    onValueChange: (String) -> Unit,
+    onSendComment: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 16.sp
+        WindowWidthSizeClass.Medium -> 18.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
+        else -> 14.sp
+    }
+
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.8F
+        else -> 0.8F
+    }
+
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(width),
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = stringResource(R.string.comment_input),
+                fontSize = fontSize,
+                color = Color.Gray,
+                maxLines = 1,
+                softWrap = false,
+            )
+        },
+        trailingIcon = {
+            IconButton(
+                onClick = onSendComment,
+                enabled = value.isNotBlank()
+            )
+            {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send_comment),
+                    tint = if (value.isNotBlank()) Color(0xFF4285F4) else Color.Gray
+                )
+            }
+        },
+
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF4285F4),
+            unfocusedBorderColor = Color.Gray,
+            errorBorderColor = Color.Red,
+            cursorColor = MaterialTheme.colorScheme.tertiary
+        ),
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CommentsPostWindow(
+    userInfo: UserInfo,
+    comments: List<Comment>,
+    currentComent: String,
+    isLastPage: Boolean,
+    onClose: () -> Unit,
+    onCommentChange: (String) -> Unit,
+    onLoadComments: () -> Unit,
+    onClickPhoto: (Int) -> Unit,
+    onSendComment: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onClose,
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    )
+    {
+        Column(
+            modifier = Modifier.fillMaxHeight(0.8f),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        )
+        {
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text = stringResource(R.string.comments_title),
+                color = MaterialTheme.colorScheme.tertiary
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+            )
+            {
+                itemsIndexed(comments) { index, comment ->
+                    CommentCreation(
+                        comment = comment,
+                        onClickPhoto = onClickPhoto,
+                        windowSize = windowSize
+                    )
+
+                    if (index == comments.lastIndex && !isLastPage) {
+                        LaunchedEffect(Unit) {
+                            onLoadComments()
+                        }
+                    }
+                }
+            }
+
+            InputComment(
+                modifier = Modifier,
+                value = currentComent,
+                onValueChange = onCommentChange,
+                onSendComment = onSendComment,
+                windowSize = windowSize
+            )
         }
     }
 }
