@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -81,30 +80,35 @@ import java.util.Locale.getDefault
 val comentariosPrueba = listOf(
     Comment(
         idUsuario = 101,
+        idComentario = 2,
         nombreUsuario = "Aris_Kotlin",
         fotoUsuario = "https://picsum.photos/id/64/200/200",
         comentario = "¡Qué buena foto! Me encanta el enfoque que le has dado."
     ),
     Comment(
-        idUsuario = 268,
+        idUsuario = 286,
+        idComentario = 3,
         nombreUsuario = "Jetpack_Compose_Fan",
         fotoUsuario = "https://picsum.photos/id/91/200/200",
         comentario = "Increíble. ¿Con qué cámara la has hecho?"
     ),
     Comment(
         idUsuario = 103,
+        idComentario = 4,
         nombreUsuario = "Dev_Moure",
         fotoUsuario = "https://picsum.photos/id/177/200/200",
         comentario = "Este es un comentario bastante más largo para probar cómo se comporta el componente de texto cuando el usuario decide escribir un párrafo entero sobre lo que está viendo en la publicación."
     ),
     Comment(
         idUsuario = 104,
+        idComentario = 5,
         nombreUsuario = "Brais_Dev",
         fotoUsuario = "https://picsum.photos/id/447/200/200",
         comentario = "🚀🚀🚀"
     ),
     Comment(
         idUsuario = 105,
+        idComentario = 7,
         nombreUsuario = "User_Testing",
         fotoUsuario = "https://invalid-url-to-test-error.com/photo.jpg", // URL inválida para probar el 'error' en AsyncImage
         comentario = "Probando qué pasa si la imagen no carga."
@@ -115,6 +119,7 @@ val comentariosPrueba = listOf(
 fun ProfileHeader(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
+    stateProcess: ProfileState,
     userName: String,
     photoUser: String,
     onClickPhoto: () -> Unit,
@@ -209,6 +214,7 @@ fun ProfileHeader(
             if (otherUser) {
                 ButtonsBox(
                     modifier = Modifier.padding(start = 3.dp),
+                    stateProcess = stateProcess,
                     windowSize = windowSize,
                     buttonLeft = R.string.follow_user,
                     buttonRight = R.string.message_user,
@@ -241,6 +247,7 @@ fun ProfileHeader(
 fun ButtonsBox(
     modifier : Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
+    stateProcess: ProfileState,
     @StringRes buttonLeft: Int,
     @StringRes buttonRight: Int,
     onClickLeft: () -> Unit,
@@ -287,6 +294,11 @@ fun ButtonsBox(
         )
     }
 
+    val loadingFollowColors = buttonColors(
+        containerColor = MaterialTheme.colorScheme.onSecondary,
+        contentColor = MaterialTheme.colorScheme.tertiary
+    )
+
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -295,7 +307,7 @@ fun ButtonsBox(
     {
         Button(
             modifier = Modifier.size(width = width, height = height),
-            colors = colorsLeftButton,
+            colors = if (stateProcess is ProfileState.Siguiendo) loadingFollowColors else colorsLeftButton,
             onClick = onClickLeft
         )
         {
@@ -308,7 +320,7 @@ fun ButtonsBox(
         }
         Button(
             modifier = Modifier.size(width = width, height = height),
-            colors = ButtonDefaults.buttonColors(
+            colors = buttonColors(
                 containerColor = MaterialTheme.colorScheme.onSecondary,
                 contentColor = MaterialTheme.colorScheme.tertiary,
                 disabledContentColor = Color.Gray,
@@ -632,7 +644,6 @@ fun ProfileScreen(
 
     val otherUser = uiState.otherUserId != null //Para saber si hemos entrado en el perfil nuestro o de otro usuario
 
-
     //Para detectar cuando el scroll esta en el final
     val scrollEnElFinal by remember {
         derivedStateOf {
@@ -681,12 +692,18 @@ fun ProfileScreen(
             ProfileHeader(
                 modifier = Modifier,
                 windowSize = windowSize,
+                stateProcess = stateProcess,
                 userName = uiState.nombreUsuario,
                 photoUser = uiState.fotoUsuario,
                 onClickPhoto = { expandedPhotoProfile = true },
                 onClickLeft = {
                     if (otherUser) {
-                        viewModel.followUser()
+                        if (uiState.seguidor) {
+                            viewModel.unFollowUser()
+                        }
+                        else {
+                            viewModel.followUser()
+                        }
                     }
                     else {
                         onNavigateToUpload(uiState.usuario)
@@ -804,11 +821,12 @@ fun ProfileScreen(
 
     if (showComments) {
         CommentsPostWindow(
-            userInfo = uiState.usuario,
-            comments = comentariosPrueba,
+            commentsList = comentariosPrueba,
             isLastPage = uiState.ultimaPaginaComments,
-            onClose = { showComments = false },
-            onCommentChange = { viewModel.onCommentChange(it) },
+            onClose = {
+                showComments = false
+                viewModel.deleteCommentsLoaded()
+            },
             onLoadComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
             onClickPhoto = { idUserComment ->
                 onNavigateToOtherProfile(uiState.usuario, idUserComment)
@@ -817,7 +835,6 @@ fun ProfileScreen(
                 viewModel.sendCommentToPost(commentsPostId)
             },
             windowSize = windowSize,
-            currentComent = uiState.coment
         )
     }
 }

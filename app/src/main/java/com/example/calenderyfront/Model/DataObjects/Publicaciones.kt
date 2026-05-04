@@ -40,6 +40,7 @@ data class PostData(
 
 data class Comment(
     val idUsuario: Int,
+    val idComentario: Int,
     val nombreUsuario: String,
     val fotoUsuario: String,
     val comentario: String
