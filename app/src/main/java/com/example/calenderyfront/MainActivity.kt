@@ -19,17 +19,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.calenderyfront.Model.DataObjects.Chat
+import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.PostDataUpload
 import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.Register
-import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.Upload
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
-import com.example.calenderyfront.Model.DataObjects.PostDataUpload
+import com.example.calenderyfront.Screens.ChatScreen
+import com.example.calenderyfront.Screens.HomeScreen
 import com.example.calenderyfront.Screens.LoginScreen
 import com.example.calenderyfront.Screens.PostDataUploadScreen
 import com.example.calenderyfront.Screens.ProfileScreen
@@ -39,9 +42,7 @@ import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
-import com.example.calenderyfront.Screens.HomeScreen
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -205,8 +206,17 @@ fun CalenderyApp(
                 modifier = Modifier,
                 windowSize = windowSize,
                 onNavigateToOtherProfile = { userInfo, otherUserId ->
-                    navController.navigate(Profile(userInfo,otherUserId))
+                    navController.navigate(Chat(userInfo,otherUserId))
                 }
+            )
+        }
+
+        composable<Chat>(
+            typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+        )
+        {
+            ChatScreen(
+                windowSize = windowSize
             )
         }
     }

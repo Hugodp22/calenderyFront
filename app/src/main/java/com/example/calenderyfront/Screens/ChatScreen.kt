@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,12 +18,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
 
 @Composable
 fun ChatScreen(
-    viewModel: ChatViewModel
+    viewModel: ChatViewModel = viewModel(),
+    windowSize: WindowWidthSizeClass
 ) {
 
     val uiState by viewModel.uiState.collectAsState() // Estado de datos
