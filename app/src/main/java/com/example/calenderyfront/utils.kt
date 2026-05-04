@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -56,7 +55,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -68,7 +66,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -238,21 +235,49 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
 }
 
 @Composable
+fun ZoomImage(
+    photoPath: Any?,
+    modifier: Modifier = Modifier
+)
+{
+    var scale by remember { mutableStateOf(1f) }
+
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(photoPath)
+            .crossfade(true)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .diskCacheKey(photoPath.toString().substringBefore("?"))
+            .precision(Precision.INEXACT)
+            .build(),
+        contentDescription = stringResource(R.string.dialog_image_Message),
+        modifier = modifier
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale
+            )
+            .pointerInput(Unit) {
+                detectTransformGestures { _, _, zoom, _ ->
+                    scale = (scale * zoom).coerceIn(1f, 5f)
+                }
+            },
+        contentScale = ContentScale.Fit,
+        error = painterResource(R.drawable.errorimage)
+    )
+}
+
+@Composable
 fun ExpandedPhotoProfile(
     photoPath: Any?,
     onDismiss: () -> Unit
-) {
-    var scale by remember { mutableStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) } //
-
-    var containerSize by remember { mutableStateOf(IntSize.Zero) }
-
+)
+{
     Dialog(
-        onDismissRequest = onDismiss, //Para cuando le des atras, que se ponga en false el boolean que lo controle en la screen
+        onDismissRequest = onDismiss,
         properties = DialogProperties(
-            usePlatformDefaultWidth = false, //Para que no ocupe toda la pantalla
+            usePlatformDefaultWidth = false,
             dismissOnBackPress = true,
-            dismissOnClickOutside = false //Evita que pete si le das en los margenes
+            dismissOnClickOutside = false
         )
     )
     {
@@ -262,49 +287,68 @@ fun ExpandedPhotoProfile(
                 .background(Color.Black)
         )
         {
-            AsyncImage(
-                model = ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(photoPath).crossfade(true)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .diskCacheKey(photoPath.toString().substringBefore("?"))
-                    .precision(Precision.INEXACT)
-                    .build(),
-                contentDescription = stringResource(R.string.dialog_image_Message),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x, //Para mover la imagen estando ampliada
-                        translationY = offset.y
-                    )
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            scale = (scale * zoom).coerceIn(1f, 5f) //Limitamos el zoom entre 1 y 5
-                            if (scale > 1f) {
-                                val newOffset = offset + pan * scale
-                                val maxX = (containerSize.width * (scale - 1)) / 2
-                                val maxY = (containerSize.height * (scale - 1)) / 2
-
-                                offset = Offset(
-                                    x = newOffset.x.coerceIn(
-                                        -maxX,
-                                        maxX
-                                    ), //Cambiamos su valor, pero respetando el tamaño
-                                    y = newOffset.y.coerceIn(
-                                        -maxY,
-                                        maxY
-                                    ) //Por que si no, nos vamos al limbo
-                                )
-                            } else {
-                                offset = Offset.Zero
-                            }
-                        }
-                    },
-                contentScale = ContentScale.Fit,
-                error = painterResource(R.drawable.errorimage)
+            ZoomImage(
+                photoPath = photoPath,
+                modifier = Modifier.fillMaxSize()
             )
+        }
+    }
+}
+
+@Composable
+fun ExpandedPhotoPost(
+    post: PostUIData,
+    onDismiss: () -> Unit,
+    onClickLikes: () -> Unit,
+    onClickComments: () -> Unit,
+    windowSize: WindowWidthSizeClass
+) {
+    val iconSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 64.dp
+        WindowWidthSizeClass.Medium -> 66.dp
+        WindowWidthSizeClass.Expanded -> 68.dp
+        else -> 64.dp
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
+    )
+    {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        )
+        {
+            ZoomImage(
+                photoPath = post.fotoPublicacion,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            Column(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            )
+            {
+                IconPostDialog(Modifier.size(iconSize), R.drawable.favourite, R.string.like_Message, { onClickLikes })
+                IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments)
+            }
+
+            post.mensaje?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 30.dp)
+                )
+            }
         }
     }
 }
@@ -332,115 +376,6 @@ fun IconPostDialog(
                 contentDescription = stringResource(contentDescription),
                 tint = Color.Unspecified
             )
-        }
-    }
-}
-
-@Composable
-fun ExpandedPhotoPost(
-    post: PostUIData,
-    onDismiss: () -> Unit,
-    onClickLikes: () -> Unit,
-    onClickComments: () -> Unit,
-    windowSize: WindowWidthSizeClass
-)
-{
-    var scale by remember { mutableStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) } //
-
-    var containerSize by remember { mutableStateOf(IntSize.Zero) }
-
-    val iconSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 64.dp
-        WindowWidthSizeClass.Medium -> 66.dp
-        WindowWidthSizeClass.Expanded -> 68.dp
-        else -> 64.dp
-    }
-
-    Dialog(
-        onDismissRequest = onDismiss, //Para cuando le des atras, que se ponga en false el boolean que lo controle en la screen
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false, //Para que no ocupe toda la pantalla
-            dismissOnBackPress = true,
-            dismissOnClickOutside = false //Evita que pete si le das en los margenes
-        )
-    )
-    {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        )
-        {
-            AsyncImage(
-                model = ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(post.fotoPublicacion).crossfade(true)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .diskCacheKey(post.fotoPublicacion.toString().substringBefore("?"))
-                    .precision(Precision.INEXACT)
-                    .build(),
-                contentDescription = stringResource(R.string.dialog_image_Message),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(
-                        scaleX = scale,
-                        scaleY = scale,
-                        translationX = offset.x, //Para mover la imagen estando ampliada
-                        translationY = offset.y
-                    )
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            scale = (scale * zoom).coerceIn(1f, 5f) //Limitamos el zoom entre 1 y 5
-                            if (scale > 1f) {
-                                val newOffset = offset + pan * scale
-                                val maxX = (containerSize.width * (scale - 1)) / 2
-                                val maxY = (containerSize.height * (scale - 1)) / 2
-
-                                offset = Offset(
-                                    x = newOffset.x.coerceIn(
-                                        -maxX,
-                                        maxX
-                                    ), //Cambiamos su valor, pero respetando el tamaño
-                                    y = newOffset.y.coerceIn(
-                                        -maxY,
-                                        maxY
-                                    ) //Por que si no, nos vamos al limbo
-                                )
-                            } else {
-                                offset = Offset.Zero
-                            }
-                        }
-                    },
-                contentScale = ContentScale.Fit,
-                error = painterResource(R.drawable.errorimage)
-            )
-
-            Column(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            )
-
-            {
-                IconPostDialog(Modifier.size(iconSize),R.drawable.favourite,R.string.like_Message,{onClickLikes})
-                IconPostDialog(Modifier.size(iconSize),R.drawable.comment,R.string.comment_Message,onClickComments)
-            }
-            if (post.mensaje != null) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 30.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                )
-                {
-                    Text(
-                        text = post.mensaje,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-            }
-
         }
     }
 }
