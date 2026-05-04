@@ -52,9 +52,6 @@ interface UsuarioApiService {
     @DELETE("api/follower/app/unfollow")
     suspend fun dejarDeSeguirUsuario(@Query("idUsuario") idUsuario: Int, @Query("userToUnFollowId") userToUnFollowId: Int): Response<Unit>
 
-    @GET("")
-    suspend fun buscarDatosDeOtroPerfil(@Query("idUsuario") idUsuario: Int, @Query ("idOtroUsuario") idOtroUsuario: Int): Response<UserProfile>
-
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado
      * para asignarsela

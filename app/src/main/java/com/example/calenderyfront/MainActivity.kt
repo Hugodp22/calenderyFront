@@ -6,15 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.calenderyfront.Model.DataObjects.Login
 import com.example.calenderyfront.Model.DataObjects.Profile
@@ -68,6 +71,9 @@ fun CalenderyApp(
     navController: NavHostController = rememberNavController(),
 )
 {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
     NavHost(navController = navController, startDestination = Redirect) {
 
         composable<Redirect> {
@@ -203,5 +209,16 @@ fun CalenderyApp(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun CalenderyBottomBar(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+)
+{
+    NavigationBar {
+
     }
 }

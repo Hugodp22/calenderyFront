@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,6 +52,7 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
+import com.example.calenderyfront.CommentsPostWindow
 import com.example.calenderyfront.ExpandedPhotoPost
 import com.example.calenderyfront.Model.DataObjects.PostUIData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
@@ -199,6 +202,7 @@ fun PostHomeCreation(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .fillMaxHeight()
             .widthIn(max = 600.dp),
         shape =RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(
@@ -383,12 +387,15 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     )
 {
-
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
     var selectedPost by remember { mutableStateOf<PublicacionHome?>(null) } //Para saber que publicacion mostrar al hacer click
 
     val gridState = rememberLazyGridState() //State para obtener informacion del lazy
+
+    var showComments by remember { mutableStateOf(false) }
+    var commentsPostId by remember { mutableIntStateOf(-1) }
+
 
     val scrollEnElFinal by remember {
         derivedStateOf {
@@ -429,7 +436,12 @@ fun HomeScreen(
                 onClickPostProfile = { user, id -> onNavigateToOtherProfile(user, id) },
                 onClickPostPhoto = {selectedPost = post},
                 onClickLikeIcon = {},
-                onClickCommentIcon = {},
+                onClickCommentIcon = {
+                    commentsPostId = post.idPost
+                    viewModel.deleteCommentsLoaded()
+                    viewModel.getCommentsPost(idPost = post.idPost)
+                    showComments = true
+                },
             )
         }
 
@@ -450,6 +462,7 @@ fun HomeScreen(
     }
 
     selectedPost?.let {
+        val favouriteIcon = if (it.like) R.drawable.favourite_filled else R.drawable.favourite
         ExpandedPhotoPost(
             post = PostUIData(
                 postId = it.idPost,
@@ -458,10 +471,38 @@ fun HomeScreen(
                 cantidadLikes = it.cantidadLikes,
                 cantidadComentarios = it.cantidadComentarios
             ),
+            likeIcon = favouriteIcon,
             onDismiss = { selectedPost = null },
-            onClickLikes = {},
-            onClickComments = {},
+            onClickLikes = {
+
+            },
+            onClickComments = {
+                commentsPostId = it.idPost
+                viewModel.deleteCommentsLoaded()
+                viewModel.getCommentsPost(idPost = it.idPost)
+                showComments = true
+            },
             windowSize = windowSize
+        )
+    }
+
+    if (showComments) {
+        CommentsPostWindow(
+            commentsList = comentariosPrueba,
+            isLastPage = uiState.ultimaPaginaComment,
+            onClose = {
+                showComments = false
+                viewModel.deleteCommentsLoaded()
+            },
+
+            onLoadComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
+            onClickPhoto = { idUserComment ->
+                onNavigateToOtherProfile(uiState.userInfo, idUserComment)
+            },
+            onSendComment = {
+                viewModel.sendCommentToPost(commentsPostId)
+            },
+            windowSize = windowSize,
         )
     }
 

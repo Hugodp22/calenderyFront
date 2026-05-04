@@ -185,7 +185,7 @@ fun MessageLimitContent(
         onValueChange = {
             //Le ponemos limite a la descripcion
             if (it.length <= wordsLimit) {
-                onValueChange(it)
+                onValueChange(it.trim())
             }
         },
         modifier = modifier.height(120.dp),
@@ -298,6 +298,7 @@ fun ExpandedPhotoProfile(
 @Composable
 fun ExpandedPhotoPost(
     post: PostUIData,
+    @DrawableRes likeIcon: Int,
     onDismiss: () -> Unit,
     onClickLikes: () -> Unit,
     onClickComments: () -> Unit,
@@ -336,7 +337,7 @@ fun ExpandedPhotoPost(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             )
             {
-                IconPostDialog(Modifier.size(iconSize), R.drawable.favourite, R.string.like_Message, { onClickLikes })
+                IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, { onClickLikes })
                 IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments)
             }
 
