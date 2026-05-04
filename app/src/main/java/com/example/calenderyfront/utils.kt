@@ -17,10 +17,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,6 +44,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -76,7 +79,6 @@ import coil.request.ImageRequest
 import coil.size.Precision
 import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostUIData
-import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.clients.PhotoClient
 import com.example.calenderyfront.userAuth.SessionManager
 import okhttp3.Credentials
@@ -322,12 +324,13 @@ fun IconPostDialog(
     {
         IconButton(
             modifier = modifier,
-            onClick = onClick
+            onClick = onClick,
         )
         {
             Icon(
                 painter = painterResource(icon),
-                contentDescription = stringResource(contentDescription)
+                contentDescription = stringResource(contentDescription),
+                tint = Color.Unspecified
             )
         }
     }
@@ -451,17 +454,26 @@ fun CommentCreation(
 {
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 20.dp
+        WindowWidthSizeClass.Medium -> 24.dp
+        WindowWidthSizeClass.Expanded -> 26.dp
         else -> 20.dp
     }
 
+    val spacedBy = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 7.dp
+        WindowWidthSizeClass.Medium -> 10.dp
+        WindowWidthSizeClass.Expanded -> 10.dp
+        else -> 7.dp
+    }
+
     val fontSizeUser = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 20.sp
-        else -> 20.sp
+        WindowWidthSizeClass.Compact -> 17.sp
+        else -> 17.sp
     }
 
     val fontSizeComment =  when (windowSize) {
-        WindowWidthSizeClass.Compact -> 20.sp
-        else -> 20.sp
+        WindowWidthSizeClass.Compact -> 15.sp
+        else -> 15.sp
     }
 
     Column(
@@ -471,7 +483,8 @@ fun CommentCreation(
     )
     {
         Row(
-
+            horizontalArrangement = Arrangement.spacedBy(spacedBy),
+            verticalAlignment = Alignment.CenterVertically
         )
         {
             PhotoUserContainer(
@@ -488,11 +501,15 @@ fun CommentCreation(
             )
         }
 
+        Spacer(Modifier.padding(bottom = 7.dp))
+
         Text(
             text = comment.comentario,
             fontSize = fontSizeComment,
             color = MaterialTheme.colorScheme.tertiary
         )
+
+        Spacer(Modifier.padding(bottom = 15.dp))
     }
 }
 
@@ -513,11 +530,11 @@ fun InputComment(
     }
 
     val width = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 0.8F
-        else -> 0.8F
+        WindowWidthSizeClass.Compact -> 0.9F
+        else -> 0.9F
     }
 
-    OutlinedTextField(
+    TextField(
         modifier = Modifier.fillMaxWidth(width),
         value = value,
         onValueChange = onValueChange,
@@ -556,51 +573,50 @@ fun InputComment(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsPostWindow(
-    userInfo: UserInfo,
-    comments: List<Comment>,
-    currentComent: String,
+    commentsList: List<Comment>,
     isLastPage: Boolean,
     onClose: () -> Unit,
-    onCommentChange: (String) -> Unit,
     onLoadComments: () -> Unit,
     onClickPhoto: (Int) -> Unit,
-    onSendComment: () -> Unit,
+    onSendComment: (String) -> Unit,
     windowSize: WindowWidthSizeClass
 )
 {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+
+    var comment by remember { mutableStateOf("") }
 
     ModalBottomSheet(
         onDismissRequest = onClose,
         sheetState = sheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+        dragHandle = { BottomSheetDefaults.DragHandle() },
     )
     {
         Column(
             modifier = Modifier.fillMaxHeight(0.8f),
+            horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(5.dp)
         )
         {
-            Text(
-                modifier = Modifier.padding(16.dp),
-                text = stringResource(R.string.comments_title),
-                color = MaterialTheme.colorScheme.tertiary
-            )
-
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 16.dp),
             )
             {
-                itemsIndexed(comments) { index, comment ->
+                itemsIndexed(
+                    items = commentsList,
+                    key = { _, comment -> comment.idComentario }) { index, comment ->
+
                     CommentCreation(
                         comment = comment,
                         onClickPhoto = onClickPhoto,
                         windowSize = windowSize
                     )
 
-                    if (index == comments.lastIndex && !isLastPage) {
+                    if (index == commentsList.lastIndex && !isLastPage) {
                         LaunchedEffect(Unit) {
                             onLoadComments()
                         }
@@ -610,9 +626,12 @@ fun CommentsPostWindow(
 
             InputComment(
                 modifier = Modifier,
-                value = currentComent,
-                onValueChange = onCommentChange,
-                onSendComment = onSendComment,
+                value = comment,
+                onValueChange = { comment = it },
+                onSendComment = {
+                    onSendComment(comment)
+                    comment = ""
+                },
                 windowSize = windowSize
             )
         }

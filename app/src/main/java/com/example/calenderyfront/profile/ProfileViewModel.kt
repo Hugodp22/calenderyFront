@@ -50,12 +50,12 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     //Seleccionamos el Id con el que se van a cargar los datos o ciertas cosas
 
     init {
-        if (otherUserId == null) {
+//        if (otherUserId == null) {
             loadProfile()
-        }
-        else {
-            loadOtherProfile()
-        }
+//        }
+//        else {
+//            loadOtherProfile()
+//        }
     }
 
     fun onCommentChange(comment: String) {
@@ -190,7 +190,65 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
     fun followUser() {
+        val currentState = _uiState.value
 
+        if (currentState.seguidor) {
+            return
+        }
+
+        _state.value = ProfileState.Siguiendo
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.seguirUsuario(userInfo.idUsuario,mainId)
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update { it.copy(
+                        cantidadSeguidores = it.cantidadSeguidores + 1,
+                        seguidor = true
+                    )}
+                    _state.value = ProfileState.Iniciado
+                }
+
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun unFollowUser() {
+        val currentState = _uiState.value
+
+        if (!currentState.seguidor) {
+            return
+        }
+
+        _state.value = ProfileState.Siguiendo
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.dejarDeSeguirUsuario(userInfo.idUsuario,mainId)
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update { it.copy(
+                        cantidadSeguidores = it.cantidadSeguidores - 1,
+                        seguidor = false
+                    )}
+                    _state.value = ProfileState.Iniciado
+                }
+
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
     }
 
     @SuppressLint("SuspiciousIndentation")

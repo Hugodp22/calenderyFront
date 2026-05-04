@@ -9,6 +9,7 @@ import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.DataObjects.UserValidation
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -44,6 +45,12 @@ interface UsuarioApiService {
 
     @GET("api/users/app/getUserProfile")
     suspend fun buscarDatosPerfil(@Query ("idUsuario") idUsuario: Int): Response<UserProfile>
+
+    @PUT("api/follower/app/follow")
+    suspend fun seguirUsuario(@Query("idUsuario") idUsuario: Int, @Query("userToFollowId") userToFollowId: Int): Response<Unit>
+
+    @DELETE("api/follower/app/unfollow")
+    suspend fun dejarDeSeguirUsuario(@Query("idUsuario") idUsuario: Int, @Query("userToUnFollowId") userToUnFollowId: Int): Response<Unit>
 
     @GET("")
     suspend fun buscarDatosDeOtroPerfil(@Query("idUsuario") idUsuario: Int, @Query ("idOtroUsuario") idOtroUsuario: Int): Response<UserProfile>

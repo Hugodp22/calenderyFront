@@ -19,7 +19,9 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,12 +73,12 @@ val listaPublicaciones = listOf(
         cantidadLikes = 150
     ),
     PublicacionHome(
-        idUsuario = 286,
+        idUsuario = 296,
         idPost = 2,
-        nombreUsuario = "ana.tech",
+        nombreUsuario = "Martin Kotlin andrade",
         fotoUsuario = "https://randomuser.me/api/portraits/women/2.jpg",
         fotoPublicacion = "https://picsum.photos/id/10/800/600",
-        mensaje = "Mi nuevo setup de escritorio finalmente terminado. ¿Qué les parece?",
+        mensaje = "Los que odien dune, vais a morir a manos de mi capibara",
         cantidadComentarios = 45,
         cantidadLikes = 890
     ),
@@ -194,25 +196,14 @@ fun PostHomeCreation(
         else -> 15.sp
     }
 
-    val width = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 0.8F
-        WindowWidthSizeClass.Medium -> 0.6F
-        WindowWidthSizeClass.Expanded -> 0.6F
-        else -> 0.8F
-    }
-
-    val horizontalPadding = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 15.dp
-        WindowWidthSizeClass.Medium -> 30.dp
-        WindowWidthSizeClass.Expanded -> 30.dp
-        else -> 15.dp
-    }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .widthIn(max = 600.dp)
-            .padding(horizontal = horizontalPadding)
+            .widthIn(max = 600.dp),
+        shape =RoundedCornerShape(0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        )
     )
     {
         Column(
@@ -367,12 +358,13 @@ fun IconRow(
     {
         IconButton(
             onClick = onClick,
-            modifier = modifier
+            modifier = modifier,
         )
         {
             Icon(
                 painter = painterResource(icon),
-                contentDescription = stringResource(contentDescription)
+                contentDescription = stringResource(contentDescription),
+                tint = Color.Unspecified //Para que se pinte bien
             )
         }
         Text(
@@ -425,7 +417,6 @@ fun HomeScreen(
         columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(2),
         state = gridState,
         horizontalArrangement = Arrangement.spacedBy(horizontalSpaced),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = Modifier.fillMaxSize(),
     )
     {

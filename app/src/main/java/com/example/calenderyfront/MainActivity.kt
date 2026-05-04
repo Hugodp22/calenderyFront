@@ -80,7 +80,7 @@ fun CalenderyApp(
                     navController.navigate(VerifyLink(userInfo))
                 },
                 onNavigateToProfile = { userInfo ->
-                    navController.navigate(Profile(userInfo))
+                    navController.navigate(Home(userInfo))
                 }
             )
         }
