@@ -1,6 +1,7 @@
 package com.example.calenderyfront.Model.DataObjects
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class PublicacionHome(
     val idUsuario: Int, //Para ir a su perfil
@@ -11,6 +12,7 @@ data class PublicacionHome(
     val mensaje: String?,
     val cantidadComentarios: Int,
     val cantidadLikes: Int,
+    val like: Boolean = false
 )
 
 data class PublicacionProfile(
@@ -21,6 +23,7 @@ data class PublicacionProfile(
     val cantidadComentarios: Int = 0,
     val fechaCalendario: String, //Fecha que seleccionaste para subirlo
     val fechaPublicacion: String, //Fecha real en la que lo subiste
+    val like: Boolean = false
 )
 
 data class PostUIData(
@@ -43,7 +46,8 @@ data class Comment(
     val idComentario: Int,
     val nombreUsuario: String,
     val fotoUsuario: String,
-    val comentario: String
+    val comentario: String,
+    val localDateTime: LocalDateTime ? = null
 )
 
 data class PageProfilePosts<PublicacionProfile>(

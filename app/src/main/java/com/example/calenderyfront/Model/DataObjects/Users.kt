@@ -40,6 +40,7 @@ data class UserProfile(
     val descripcion: String = "",
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
+    val seguidor: Boolean = false
 )
 
 /**

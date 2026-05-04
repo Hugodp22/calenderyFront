@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Profile
+import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
@@ -31,9 +32,9 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).otherUserID
 
-    private val mainId: Int = otherUserId ?: userInfo.idUsuario
+    private val mainId: Int = otherUserId ?: userInfo.idUsuario  //Seleccionamos el Id con el que se van a cargar los datos
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, otherUserId, mainId,"", "Perfil_defecto.png", "", 0, 0))
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, otherUserId, mainId,"", "Perfil_defecto.png", ""))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
@@ -47,19 +48,12 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
     private var searchJob: Job? = null
 
-    //Seleccionamos el Id con el que se van a cargar los datos o ciertas cosas
-
     init {
-//        if (otherUserId == null) {
-            loadProfile()
-//        }
-//        else {
-//            loadOtherProfile()
-//        }
+        loadProfile()
     }
 
     fun onCommentChange(comment: String) {
-        _uiState.update { it.copy(coment = comment) }
+        _uiState.update { it.copy(comment = comment) }
     }
 
     private fun loadProfile() {
@@ -78,44 +72,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 fotoUsuario = userData.fotoPerfil,
                                 descripcion = userData.descripcion,
                                 cantidadSeguidos = userData.cantidadSeguidos,
-                                cantidadSeguidores = userData.cantidadSeguidores
-                            )
-                        }
-                    }
-                    else {
-                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
-                    }
-                }
-                else {
-                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
-                }
-            }
-            catch (e: Exception) {
-                _state.value = ProfileState.Error(R.string.Error_Network)
-            }
-        }
-    }
-
-    private fun loadOtherProfile() {
-        val currentUiState = _uiState.value
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val respuesta = RetrofitClient.usuarioApi.buscarDatosDeOtroPerfil(
-                    idUsuario = userInfo.idUsuario,
-                    idOtroUsuario = currentUiState.mainId
-                )
-
-                if (respuesta.isSuccessful) {
-                    val userData = respuesta.body()
-
-                    if (userData != null) {
-                        _uiState.update {
-                            it.copy(
-                                nombreUsuario = userData.nombre,
-                                fotoUsuario = userData.fotoPerfil + "?width=500&quality=7",
-                                descripcion = userData.descripcion,
-                                cantidadSeguidos = userData.cantidadSeguidos,
                                 cantidadSeguidores = userData.cantidadSeguidores,
+                                seguidor = userData.seguidor,
                             )
                         }
                     }
@@ -295,7 +253,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun sendCommentToPost(idPost: Int) {
         val currentState = _uiState.value
 
-        if (currentState.coment.isEmpty()) {
+        if (currentState.comment.isEmpty()) {
             _state.value = ProfileState.Error(R.string.Error_comment_send)
             return
         }
@@ -307,11 +265,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(
                     idUsuario = userInfo.idUsuario,
                     idPublicacion = idPost,
-                    comentario = currentState.coment
+                    comentario = currentState.comment
                 )
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(coment = "") }
+                    _uiState.update { it.copy(comment = "") }
                     _state.value = ProfileState.Iniciado
                 }
 
@@ -329,5 +287,15 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun deleteCommentsLoaded() {
         currentPageComments = 0
         _uiState.update { it.copy(ultimaPaginaComments = false, comentarios = emptyList()) }
+    }
+
+    fun likePost(post: PublicacionProfile) {
+        val currentState = _uiState.value
+
+    }
+
+    fun unLikePost(post: PublicacionProfile) {
+        val currentState = _uiState.value
+
     }
 }

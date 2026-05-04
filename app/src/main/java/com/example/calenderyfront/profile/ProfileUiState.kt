@@ -13,7 +13,7 @@ data class ProfileUiState(
     val descripcion: String?,
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
-    val coment: String = "",
+    val comment: String = "",
     val publicaciones: List<PublicacionProfile> = emptyList(),
     val comentarios: List<Comment> = emptyList(),
     val ultimaPaginaPosts: Boolean = false,

@@ -86,11 +86,11 @@ val comentariosPrueba = listOf(
         comentario = "¡Qué buena foto! Me encanta el enfoque que le has dado."
     ),
     Comment(
-        idUsuario = 286,
+        idUsuario = 296,
         idComentario = 3,
-        nombreUsuario = "Jetpack_Compose_Fan",
+        nombreUsuario = "Ruben kotlin Andrade",
         fotoUsuario = "https://picsum.photos/id/91/200/200",
-        comentario = "Increíble. ¿Con qué cámara la has hecho?"
+        comentario = "Increíble. ¿No seras el Lord programador? viva hugo de pablo"
     ),
     Comment(
         idUsuario = 103,
@@ -805,6 +805,7 @@ fun ProfileScreen(
 
     //Si le has dado click a una publicacion
     selectedPost?.let {
+        val favouriteIcon = if (it.like) R.drawable.favourite_filled else R.drawable.favourite
         ExpandedPhotoPost(
             post = PostUIData(
                 postId = it.id,
@@ -813,8 +814,16 @@ fun ProfileScreen(
                 cantidadLikes = it.cantidadLikes,
                 cantidadComentarios = it.cantidadComentarios
             ),
+            likeIcon = favouriteIcon,
             onDismiss = { selectedPost = null },
-            onClickLikes = {},
+            onClickLikes = {
+                if (it.like) {
+                    viewModel.unLikePost(it)
+                }
+                else {
+                    viewModel.likePost(it)
+                }
+            },
             onClickComments = {
                 commentsPostId = it.id
                 viewModel.deleteCommentsLoaded()
