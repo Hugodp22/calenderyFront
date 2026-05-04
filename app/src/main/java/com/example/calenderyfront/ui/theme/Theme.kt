@@ -15,8 +15,11 @@ private val DarkColorScheme = darkColorScheme(
     secondary = SecundarioOscuro,
     tertiary = LetrasOscuro, //Letras
     onPrimary = FondoLeveOscuro,
-    onSecondary = BotonLeveOscuro,
-    onTertiary = BarraCargaOscuro //Barra de carga
+    onSecondary = BotonPerfilOscuro,
+    onTertiary = BarraCargaOscuro, //Barra de carga
+    primaryContainer = BotonCargandoSeguirOscuro,
+    secondaryContainer = BotonCargandoDejarSeguirOscuro,
+    tertiaryContainer = BotonDejarSeguirOscuro,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -24,8 +27,11 @@ private val LightColorScheme = lightColorScheme(
     secondary = SecundarioClaro,
     tertiary = LetrasClaro,
     onPrimary = FondoLeveClaro,
-    onSecondary = BotonLeveClaro,
+    onSecondary = BotonPerfilClaro,
     onTertiary = BarraCargaClaro,
+    primaryContainer = BotonCargandoSeguirClaro,
+    secondaryContainer = BotonCargandoDejarSeguirClaro,
+    tertiaryContainer = BotonDejarSeguirClaro,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

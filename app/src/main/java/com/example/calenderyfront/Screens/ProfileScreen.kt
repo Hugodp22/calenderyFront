@@ -285,7 +285,7 @@ fun ButtonsBox(
 
     val colorsLeftButton = when (follow) {
         true -> buttonColors(
-            containerColor = MaterialTheme.colorScheme.onSecondary,
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             contentColor = MaterialTheme.colorScheme.tertiary,
         )
         else -> buttonColors(
@@ -294,10 +294,18 @@ fun ButtonsBox(
         )
     }
 
-    val loadingFollowColors = buttonColors(
-        containerColor = MaterialTheme.colorScheme.onSecondary,
-        contentColor = MaterialTheme.colorScheme.tertiary
-    )
+    val loadingFollowColors = when (follow) {
+        false -> buttonColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = Color.Gray
+        )
+        else -> buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = Color.Gray
+        )
+    }
+
+
 
     Row(
         modifier = modifier,
@@ -315,7 +323,6 @@ fun ButtonsBox(
                 text = if (!follow) stringResource(buttonLeft) else stringResource(R.string.unfollow_text),
                 fontSize = fontSize,
                 maxLines = 1,
-                color = MaterialTheme.colorScheme.tertiary
             )
         }
         Button(
@@ -332,7 +339,6 @@ fun ButtonsBox(
                 text = stringResource(buttonRight),
                 fontSize = fontSize,
                 maxLines = 1,
-                color = MaterialTheme.colorScheme.tertiary
             )
         }
     }
