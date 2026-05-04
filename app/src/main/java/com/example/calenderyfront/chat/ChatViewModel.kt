@@ -79,7 +79,7 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     }
 
     // enviar mensaje
-    fun sendMessage() {
+    fun sendMessage(text: String) {
 
         val currentUiState = _uiState.value // mensajes actuales
 
