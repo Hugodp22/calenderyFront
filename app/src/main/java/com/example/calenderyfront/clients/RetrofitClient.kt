@@ -1,6 +1,7 @@
 package com.example.calenderyfront.clients
 
 import android.content.Context
+import com.example.calenderyfront.Apis.ChatApiService
 import com.example.calenderyfront.Apis.PublicacionApiService
 import com.example.calenderyfront.Apis.UsuarioApiService
 import com.example.calenderyfront.userAuth.BasicInterceptor
@@ -48,5 +49,7 @@ object RetrofitClient {
     val publicacionApi: PublicacionApiService by lazy {
         retrofit.create(PublicacionApiService::class.java)
     }
+
+    val chatApi: ChatApiService = retrofit.create(ChatApiService::class.java)
 
 }

@@ -90,7 +90,7 @@ val comentariosPrueba = listOf(
         idComentario = 3,
         nombreUsuario = "Ruben kotlin Andrade",
         fotoUsuario = "https://picsum.photos/id/91/200/200",
-        comentario = "Increíble. ¿No seras el Lord programador? viva hugo de pablo"
+        comentario = "Increíble. ¿No seras el Lord programador? viva hugo de pablo 67 67 67"
     ),
     Comment(
         idUsuario = 103,

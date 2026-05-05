@@ -8,6 +8,9 @@ import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.Message
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
+import com.example.calenderyfront.R
+import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -117,4 +120,111 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     private fun decrypt(text: String): String {
         return text.removePrefix("ENC(").removeSuffix(")") // simulación de descifrado
     }
+
+    private var currentPageMessages = 0 // página actual
+    private val currentPageSize = pageSize // tamaño dee la página
+
+    fun loadMessages() {
+
+        if (_state.value is ChatState.Loading) return
+
+        _state.value = ChatState.Loading
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+
+                val respuesta = RetrofitClient.chatApi.getMessages(
+                    userId = userInfo.idUsuario,
+                    otherUserId = otherUserId,
+                    page = currentPageMessages,
+                    size = currentPageSize
+                )
+
+                if (respuesta.isSuccessful) {
+
+                    val mensajesCargados = respuesta.body()
+
+                    if (mensajesCargados != null) {
+
+                        val processed = mensajesCargados.content.map {
+                            decryptIfNeeded(it)
+                        }
+
+                        _uiState.update {
+                            it.copy(
+                                messages = it.messages + processed,
+                                lastMessage = mensajesCargados.content.size < currentPageSize // check last
+                            )
+                        }
+
+                        _state.value = ChatState.Started
+
+                        currentPageMessages++ // siguiente página
+                    }
+
+                } else {
+                    _state.value = ChatState.Error(respuesta.code())
+                }
+
+            } catch (e: Exception) {
+                _state.value = ChatState.Error(R.string.Error_Network) // err de red
+            }
+        }
+    }
+
+    fun onMessageChange(message: String) {
+        _uiState.update {
+            it.copy(currentMessage = message)
+        }
+    }
+
+    fun sendMessage() {
+
+        val messageText = _uiState.value.currentMessage
+
+        if (messageText.isBlank()) return
+
+        val newMessage = Message(
+            idUsuario = userInfo.idUsuario,
+            mensaje = messageText,
+            cifrado = false
+        )
+
+        _uiState.update {
+            it.copy(
+                messages = listOf(newMessage) + it.messages,
+                currentMessage = ""
+            )
+        }
+
+        // llamada al backend
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+
+                val response = RetrofitClient.chatApi.sendMessage(
+                    userId = userInfo.idUsuario,
+                    otherUserId = otherUserId,
+                    message = newMessage
+                )
+
+                if (!response.isSuccessful) {
+                    // backend err
+                }
+
+            } catch (e: Exception) {
+
+                // reintento
+                try {
+                    RetrofitClient.chatApi.sendMessage(
+                        userId = userInfo.idUsuario,
+                        otherUserId = otherUserId,
+                        message = newMessage
+                    )
+                } catch (_: Exception) {
+                    // falla con tod0
+                }
+            }
+        }
+    }
+
 }
