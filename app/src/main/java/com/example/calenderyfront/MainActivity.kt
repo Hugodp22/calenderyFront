@@ -35,10 +35,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.Selection
 import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.PostDataUpload
 import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Redirect
@@ -60,7 +60,6 @@ import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -307,7 +306,7 @@ fun CalenderyBottomBar(
                 selected = currentDestination == Selection,
                 onClick = {navController.navigate(Selection(
                     userInfo = currentUserInfo,
-                    messageOption = true)
+                    chatOption = true)
                 )},
                 icon = R.drawable.chat,
                 contentDescription = R.string.Chat_bottom_bar,
@@ -318,7 +317,7 @@ fun CalenderyBottomBar(
                 selected = currentDestination == Selection,
                 onClick = {navController.navigate(Selection(
                     userInfo = currentUserInfo,
-                    messageOption = false)
+                    chatOption = false)
                 )},
                 icon = R.drawable.search,
                 contentDescription = R.string.Search_bottom_bar,

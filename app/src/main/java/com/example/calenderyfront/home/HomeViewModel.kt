@@ -5,13 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Home
+import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.pageSize
-import com.example.calenderyfront.profile.ProfileState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +40,10 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
     init {
         //loadPosts()
+    }
+
+    fun onCommentChange(comment: String) {
+        _uiState.update { it.copy(comment = comment) }
     }
 
     fun loadPosts() {
@@ -90,7 +94,7 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.publicacionApi.obtenerComentariosPublicacion(
-                    idPublicacion = idPost,
+                    publicacionId = idPost,
                     page = currentPageComments,
                     size = currentPageSize
                 )
@@ -131,9 +135,10 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(
-                    idUsuario = userInfo.idUsuario,
-                    idPublicacion = idPost,
-                    comentario = currentState.comment
+                    PostCommentDto(
+                        idPublicacion = idPost,
+                        comentario = currentState.comment
+                    )
                 )
 
                 if (respuesta.isSuccessful) {

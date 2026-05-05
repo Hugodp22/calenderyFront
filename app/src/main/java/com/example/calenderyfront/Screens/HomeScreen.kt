@@ -488,6 +488,7 @@ fun HomeScreen(
 
     if (showComments) {
         CommentsPostWindow(
+            currentComment = uiState.comment,
             commentsList = comentariosPrueba,
             isLastPage = uiState.ultimaPaginaComment,
             onClose = {
@@ -495,10 +496,11 @@ fun HomeScreen(
                 viewModel.deleteCommentsLoaded()
             },
 
-            onLoadComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
+            onLoadMoreComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
             onClickPhoto = { idUserComment ->
                 onNavigateToOtherProfile(uiState.userInfo, idUserComment)
             },
+            onCommentChange = {viewModel.onCommentChange(it)},
             onSendComment = {
                 viewModel.sendCommentToPost(commentsPostId)
             },
