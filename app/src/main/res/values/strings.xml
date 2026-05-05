@@ -81,6 +81,10 @@
     <string name="comment">Comentario</string>
     <string name="comment_input">Comenta algo!!!</string>
     <string name="send_comment">Enviar</string>
+    <string name="Home_bottom_bar">Home</string>
+    <string name="Search_bottom_bar">Search</string>
+    <string name="Profile_bottom_bar">Profile</string>
+    <string name="Chat_bottom_bar">Chat</string>
 
 
 </resources>
