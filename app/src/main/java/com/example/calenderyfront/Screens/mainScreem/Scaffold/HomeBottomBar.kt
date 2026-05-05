@@ -56,7 +56,7 @@ fun HomeBottomBar(navController: NavController) {
                 )
                 {
                     Icon(
-                        painter = painterResource(R.drawable.home_claro),
+                        painter = painterResource(R.drawable.home),
                         contentDescription = "Home",
                         modifier = Modifier.size(30.dp)
                     )
@@ -70,7 +70,7 @@ fun HomeBottomBar(navController: NavController) {
             onClick = { navController.navigate("search") },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.lupa_oscuro),
+                    painter = painterResource(R.drawable.search),
                     contentDescription = "Search",
                     modifier = Modifier.size(30.dp)
                 )
@@ -97,7 +97,7 @@ fun HomeBottomBar(navController: NavController) {
             onClick = { navController.navigate("profile") },
             icon = {
                 Icon(
-                    painter = painterResource(R.drawable.profile_oscuro),
+                    painter = painterResource(R.drawable.profile),
                     contentDescription = "Profile",
                     modifier = Modifier.size(30.dp)
                 )

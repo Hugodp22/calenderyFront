@@ -59,7 +59,7 @@ fun HomeTopBar(
          */
         IconButton(onClick = onMessagesClick) {
             Icon(
-                painter = painterResource(R.drawable.mensajes_oscuro),
+                painter = painterResource(R.drawable.chat),
                 contentDescription = "messages",
                 modifier = Modifier.size(30.dp),
             )
