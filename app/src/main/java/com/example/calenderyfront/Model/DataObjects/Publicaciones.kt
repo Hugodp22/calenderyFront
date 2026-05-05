@@ -64,6 +64,13 @@ data class PagePostComments<Comment>(
     val last: Boolean
 )
 
+data class PageChatMessages<Message>(
+    val content: List<Message>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
+)
+
 data class TimeData(
     val anio : Int,
     val semana: Int,
