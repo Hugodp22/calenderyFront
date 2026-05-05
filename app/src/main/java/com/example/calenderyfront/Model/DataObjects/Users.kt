@@ -43,6 +43,20 @@ data class UserProfile(
     val seguidor: Boolean = false
 )
 
+data class UserSearch(
+    val idUsuario: Int,
+    val nombre: String,
+    val fotoPerfil: String
+)
+
+data class UserChatSearch(
+    val idUsuario: Int,
+    val nombre: String,
+    val fotoPerfil: String,
+    val ultimoMensaje: String,
+    val mensajeNuevo: Boolean = false
+)
+
 /**
  * Informacion del usuario para hacer peticiones y saber que partes de la aplicacion
  * crear segun su Rol

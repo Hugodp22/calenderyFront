@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Comment
+import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UserInfo
@@ -49,6 +51,10 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     private var searchJob: Job? = null
 
     init {
+        //Para evitar errores si llegas a tu perfil mediante un comentario tuyo
+        if (otherUserId == userInfo.idUsuario) {
+            _uiState.update { it.copy(otherUserId = null) }
+        }
         loadProfile()
     }
 
@@ -222,7 +228,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.publicacionApi.obtenerComentariosPublicacion(
-                    idPublicacion = idPost,
+                    publicacionId = idPost,
                     page = currentPageComments,
                     size = currentPageSize
                 )
@@ -238,7 +244,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                             _state.value = ProfileState.PaginaCargada
                             currentPageComments++
                         }
-
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
@@ -262,14 +267,18 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(
-                    idUsuario = userInfo.idUsuario,
-                    idPublicacion = idPost,
-                    comentario = currentState.comment
+
+                val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(PostCommentDto(
+                        idPublicacion = idPost,
+                        comentario = currentState.comment
+                    )
                 )
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(comment = "") }
+                    _uiState.update { it.copy(
+                        comentarios = it.comentarios,
+                        comment = ""
+                    )}
                     _state.value = ProfileState.Iniciado
                 }
 
@@ -281,12 +290,15 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
-
     }
 
     fun deleteCommentsLoaded() {
         currentPageComments = 0
-        _uiState.update { it.copy(ultimaPaginaComments = false, comentarios = emptyList()) }
+        _uiState.update { it.copy(
+            ultimaPaginaComments = false,
+            comentarios = emptyList(),
+            comment = ""
+        )}
     }
 
     fun likePost(post: PublicacionProfile) {
@@ -296,7 +308,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             return
         }
 
-        //Hacer que actualice a nivel local el like
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(userInfo.idUsuario,post.id)

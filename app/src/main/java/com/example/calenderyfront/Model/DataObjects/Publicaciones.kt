@@ -41,6 +41,11 @@ data class PostData(
     val calendarDate: String
 )
 
+data class PostCommentDto(
+    val idPublicacion: Int,
+    val comentario: String
+)
+
 data class Comment(
     val idUsuario: Int,
     val idComentario: Int,

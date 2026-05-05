@@ -815,7 +815,10 @@ fun ProfileScreen(
                 cantidadComentarios = it.cantidadComentarios
             ),
             likeIcon = favouriteIcon,
-            onDismiss = { selectedPost = null },
+            onDismiss = {
+                selectedPost = null
+                viewModel.deleteCommentsLoaded()
+            },
             onClickLikes = {
                 if (!it.like) viewModel.likePost(it) else viewModel.unLikePost(it)
                 selectedPost = it.copy(like = !it.like) //Para verlo a nivel interno
@@ -823,7 +826,6 @@ fun ProfileScreen(
             },
             onClickComments = {
                 commentsPostId = it.id
-                viewModel.deleteCommentsLoaded()
                 viewModel.getCommentsPost(idPost = it.id)
                 showComments = true
             },
@@ -833,16 +835,17 @@ fun ProfileScreen(
 
     if (showComments) {
         CommentsPostWindow(
-            commentsList = comentariosPrueba,
+            currentComment = uiState.comment,
+            commentsList = uiState.comentarios,
             isLastPage = uiState.ultimaPaginaComments,
             onClose = {
                 showComments = false
-                viewModel.deleteCommentsLoaded()
             },
-            onLoadComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
+            onLoadMoreComments = {  viewModel.getCommentsPost(commentsPostId)  },
             onClickPhoto = { idUserComment ->
                 onNavigateToOtherProfile(uiState.usuario, idUserComment)
             },
+            onCommentChange = { viewModel.onCommentChange(it) },
             onSendComment = {
                 viewModel.sendCommentToPost(commentsPostId)
             },

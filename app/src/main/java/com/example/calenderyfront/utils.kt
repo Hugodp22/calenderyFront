@@ -185,7 +185,7 @@ fun MessageLimitContent(
         onValueChange = {
             //Le ponemos limite a la descripcion
             if (it.length <= wordsLimit) {
-                onValueChange(it.trim())
+                onValueChange(it)
             }
         },
         modifier = modifier.height(120.dp),
@@ -389,10 +389,10 @@ fun CommentCreation(
 )
 {
     val photoUserSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 20.dp
+        WindowWidthSizeClass.Compact -> 24.dp
         WindowWidthSizeClass.Medium -> 24.dp
         WindowWidthSizeClass.Expanded -> 26.dp
-        else -> 20.dp
+        else -> 24.dp
     }
 
     val spacedBy = when (windowSize) {
@@ -509,20 +509,20 @@ fun InputComment(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsPostWindow(
+    currentComment: String,
     commentsList: List<Comment>,
     isLastPage: Boolean,
     onClose: () -> Unit,
-    onLoadComments: () -> Unit,
+    onLoadMoreComments: () -> Unit,
     onClickPhoto: (Int) -> Unit,
-    onSendComment: (String) -> Unit,
+    onCommentChange: (String) -> Unit,
+    onSendComment: () -> Unit,
     windowSize: WindowWidthSizeClass
 )
 {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-
-    var comment by remember { mutableStateOf("") }
 
     ModalBottomSheet(
         onDismissRequest = onClose,
@@ -554,7 +554,7 @@ fun CommentsPostWindow(
 
                     if (index == commentsList.lastIndex && !isLastPage) {
                         LaunchedEffect(Unit) {
-                            onLoadComments()
+                            onLoadMoreComments()
                         }
                     }
                 }
@@ -562,12 +562,9 @@ fun CommentsPostWindow(
 
             InputComment(
                 modifier = Modifier,
-                value = comment,
-                onValueChange = { comment = it },
-                onSendComment = {
-                    onSendComment(comment)
-                    comment = ""
-                },
+                value = currentComment,
+                onValueChange = onCommentChange,
+                onSendComment = onSendComment,
                 windowSize = windowSize
             )
         }

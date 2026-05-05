@@ -3,6 +3,7 @@ package com.example.calenderyfront.Apis
 import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PagePostComments
 import com.example.calenderyfront.Model.DataObjects.PageProfilePosts
+import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.PostData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
@@ -11,6 +12,7 @@ import com.example.calenderyfront.pageSize
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Query
 
@@ -29,19 +31,15 @@ interface PublicacionApiService {
         @Query("size") size : Int = pageSize,
     ): Response<PageProfilePosts<PublicacionProfile>>
 
-    @GET("")
+    @GET("api/comment/app/getComments")
     suspend fun obtenerComentariosPublicacion(
-        @Query("idPublicacion") idPublicacion: Int,
+        @Query("idPublicacion") publicacionId: Int,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize
     ): Response<PagePostComments<Comment>>
 
-    @PUT("")
-    suspend fun enviarComentarioPublicacion(
-        @Query("idUsuario") idUsuario: Int,
-        @Query("idPublicacion") idPublicacion: Int,
-        @Query("comentario") comentario: String
-    ): Response<Unit>
+    @POST("api/comment/app/postComment")
+    suspend fun enviarComentarioPublicacion(@Body postComment: PostCommentDto): Response<Unit>
 
     @PUT("")
     suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
