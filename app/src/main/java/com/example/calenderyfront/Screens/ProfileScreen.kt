@@ -817,12 +817,9 @@ fun ProfileScreen(
             likeIcon = favouriteIcon,
             onDismiss = { selectedPost = null },
             onClickLikes = {
-                if (it.like) {
-                    viewModel.unLikePost(it)
-                }
-                else {
-                    viewModel.likePost(it)
-                }
+                if (!it.like) viewModel.likePost(it) else viewModel.unLikePost(it)
+                selectedPost = it.copy(like = !it.like) //Para verlo a nivel interno
+
             },
             onClickComments = {
                 commentsPostId = it.id

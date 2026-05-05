@@ -292,10 +292,77 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun likePost(post: PublicacionProfile) {
         val currentState = _uiState.value
 
+        if (post.like) {
+            return
+        }
+
+        //Hacer que actualice a nivel local el like
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(userInfo.idUsuario,post.id)
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update { currentState ->
+                        val listaActualizada = currentState.publicaciones.map { postList ->
+
+                            if (postList.id == post.id) {
+                                postList.copy(like = true, cantidadLikes = postList.cantidadLikes + 1)
+                            }
+
+                            else {
+                                postList
+                            }
+                        }
+                        currentState.copy(publicaciones = listaActualizada)
+                    }
+                    _state.value = ProfileState.Iniciado
+                }
+
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
     }
 
     fun unLikePost(post: PublicacionProfile) {
         val currentState = _uiState.value
 
+        if (!post.like) {
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(userInfo.idUsuario,post.id)
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update { currentState ->
+                        val listaActualizada = currentState.publicaciones.map { postList ->
+
+                            if (postList.id == post.id) {
+                                postList.copy(like = false, cantidadLikes = postList.cantidadLikes - 1)
+                            }
+
+                            else {
+                                postList
+                            }
+                        }
+                        currentState.copy(publicaciones = listaActualizada)
+                    }
+                    _state.value = ProfileState.Iniciado
+                }
+
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
     }
 }

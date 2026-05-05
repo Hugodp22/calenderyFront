@@ -87,7 +87,7 @@ fun CalenderyApp(
                     navController.navigate(VerifyLink(userInfo))
                 },
                 onNavigateToProfile = { userInfo ->
-                    navController.navigate(Home(userInfo))
+                    navController.navigate(Profile(userInfo))
                 }
             )
         }
@@ -206,7 +206,7 @@ fun CalenderyApp(
                 modifier = Modifier,
                 windowSize = windowSize,
                 onNavigateToOtherProfile = { userInfo, otherUserId ->
-                    navController.navigate(Chat(userInfo,otherUserId))
+                    navController.navigate(Profile(userInfo,otherUserId))
                 }
             )
         }

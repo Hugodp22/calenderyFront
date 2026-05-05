@@ -23,7 +23,7 @@ data class PublicacionProfile(
     val cantidadComentarios: Int = 0,
     val fechaCalendario: String, //Fecha que seleccionaste para subirlo
     val fechaPublicacion: String, //Fecha real en la que lo subiste
-    val like: Boolean = false
+    var like: Boolean = false
 )
 
 data class PostUIData(

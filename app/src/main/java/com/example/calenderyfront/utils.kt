@@ -110,7 +110,7 @@ fun InputCreation(
     var passwordVisible by remember { mutableStateOf(false) } //Variable para saber si se muestra o no la contrasñea
 
     val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 16.sp
+        WindowWidthSizeClass.Compact -> 14.sp
         WindowWidthSizeClass.Medium -> 18.sp
         WindowWidthSizeClass.Expanded -> 20.sp
         else -> 14.sp
@@ -337,7 +337,7 @@ fun ExpandedPhotoPost(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             )
             {
-                IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, { onClickLikes })
+                IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes)
                 IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments)
             }
 

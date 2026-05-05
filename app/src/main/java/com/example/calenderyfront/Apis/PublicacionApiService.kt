@@ -46,6 +46,9 @@ interface PublicacionApiService {
     @PUT("")
     suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
 
+    @PUT("")
+    suspend fun quitarLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
+
     @GET("api/publication/app/getPostUrl")
     suspend fun obtenerUrlSubidaImagenPublicaciones(): Response<UrlPost>
 
