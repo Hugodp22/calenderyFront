@@ -1,12 +1,15 @@
 package com.example.calenderyfront.Apis
 
+import com.example.calenderyfront.Model.DataObjects.PageSelectionUsers
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
+import com.example.calenderyfront.Model.DataObjects.SelectionUserData
 import com.example.calenderyfront.Model.DataObjects.UrlPhotos
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.DataObjects.UserValidation
+import com.example.calenderyfront.pageSize
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -73,6 +76,14 @@ interface UsuarioApiService {
 
     @GET("api/users/auth/resendRegistrationToken")
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>
+
+    @GET("")
+    suspend fun obtenerUsuariosBuscados(
+        @Query("idUsuario")idUsuario: Int,
+        @Query("searchName") searchName: String,
+        @Query("page") page: Int,
+        @Query("size") size : Int = pageSize,
+    ): Response<PageSelectionUsers<SelectionUserData>>
 
     /**
      * Funcion para validar si el usuario esta enable mediante la cabecera

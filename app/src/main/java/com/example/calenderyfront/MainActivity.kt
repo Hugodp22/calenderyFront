@@ -55,6 +55,7 @@ import com.example.calenderyfront.Screens.PostDataUploadScreen
 import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
+import com.example.calenderyfront.Screens.SelectionScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
@@ -179,7 +180,16 @@ fun CalenderyApp(
                 typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
             )
             {
-
+                SelectionScreen(
+                    modifier = Modifier,
+                    windowSize = windowSize,
+                    onNavigateToOtherProfile = {userInfo,otherUserId ->
+                        navController.navigate(Profile(userInfo,otherUserId))
+                    },
+                    onNavigateToChat = {userInfo,otherUserId ->
+                        navController.navigate(Chat(userInfo,otherUserId))
+                    }
+                )
             }
 
             composable<Settings>(

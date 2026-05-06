@@ -142,7 +142,10 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 )
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(comment = "") }
+                    _uiState.update { it.copy(
+                        listComments = it.listComments,
+                        comment = ""
+                    )}
                     _state.value = HomeState.Iniciado
                 }
 

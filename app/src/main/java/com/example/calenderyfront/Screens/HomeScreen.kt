@@ -77,7 +77,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 296,
-        idPost = 2,
+        idPost = 94,
         nombreUsuario = "Martin Kotlin andrade",
         fotoUsuario = "https://randomuser.me/api/portraits/women/2.jpg",
         fotoPublicacion = "https://picsum.photos/id/10/800/600",
@@ -87,7 +87,7 @@ val listaPublicaciones = listOf(
     ),
     PublicacionHome(
         idUsuario = 3,
-        idPost = 3,
+        idPost = 98,
         nombreUsuario = "foodie_traveler",
         fotoUsuario = "https://randomuser.me/api/portraits/men/3.jpg",
         fotoPublicacion = "https://picsum.photos/id/42/800/600",
@@ -472,13 +472,15 @@ fun HomeScreen(
                 cantidadComentarios = it.cantidadComentarios
             ),
             likeIcon = favouriteIcon,
-            onDismiss = { selectedPost = null },
+            onDismiss = {
+                selectedPost = null
+                viewModel.deleteCommentsLoaded()
+            },
             onClickLikes = {
 
             },
             onClickComments = {
                 commentsPostId = it.idPost
-                viewModel.deleteCommentsLoaded()
                 viewModel.getCommentsPost(idPost = it.idPost)
                 showComments = true
             },
@@ -489,18 +491,16 @@ fun HomeScreen(
     if (showComments) {
         CommentsPostWindow(
             currentComment = uiState.comment,
-            commentsList = comentariosPrueba,
+            commentsList = uiState.listComments,
             isLastPage = uiState.ultimaPaginaComment,
             onClose = {
                 showComments = false
-                viewModel.deleteCommentsLoaded()
             },
-
-            onLoadMoreComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
+            onLoadMoreComments = {  viewModel.getCommentsPost(commentsPostId)  },
             onClickPhoto = { idUserComment ->
                 onNavigateToOtherProfile(uiState.userInfo, idUserComment)
             },
-            onCommentChange = {viewModel.onCommentChange(it)},
+            onCommentChange = { viewModel.onCommentChange(it) },
             onSendComment = {
                 viewModel.sendCommentToPost(commentsPostId)
             },
