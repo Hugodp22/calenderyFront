@@ -43,18 +43,19 @@ data class UserProfile(
     val seguidor: Boolean = false
 )
 
-data class UserSearch(
-    val idUsuario: Int,
-    val nombre: String,
-    val fotoPerfil: String
-)
-
-data class UserChatSearch(
+data class SelectionUserData(
     val idUsuario: Int,
     val nombre: String,
     val fotoPerfil: String,
-    val ultimoMensaje: String,
+    val ultimoMensaje: String? = "",
     val mensajeNuevo: Boolean = false
+)
+
+data class PageSelectionUsers<SelectionUserData>(
+    val content: List<SelectionUserData>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
 )
 
 /**

@@ -1,15 +1,306 @@
 package com.example.calenderyfront.Screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.calenderyfront.Model.DataObjects.SelectionUserData
+import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.PhotoUserContainer
+import com.example.calenderyfront.R
+import com.example.calenderyfront.selection.SelectionViewModel
+
+val listaPrueba = listOf(
+    SelectionUserData(
+        idUsuario = 1,
+        nombre = "Marcos Galperin",
+        fotoPerfil = "https://picsum.photos/id/10/200",
+        ultimoMensaje = "El paquete llega hoy",
+        mensajeNuevo = true
+    ),
+    SelectionUserData(
+        idUsuario = 296,
+        nombre = "Martin kotlin Andrade",
+        fotoPerfil = "https://picsum.photos/id/20/200",
+        ultimoMensaje = "¿Viste el nuevo diseño? eres dios Hugo de Pablooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+        mensajeNuevo = true
+    ),
+    SelectionUserData(
+        idUsuario = 300,
+        nombre = "Jordi Wild",
+        fotoPerfil = "https://picsum.photos/id/30/200",
+        ultimoMensaje = null,
+        mensajeNuevo = false
+    ),
+    SelectionUserData(
+        idUsuario = 302,
+        nombre = "Sara Buho",
+        fotoPerfil = "https://picsum.photos/id/40/200",
+        ultimoMensaje = "¡Feliz lunes!",
+        mensajeNuevo = false
+    ),
+    SelectionUserData(
+        idUsuario = 5,
+        nombre = "Brais Moure",
+        fotoPerfil = "https://picsum.photos/id/50/200",
+        ultimoMensaje = "Mañana hay directo",
+        mensajeNuevo = false
+    )
+)
+
+@Composable
+fun SearchInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 17.sp
+        else -> 17.sp
+    }
+
+    val width  = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.8F
+        else -> 0.8F
+    }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    TextField(
+        modifier = Modifier.fillMaxWidth(width),
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = {
+            Text(
+                text = stringResource(R.string.search_input_placeholder),
+                color = MaterialTheme.colorScheme.tertiary,
+                fontSize = fontSize
+            )
+                      },
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch()
+                keyboardController?.hide() //Para que se oculte el teclado al dar a buscar
+            }
+        ),
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF4285F4),
+            unfocusedBorderColor = Color.Gray,
+            errorBorderColor = Color.Red,
+            cursorColor = MaterialTheme.colorScheme.tertiary,
+            focusedContainerColor = MaterialTheme.colorScheme.primary,
+            focusedTextColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.primary
+        )
+    )
+}
+
+@Composable
+fun UserSelectionInfo(
+    userSelectionUserData: SelectionUserData,
+    chatOption: Boolean,
+    onClickContainer: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val width  = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.8F
+        else -> 0.8F
+    }
+
+    val photoUserSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 40.dp
+        else -> 40.dp
+    }
+
+    val iconSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.dp
+        else -> 20.dp
+    }
+
+    val fontSizeName  = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.sp
+        else -> 20.sp
+    }
+
+    val fontSizeLastMessage  = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 15.sp
+        else -> 15.sp
+    }
+
+    val color = when (chatOption) {
+        true ->
+            if (userSelectionUserData.mensajeNuevo) {
+                MaterialTheme.colorScheme.onPrimary
+            }
+            else {
+                Color.Transparent
+            }
+        else -> Color.Transparent
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(width)
+            .clickable { onClickContainer() }
+            .background(color),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    )
+    {
+        PhotoUserContainer(
+            modifier = Modifier.size(photoUserSize),
+            photoPath = userSelectionUserData.fotoPerfil,
+            onClick = {},
+            contentDescription = R.string.profile_search
+        )
+
+        Spacer(Modifier.padding(end = 7.dp))
+
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(3.dp)
+        )
+        {
+            Text(
+                text = userSelectionUserData.nombre,
+                fontSize = fontSizeName,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+
+            if (chatOption) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(width),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                )
+                {
+                    if (userSelectionUserData.ultimoMensaje != null) {
+                        Text(
+                            text = userSelectionUserData.ultimoMensaje,
+                            fontSize = fontSizeLastMessage,
+                            color = Color.Gray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                    }
+                    if (userSelectionUserData.mensajeNuevo) {
+                        Icon(
+                            modifier = Modifier.size(iconSize),
+                            painter = painterResource(R.drawable.new_label),
+                            contentDescription = stringResource(R.string.new_message_selection),
+                            tint = Color.Unspecified
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun SelectionScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
-
+    onNavigateToOtherProfile: (UserInfo,Int) -> Unit,
+    onNavigateToChat: (UserInfo,Int) -> Unit,
+    viewModel: SelectionViewModel = viewModel()
 )
 {
+    val uiState by viewModel.uiState.collectAsState()
+    val stateProcess by viewModel.state.collectAsState()
 
+    val gridState = rememberLazyGridState() //State para obtener informacion del lazy
+
+    val chatOption = uiState.chatOption
+
+    val scrollEnElFinal by remember {
+        derivedStateOf {
+            val totalItems = gridState.layoutInfo.totalItemsCount
+            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            totalItems > 0 && ultimoItem >= (totalItems - 1)
+        }
+    }
+
+    //LaunchedEffect(scrollEnElFinal) {
+    //    if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
+    //        viewModel.searchUserByName()
+    //    }
+    //}
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(1),
+        state = gridState,
+        horizontalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(25.dp),
+        modifier = modifier.fillMaxSize(),
+    )
+    {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SearchInput(
+                value = uiState.searchName,
+                onValueChange = { viewModel.onSearchChange(it) },
+                onSearch = { viewModel.searchUserByName() },
+                windowSize = windowSize
+            )
+        }
+
+        items(items = listaPrueba)
+        { user ->
+            UserSelectionInfo(
+                userSelectionUserData = user,
+                windowSize = windowSize,
+                onClickContainer = {
+                    if (chatOption) {
+                        onNavigateToChat(uiState.userInfo, user.idUsuario)
+                    }
+                    else {
+                        onNavigateToOtherProfile(uiState.userInfo,user.idUsuario)
+                    }
+                },
+                chatOption = chatOption
+            )
+        }
+    }
 }

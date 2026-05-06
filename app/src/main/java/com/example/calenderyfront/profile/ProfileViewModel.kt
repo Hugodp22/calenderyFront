@@ -215,7 +215,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
-    @SuppressLint("SuspiciousIndentation")
     fun getCommentsPost(idPost: Int) {
         val currentState = _uiState.value
 
@@ -268,7 +267,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
 
-                val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(PostCommentDto(
+                val respuesta = RetrofitClient.publicacionApi.enviarComentarioPublicacion(
+                    PostCommentDto(
                         idPublicacion = idPost,
                         comentario = currentState.comment
                     )

@@ -83,8 +83,11 @@
     <string name="send_comment">Enviar</string>
     <string name="Home_bottom_bar">Home</string>
     <string name="Search_bottom_bar">Search</string>
+    <string name="profile_search">Foto de usuario</string>
     <string name="Profile_bottom_bar">Profile</string>
     <string name="Chat_bottom_bar">Chat</string>
+    <string name="search_input_placeholder">Busca a alguien!!!</string>
+    <string name="new_message_selection">Nuevo mensaje</string>
 
 
 </resources>
