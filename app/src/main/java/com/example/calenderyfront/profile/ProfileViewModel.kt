@@ -215,6 +215,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    @SuppressLint("SuspiciousIndentation")
     fun getCommentsPost(idPost: Int) {
         val currentState = _uiState.value
 
