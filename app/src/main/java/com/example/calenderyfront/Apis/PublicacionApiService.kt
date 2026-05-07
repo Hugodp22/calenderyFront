@@ -1,16 +1,19 @@
 package com.example.calenderyfront.Apis
 
 import com.example.calenderyfront.Model.DataObjects.Comment
+import com.example.calenderyfront.Model.DataObjects.PageHomePosts
 import com.example.calenderyfront.Model.DataObjects.PagePostComments
 import com.example.calenderyfront.Model.DataObjects.PageProfilePosts
 import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.PostData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
+import com.example.calenderyfront.Model.DataObjects.PublicacionHomeDto
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UrlPost
 import com.example.calenderyfront.pageSize
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -39,13 +42,13 @@ interface PublicacionApiService {
     ): Response<PagePostComments<Comment>>
 
     @POST("api/comment/app/postComment")
-    suspend fun enviarComentarioPublicacion(@Body postComment: PostCommentDto): Response<Unit>
+    suspend fun enviarComentarioPublicacion(@Body postComment: PostCommentDto): Response<Int>
 
-    @PUT("")
-    suspend fun darLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
+    @POST("api/like/app/likePublication")
+    suspend fun darLikePublicacion(@Query ("idPublicacion") idPublicacion: Int): Response<Unit>
 
-    @PUT("")
-    suspend fun quitarLikePublicacion(@Body userId: Int, @Body postId: Int): Response<Unit>
+    @DELETE("api/like/app/removeLikePublication")
+    suspend fun quitarLikePublicacion(@Query ("idPublicacion") idPublicacion: Int): Response<Unit>
 
     @GET("api/publication/app/getPostUrl")
     suspend fun obtenerUrlSubidaImagenPublicaciones(): Response<UrlPost>
@@ -53,7 +56,9 @@ interface PublicacionApiService {
     @PUT("api/publication/app/putPublicationData")
     suspend fun mandarDatosPost(@Body postData: PostData):Response<Unit>
 
-    @GET("")
-    suspend fun obtenerPublicacionesHome(@Query("page") page: Int, @Query("size") size : Int = pageSize): Response<List<PublicacionHome>>
+    @GET("api/publication/app/getHomePublications")
+    suspend fun obtenerPublicacionesHome(@Query("page") page: Int,
+                                         @Query("size") size : Int = pageSize
+    ): Response<PageHomePosts<PublicacionHomeDto>>
 
 }

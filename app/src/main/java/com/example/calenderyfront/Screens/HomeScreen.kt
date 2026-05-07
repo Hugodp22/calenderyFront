@@ -5,6 +5,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -63,115 +65,13 @@ import com.example.calenderyfront.home.HomeState
 import com.example.calenderyfront.home.HomeViewModel
 import com.example.calenderyfront.rowProfilePostSize
 
-
-val listaPublicaciones = listOf(
-    PublicacionHome(
-        idUsuario = 1,
-        idPost = 1,
-        nombreUsuario = "marcos_dev",
-        fotoUsuario = "https://randomuser.me/api/portraits/men/1.jpg",
-        fotoPublicacion = "https://picsum.photos/id/10/800/600",
-        mensaje = "Disfrutando de las vistas en la montaña 🏔️ #senderismo",
-        cantidadComentarios = 12,
-        cantidadLikes = 150
-    ),
-    PublicacionHome(
-        idUsuario = 296,
-        idPost = 2,
-        nombreUsuario = "Martin Kotlin andrade",
-        fotoUsuario = "https://randomuser.me/api/portraits/women/2.jpg",
-        fotoPublicacion = "https://picsum.photos/id/10/800/600",
-        mensaje = "Los que odien dune, vais a morir a manos de mi capibara",
-        cantidadComentarios = 45,
-        cantidadLikes = 890
-    ),
-    PublicacionHome(
-        idUsuario = 3,
-        idPost = 3,
-        nombreUsuario = "foodie_traveler",
-        fotoUsuario = "https://randomuser.me/api/portraits/men/3.jpg",
-        fotoPublicacion = "https://picsum.photos/id/42/800/600",
-        mensaje = "La mejor pizza que he probado en toda Italia 🍕🇮🇹",
-        cantidadComentarios = 8,
-        cantidadLikes = 230
-    ),
-    PublicacionHome(
-        idUsuario = 4,
-        idPost = 4,
-        nombreUsuario = "clara_reads",
-        fotoUsuario = "https://randomuser.me/api/portraits/women/4.jpg",
-        fotoPublicacion = null, // Publicación solo de texto
-        mensaje = "Acabo de terminar 'Cien años de soledad'. Mi mente ha volado. Recomienden más libros así.",
-        cantidadComentarios = 32,
-        cantidadLikes = 115
-    ),
-    PublicacionHome(
-        idUsuario = 5,
-        idPost = 5,
-        nombreUsuario = "pixel_art",
-        fotoUsuario = "https://randomuser.me/api/portraits/men/5.jpg",
-        fotoPublicacion = "https://picsum.photos/id/60/800/600",
-        mensaje = "Probando nuevas técnicas de iluminación en renderizado.",
-        cantidadComentarios = 5,
-        cantidadLikes = 78
-    ),
-    PublicacionHome(
-        idUsuario = 6,
-        idPost = 6,
-        nombreUsuario = "fitness_journey",
-        fotoUsuario = "https://randomuser.me/api/portraits/women/6.jpg",
-        fotoPublicacion = "https://picsum.photos/id/103/800/600",
-        mensaje = "Día 30 del reto completado. ¡No te rindas! 💪",
-        cantidadComentarios = 21,
-        cantidadLikes = 440
-    ),
-    PublicacionHome(
-        idUsuario = 7,
-        idPost = 7,
-        nombreUsuario = "urban_explorer",
-        fotoUsuario = "https://randomuser.me/api/portraits/men/7.jpg",
-        fotoPublicacion = "https://picsum.photos/id/122/800/600",
-        mensaje = "Calles escondidas de Madrid.",
-        cantidadComentarios = 14,
-        cantidadLikes = 312
-    ),
-    PublicacionHome(
-        idUsuario = 8,
-        idPost = 8,
-        nombreUsuario = "code_master",
-        fotoUsuario = "https://randomuser.me/api/portraits/men/8.jpg",
-        fotoPublicacion = "https://picsum.photos/id/160/800/600",
-        mensaje = "Kotlin es, sin duda, mi lenguaje favorito para Android. 🤖",
-        cantidadComentarios = 56,
-        cantidadLikes = 1200
-    ),
-    PublicacionHome(
-        idUsuario = 9,
-        idPost = 9,
-        nombreUsuario = "minimal_vibes",
-        fotoUsuario = "https://randomuser.me/api/portraits/women/9.jpg",
-        fotoPublicacion = "https://picsum.photos/id/201/800/600",
-        mensaje = null, // Solo imagen, sin mensaje
-        cantidadComentarios = 3,
-        cantidadLikes = 95
-    ),
-    PublicacionHome(
-        idUsuario = 10,
-        idPost = 10,
-        nombreUsuario = "nature_lover",
-        fotoUsuario = "https://randomuser.me/api/portraits/women/10.jpg",
-        fotoPublicacion = "https://picsum.photos/id/237/800/600",
-        mensaje = "Miren este perrito que me encontré en el parque 🐶✨",
-        cantidadComentarios = 89,
-        cantidadLikes = 2500
-    )
-)
-
 @Composable
 fun PostHomeCreation(
     userInfo: UserInfo,
+    photoUser: String,
     post: PublicacionHome,
     windowSize: WindowWidthSizeClass,
+    @DrawableRes likeIcon: Int,
     onClickPostPhoto: () -> Unit,
     onClickPostProfile: (UserInfo, Int) -> Unit,
     onClickLikeIcon: () -> Unit,
@@ -193,7 +93,7 @@ fun PostHomeCreation(
     }
 
     val fontSizeMessage = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 15.sp
+        WindowWidthSizeClass.Compact -> 20.sp
         WindowWidthSizeClass.Medium -> 30.sp
         WindowWidthSizeClass.Expanded -> 15.sp
         else -> 15.sp
@@ -223,7 +123,7 @@ fun PostHomeCreation(
             {
                 PhotoUserContainer(
                     modifier = Modifier.size(photoUserSize),
-                    photoPath = post.fotoPublicacion,
+                    photoPath = photoUser,
                     onClick =  {onClickPostProfile(userInfo, post.idUsuario)},
                     contentDescription =  R.string.post_description
                 )
@@ -252,6 +152,7 @@ fun PostHomeCreation(
             RowIcons(
                 modifier = Modifier.fillMaxWidth(0.7F),
                 windowSize = windowSize,
+                likeIcon = likeIcon,
                 onClickLikeIcon ={onClickLikeIcon()},
                 onClickCommentIcon = {onClickCommentIcon()},
                 currentLikes = post.cantidadLikes,
@@ -299,6 +200,7 @@ fun PostHome(
 fun RowIcons(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
+    @DrawableRes likeIcon: Int,
     onClickLikeIcon: () -> Unit,
     onClickCommentIcon: () -> Unit,
     currentLikes: Int,
@@ -306,14 +208,14 @@ fun RowIcons(
 )
 {
     val iconSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 20.dp
+        WindowWidthSizeClass.Compact -> 25.dp
         WindowWidthSizeClass.Medium -> 25.dp
         WindowWidthSizeClass.Expanded -> 25.dp
         else -> 20.dp
     }
 
     val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 15.sp
+        WindowWidthSizeClass.Compact -> 20.sp
         WindowWidthSizeClass.Medium -> 18.sp
         WindowWidthSizeClass.Expanded -> 15.sp
         else -> 15.sp
@@ -327,7 +229,7 @@ fun RowIcons(
         IconRow(
             modifier = Modifier.size(iconSize),
             onClick = onClickLikeIcon,
-            icon = R.drawable.favourite,
+            icon = likeIcon,
             contentDescription = R.string.like_Message,
             quantity = currentLikes,
             fontSize = fontSize
@@ -396,7 +298,6 @@ fun HomeScreen(
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
-
     val scrollEnElFinal by remember {
         derivedStateOf {
             val totalItems = gridState.layoutInfo.totalItemsCount //Obtenemos del lazy la cantidad total de elementos
@@ -414,98 +315,116 @@ fun HomeScreen(
         else -> 10.dp
     }
 
-    //LaunchedEffect(scrollEnElFinal) {
-    //    if (scrollEnElFinal && stateProcess != HomeState.Cargando && !uiState.ultimaPagina) {
-    //        viewModel.loadPosts()
-    //    }
-    //}
+    LaunchedEffect(scrollEnElFinal) {
+        if (scrollEnElFinal && stateProcess != HomeState.Cargando && !uiState.ultimaPaginaPost) {
+            viewModel.loadPosts()
+        }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(2),
+            state = gridState,
+            horizontalArrangement = Arrangement.spacedBy(horizontalSpaced),
+            modifier = Modifier.fillMaxSize(),
+        )
+        {
+            items(uiState.posts) { postClick ->
+                val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
+                val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
 
-    LazyVerticalGrid(
-        columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(2),
-        state = gridState,
-        horizontalArrangement = Arrangement.spacedBy(horizontalSpaced),
-        modifier = Modifier.fillMaxSize(),
-    )
-    {
-        //Poner uiState.posts
-        items(listaPublicaciones) { post ->
-            PostHomeCreation(
-                userInfo = uiState.userInfo,
-                post = post,
-                windowSize = windowSize,
-                onClickPostProfile = { user, id -> onNavigateToOtherProfile(user, id) },
-                onClickPostPhoto = {selectedPost = post},
-                onClickLikeIcon = {},
-                onClickCommentIcon = {
-                    commentsPostId = post.idPost
-                    viewModel.deleteCommentsLoaded()
-                    viewModel.getCommentsPost(idPost = post.idPost)
-                    showComments = true
-                },
+                val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+
+                PostHomeCreation(
+                    userInfo = uiState.userInfo,
+                    photoUser = postToShow.fotoUsuario,
+                    post = postToShow,
+                    windowSize = windowSize,
+                    likeIcon = favouriteIcon,
+                    onClickPostProfile = { user, id -> onNavigateToOtherProfile(user, id) },
+                    onClickPostPhoto = {selectedPost = postToShow},
+                    onClickLikeIcon = {
+                        if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
+                    },
+                    onClickCommentIcon = {
+                        commentsPostId = postToShow.idPost
+                        viewModel.deleteCommentsLoaded()
+                        viewModel.getCommentsPost(idPost = postToShow.idPost)
+                        showComments = true
+                    },
+                )
+            }
+
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                if (stateProcess is HomeState.Error) {
+                    Text(
+                        text = stringResource((stateProcess as HomeState.Error).mensaje),
+                        fontSize = 14.sp,
+                        color = Color.Red
+                    )
+                }
+            }
+        }
+
+        if (uiState.posts.isEmpty() && stateProcess is HomeState.Cargando) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(300.dp)
+                    .align(Alignment.Center),
+                strokeWidth = 12.dp,
+                color = MaterialTheme.colorScheme.onTertiary
             )
         }
 
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            if (stateProcess is HomeState.Error) {
-                Text(
-                    text = stringResource((stateProcess as HomeState.Error).mensaje),
-                    fontSize = 14.sp,
-                    color = Color.Red
-                )
-            }
-            else if (stateProcess is HomeState.Cargando) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onTertiary
-                )
-            }
+        selectedPost?.let { postClick ->
+            val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
+            val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
+
+            val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+            ExpandedPhotoPost(
+                post = PostUIData(
+                    postId = postToShow.idPost,
+                    fotoPublicacion = postToShow.fotoPublicacion,
+                    mensaje = postToShow.mensaje,
+                    cantidadLikes = postToShow.cantidadLikes,
+                    cantidadComentarios = postToShow.cantidadComentarios
+                ),
+                likeIcon = favouriteIcon,
+                onDismiss = {
+                    selectedPost = null
+                    viewModel.deleteCommentsLoaded()
+                },
+                onClickLikes = {
+                    if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
+                },
+                onClickComments = {
+                    commentsPostId = postToShow.idPost
+                    viewModel.getCommentsPost(idPost = postToShow.idPost)
+                    showComments = true
+                },
+                windowSize = windowSize
+            )
+        }
+
+        if (showComments) {
+            CommentsPostWindow(
+                currentComment = uiState.comment,
+                commentsList = uiState.listComments,
+                isLastPage = uiState.ultimaPaginaComment,
+                onClose = {
+                    showComments = false
+                },
+                onLoadMoreComments = {  viewModel.getCommentsPost(commentsPostId)  },
+                onClickPhoto = { idUserComment ->
+                    onNavigateToOtherProfile(uiState.userInfo, idUserComment)
+                },
+                onCommentChange = { viewModel.onCommentChange(it) },
+                onSendComment = {
+                    viewModel.sendCommentToPost(commentsPostId)
+                },
+                windowSize = windowSize,
+            )
         }
     }
 
-    selectedPost?.let {
-        val favouriteIcon = if (it.like) R.drawable.favourite_filled else R.drawable.favourite
-        ExpandedPhotoPost(
-            post = PostUIData(
-                postId = it.idPost,
-                fotoPublicacion = it.fotoPublicacion,
-                mensaje = it.mensaje,
-                cantidadLikes = it.cantidadLikes,
-                cantidadComentarios = it.cantidadComentarios
-            ),
-            likeIcon = favouriteIcon,
-            onDismiss = { selectedPost = null },
-            onClickLikes = {
-
-            },
-            onClickComments = {
-                commentsPostId = it.idPost
-                viewModel.deleteCommentsLoaded()
-                viewModel.getCommentsPost(idPost = it.idPost)
-                showComments = true
-            },
-            windowSize = windowSize
-        )
-    }
-
-    if (showComments) {
-        CommentsPostWindow(
-            currentComment = uiState.comment,
-            commentsList = comentariosPrueba,
-            isLastPage = uiState.ultimaPaginaComment,
-            onClose = {
-                showComments = false
-                viewModel.deleteCommentsLoaded()
-            },
-
-            onLoadMoreComments = { /* viewModel.getCommentsPost(commentsPostId) */ },
-            onClickPhoto = { idUserComment ->
-                onNavigateToOtherProfile(uiState.userInfo, idUserComment)
-            },
-            onCommentChange = {viewModel.onCommentChange(it)},
-            onSendComment = {
-                viewModel.sendCommentToPost(commentsPostId)
-            },
-            windowSize = windowSize,
-        )
-    }
 
 }
