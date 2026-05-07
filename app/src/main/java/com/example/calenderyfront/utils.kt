@@ -303,7 +303,8 @@ fun ExpandedPhotoPost(
     onClickLikes: () -> Unit,
     onClickComments: () -> Unit,
     windowSize: WindowWidthSizeClass
-) {
+)
+{
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 64.dp
         WindowWidthSizeClass.Medium -> 66.dp
@@ -337,8 +338,8 @@ fun ExpandedPhotoPost(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             )
             {
-                IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes)
-                IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments)
+                IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
+                IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
             }
 
             post.mensaje?.let {
@@ -359,12 +360,21 @@ fun IconPostDialog(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     @StringRes contentDescription: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    quantity: Int,
+    windowSize: WindowWidthSizeClass
 )
 {
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.sp
+        WindowWidthSizeClass.Medium -> 20.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
+        else -> 20.sp
+    }
+
     Column(
         modifier = Modifier,
-        horizontalAlignment = Alignment.End
+        horizontalAlignment = Alignment.CenterHorizontally
     )
     {
         IconButton(
@@ -378,6 +388,12 @@ fun IconPostDialog(
                 tint = Color.Unspecified
             )
         }
+
+        Text(
+            text = quantity.toString(),
+            fontSize = fontSize,
+            color = MaterialTheme.colorScheme.tertiary
+        )
     }
 }
 

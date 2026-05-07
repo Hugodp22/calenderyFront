@@ -19,7 +19,7 @@ data class PublicacionProfile(
     val id: Int,
     val fotoPublicacion: String?,
     val mensaje: String?,
-    val cantidadLikes: Int = 0,
+    var cantidadLikes: Int = 0,
     val cantidadComentarios: Int = 0,
     val fechaCalendario: String, //Fecha que seleccionaste para subirlo
     val fechaPublicacion: String, //Fecha real en la que lo subiste
@@ -57,6 +57,13 @@ data class Comment(
 
 data class PageProfilePosts<PublicacionProfile>(
     val content: List<PublicacionProfile>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
+)
+
+data class PageHomePosts<PublicacionHome>(
+    val content: List<PublicacionHome>,
     val totalElements: Int,
     val totalPages: Int,
     val last: Boolean

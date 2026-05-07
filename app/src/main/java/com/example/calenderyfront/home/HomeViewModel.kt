@@ -4,8 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.PostCommentDto
+import com.example.calenderyfront.Model.DataObjects.PublicacionHome
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
@@ -18,7 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.plus
 import kotlin.reflect.typeOf
 
 class HomeViewModel(path: SavedStateHandle): ViewModel(){
@@ -39,11 +40,44 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
 
     init {
-        //loadPosts()
+        loadUserData()
     }
 
     fun onCommentChange(comment: String) {
         _uiState.update { it.copy(comment = comment) }
+    }
+
+    fun loadUserData() {
+        val currentUiState = _uiState.value
+
+        _state.value = HomeState.Cargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.buscarSettingsUsuarioPorId(userInfo.idUsuario)
+
+                if (respuesta.isSuccessful) {
+                    val data = respuesta.body()
+
+                    if (data != null) {
+                        _uiState.update {
+                            it.copy(
+                                userName = data.nombre,
+                                photoUser = data.fotoPerfil
+                            )
+                        }
+                        _state.value = HomeState.Iniciado
+                        //loadPosts()
+                    }
+                }
+                else {
+                    _state.value = HomeState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = HomeState.Error(R.string.Error_Network)
+            }
+        }
     }
 
     fun loadPosts() {
@@ -52,12 +86,15 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
         if (_state.value is HomeState.Cargando || currentUiState.ultimaPaginaPost) {
             return
         }
+
         _state.value = HomeState.Cargando
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-
-                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesHome(currentPagePosts, pageSize)
+                val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesHome(
+                    page = currentPagePosts,
+                    size =  pageSize
+                )
 
                 if (respuesta.isSuccessful) {
                     val listaObtenida = respuesta.body()
@@ -65,8 +102,9 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                     if (listaObtenida != null) {
                         _uiState.update {
                             it.copy(
-                                posts = it.posts + listaObtenida,
-                                )
+                                posts = it.posts + listaObtenida.content,
+                                ultimaPaginaPost = listaObtenida.content.size < currentPageSize
+                            )
                         }
                         currentPagePosts++
                         _state.value = HomeState.PostCargados
@@ -142,11 +180,37 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 )
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(
-                        listComments = it.listComments,
-                        comment = ""
-                    )}
-                    _state.value = HomeState.Iniciado
+                    val idComentario = respuesta.body()
+
+                    if (idComentario != null) {
+                        val newComment = Comment(
+                            idUsuario = userInfo.idUsuario,
+                            idComentario = idComentario,
+                            nombreUsuario = currentState.userName,
+                            fotoUsuario = currentState.photoUser,
+                            comentario = currentState.comment
+                        )
+
+                        _uiState.update {
+                            val postActualizados = currentState.posts.map { postInList ->
+
+                                if (postInList.idPost == idPost) {
+                                    postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
+                                }
+                                else {
+                                    postInList
+                                }
+                            }
+                            val comentariosActualizados = listOf(newComment) + it.listComments
+
+                            currentState.copy(
+                                posts = postActualizados,
+                                listComments = comentariosActualizados,
+                                comment = ""
+                            )
+                        }
+                        _state.value = HomeState.Iniciado
+                    }
                 }
 
                 else {
@@ -157,11 +221,91 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 _state.value = HomeState.Error(R.string.Error_Network)
             }
         }
-
     }
 
     fun deleteCommentsLoaded() {
         currentPageComments = 0
-        _uiState.update { it.copy(ultimaPaginaComment = false, listComments = emptyList()) }
+        _uiState.update { it.copy(
+            ultimaPaginaComment = false,
+            listComments = emptyList(),
+            comment = ""
+        )}
+    }
+
+    fun likePost(post: PublicacionHome) {
+        val currentState = _uiState.value
+
+        if (post.like || _state.value is HomeState.LikeCargando) {
+            return
+        }
+
+        _state.value = HomeState.LikeCargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(idPublicacion = post.idPost)
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update {
+                        val listaActualizada = currentState.posts.map { postInList ->
+
+                            if (postInList.idPost == post.idPost) {
+                                postInList.copy(like = true, cantidadLikes = postInList.cantidadLikes + 1)
+                            }
+
+                            else {
+                                postInList
+                            }
+                        }
+                        currentState.copy(posts = listaActualizada)
+                    }
+                    _state.value = HomeState.Iniciado
+                }
+                else {
+                    _state.value = HomeState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = HomeState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun unLikePost(post: PublicacionHome) {
+        val currentState = _uiState.value
+
+        if (!post.like || _state.value is HomeState.LikeCargando) {
+            return
+        }
+
+        _state.value = HomeState.LikeCargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(idPublicacion = post.idPost)
+
+                if (respuesta.isSuccessful) {
+                    _uiState.update {
+                        val listaActualizada = currentState.posts.map { postInList ->
+
+                            if (postInList.idPost == post.idPost) {
+                                postInList.copy(like = false, cantidadLikes = postInList.cantidadLikes - 1)
+                            }
+                            else {
+                                postInList
+                            }
+                        }
+                        currentState.copy(posts = listaActualizada)
+                    }
+                    _state.value = HomeState.Iniciado
+                }
+                else {
+                    _state.value = HomeState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = HomeState.Error(R.string.Error_Network)
+            }
+        }
     }
 }

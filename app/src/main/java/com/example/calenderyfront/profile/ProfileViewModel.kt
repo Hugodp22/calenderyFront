@@ -276,13 +276,38 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 )
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(
-                        comentarios = it.comentarios,
-                        comment = ""
-                    )}
-                    _state.value = ProfileState.Iniciado
-                }
+                    val idComentario = respuesta.body()
 
+                    if (idComentario != null) {
+                        val newComment = Comment(
+                            idUsuario = userInfo.idUsuario,
+                            idComentario = idComentario,
+                            nombreUsuario = currentState.nombreUsuario,
+                            fotoUsuario = currentState.fotoUsuario,
+                            comentario = currentState.comment
+                        )
+
+                        _uiState.update {
+                            val postActualizados = currentState.publicaciones.map { postInList ->
+
+                                if (postInList.id == idPost) {
+                                    postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
+                                }
+                                else {
+                                    postInList
+                                }
+                            }
+                            val comentariosActualizados = listOf(newComment) + it.comentarios
+
+                            currentState.copy(
+                                publicaciones = postActualizados,
+                                comentarios = comentariosActualizados,
+                                comment = ""
+                            )
+                        }
+                        _state.value = ProfileState.Iniciado
+                    }
+                }
                 else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
@@ -305,31 +330,32 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun likePost(post: PublicacionProfile) {
         val currentState = _uiState.value
 
-        if (post.like) {
+        if (post.like || _state.value is ProfileState.likeCargando) {
             return
         }
 
+        _state.value = ProfileState.likeCargando
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(userInfo.idUsuario,post.id)
+                val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(idPublicacion = post.id)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { currentState ->
-                        val listaActualizada = currentState.publicaciones.map { postList ->
+                    _uiState.update {
+                        val listaActualizada = currentState.publicaciones.map { postInList ->
 
-                            if (postList.id == post.id) {
-                                postList.copy(like = true, cantidadLikes = postList.cantidadLikes + 1)
+                            if (postInList.id == post.id) {
+                                postInList.copy(like = true, cantidadLikes = postInList.cantidadLikes + 1)
                             }
 
                             else {
-                                postList
+                                postInList
                             }
                         }
                         currentState.copy(publicaciones = listaActualizada)
                     }
                     _state.value = ProfileState.Iniciado
                 }
-
                 else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
@@ -343,24 +369,26 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun unLikePost(post: PublicacionProfile) {
         val currentState = _uiState.value
 
-        if (!post.like) {
+        if (!post.like || _state.value is ProfileState.likeCargando) {
             return
         }
 
+        _state.value = ProfileState.likeCargando
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(userInfo.idUsuario,post.id)
+                val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(idPublicacion = post.id)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { currentState ->
-                        val listaActualizada = currentState.publicaciones.map { postList ->
+                    _uiState.update {
+                        val listaActualizada = currentState.publicaciones.map { postInList ->
 
-                            if (postList.id == post.id) {
-                                postList.copy(like = false, cantidadLikes = postList.cantidadLikes - 1)
+                            if (postInList.id == post.id) {
+                                postInList.copy(like = false, cantidadLikes = postInList.cantidadLikes - 1)
                             }
 
                             else {
-                                postList
+                                postInList
                             }
                         }
                         currentState.copy(publicaciones = listaActualizada)
