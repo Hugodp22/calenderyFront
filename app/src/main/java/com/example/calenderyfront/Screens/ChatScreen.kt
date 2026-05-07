@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
+import com.example.calenderyfront.chat.Components.ChatTopBar
 
 @Composable
 fun ChatScreen(
@@ -65,6 +66,10 @@ fun ChatScreen(
     }
 
     Scaffold(
+
+        topBar = {
+            ChatTopBar(uiState)
+        },
 
         // input abajo anclado (donde escribes)
         bottomBar = {

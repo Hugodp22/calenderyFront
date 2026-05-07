@@ -9,5 +9,8 @@ data class ChatUiState(
     val sendMessage: String,
     val messages: List<Message> = emptyList(), // Lita de mensajes del chat
     val lastMessage: Boolean = false,
-    val currentMessage: String = ""
+    val currentMessage: String = "",
+    //topBar donde ver el nombre e imagen de ususario
+    val otherUserName: String = "",   // nombre del otro usuario
+    val otherUserPhoto: String = ""    // otro foto perfil
 )

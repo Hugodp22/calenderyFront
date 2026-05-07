@@ -10,6 +10,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,8 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     private val route = path.toRoute<Chat>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     )
+
+
 
     private val userInfo = route.userInfo // Usuario logeado
     private val otherUserId = route.otherUserId // Usuario con el que chateas
@@ -42,7 +45,24 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
 
     init {
-        loadFakeMessages() // Carga inicial de prueba
+        // pruebas
+        loadOtherUserInfo()
+        loadFakeUser()
+        loadFakeMessages()
+    }
+
+    fun loadFakeUser() {
+
+        _state.value = ChatState.Loading
+
+        // Simulación instantánea (sin coroutines)
+        _uiState.update {
+            it.copy(
+                otherUserName = "David Martínez",
+                otherUserPhoto = "https://i.pravatar.cc/150?img=3" // imagen de prueba
+            )
+        }
+
     }
 
     // Lista simulando backend
@@ -223,6 +243,41 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
                 } catch (_: Exception) {
                     // falla con tod0
                 }
+            }
+        }
+    }
+
+    fun loadOtherUserInfo() {
+
+        _state.value = ChatState.Loading
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+
+                val response = RetrofitClient.usuarioApi.obtenerUsuarioChat(otherUserId)
+
+                if (response.isSuccessful) {
+
+                    val user = response.body()
+
+                    if (user != null) {
+
+                        _uiState.update {
+                            it.copy(
+                                otherUserName = user.nombre,
+                                otherUserPhoto = user.fotoPerfil
+                            )
+                        }
+
+                        loadMessages()
+                    }
+
+                } else {
+                    _state.value = ChatState.Error(errorMessages(response.code()))
+                }
+
+            } catch (e: Exception) {
+                _state.value = ChatState.Error(R.string.Error_Network)
             }
         }
     }

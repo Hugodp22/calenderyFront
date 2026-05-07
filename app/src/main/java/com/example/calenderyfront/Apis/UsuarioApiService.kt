@@ -5,6 +5,7 @@ import com.example.calenderyfront.Model.DataObjects.UrlPhotos
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
+import com.example.calenderyfront.Model.DataObjects.UserSearch
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.DataObjects.UserValidation
 import retrofit2.Response
@@ -73,6 +74,9 @@ interface UsuarioApiService {
 
     @GET("api/users/auth/resendRegistrationToken")
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>
+
+    @GET("")
+    suspend fun obtenerUsuarioChat(@Query("id") userId: Int): Response<UserSearch>
 
     /**
      * Funcion para validar si el usuario esta enable mediante la cabecera
