@@ -7,6 +7,7 @@ import com.example.calenderyfront.Model.DataObjects.UrlPhotos
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
+import com.example.calenderyfront.Model.DataObjects.UserSearch
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.DataObjects.UserValidation
 import com.example.calenderyfront.pageSize
