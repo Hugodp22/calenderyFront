@@ -38,7 +38,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
     private var currentPageComments = 0
     private val currentPageSize = pageSize
 
-
     init {
         loadUserData()
     }
