@@ -62,8 +62,15 @@ data class PageProfilePosts<PublicacionProfile>(
     val last: Boolean
 )
 
-data class PageHomePosts<PublicacionHome>(
-    val content: List<PublicacionHome>,
+data class PublicacionHomeDto(
+    val publicationData: PublicacionProfile,
+    val idUsuario: Int,
+    val fotoPerfil: String,
+    val nombrePerfil: String
+)
+
+data class PageHomePosts<PublicacionHomeDto>(
+    val content: List<PublicacionHomeDto>,
     val totalElements: Int,
     val totalPages: Int,
     val last: Boolean

@@ -7,6 +7,7 @@ import com.example.calenderyfront.Model.DataObjects.PageProfilePosts
 import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.PostData
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
+import com.example.calenderyfront.Model.DataObjects.PublicacionHomeDto
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UrlPost
 import com.example.calenderyfront.pageSize
@@ -55,9 +56,9 @@ interface PublicacionApiService {
     @PUT("api/publication/app/putPublicationData")
     suspend fun mandarDatosPost(@Body postData: PostData):Response<Unit>
 
-    @GET("")
+    @GET("api/publication/app/getHomePublications")
     suspend fun obtenerPublicacionesHome(@Query("page") page: Int,
                                          @Query("size") size : Int = pageSize
-    ): Response<PageHomePosts<PublicacionHome>>
+    ): Response<PageHomePosts<PublicacionHomeDto>>
 
 }
