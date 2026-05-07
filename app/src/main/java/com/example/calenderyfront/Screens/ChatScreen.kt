@@ -1,12 +1,14 @@
 package com.example.calenderyfront.Screens
 
 import android.R.attr.maxWidth
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,9 +30,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.calenderyfront.R
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
 import com.example.calenderyfront.chat.Components.ChatTopBar
@@ -194,19 +199,16 @@ fun ChatSendButton(
     enabled: Boolean = true
 ) {
 
-    Button(
+    IconButton(
         onClick = onClick,
         modifier = modifier,
-        enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,     // color del botón
-            contentColor = MaterialTheme.colorScheme.onPrimary      // color texto
-        )
+        enabled = enabled
     ) {
 
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge   // tamaño dinámico
+        Image(
+            painter = painterResource(R.drawable.enviar),
+            contentDescription = "Enviar" ,
+            modifier = Modifier.size(28.dp)
         )
     }
 }
