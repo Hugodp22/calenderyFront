@@ -8,6 +8,7 @@ import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.PublicacionHome
+import com.example.calenderyfront.Model.DataObjects.PublicacionHomeDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
@@ -67,7 +68,7 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                             )
                         }
                         _state.value = HomeState.Iniciado
-                        //loadPosts()
+                        loadPosts()
                     }
                 }
                 else {
@@ -78,6 +79,20 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 _state.value = HomeState.Error(R.string.Error_Network)
             }
         }
+    }
+
+    fun dtoPostToHomePost(publicacionHomeDto: PublicacionHomeDto): PublicacionHome {
+        return PublicacionHome(
+            idUsuario = publicacionHomeDto.idUsuario,
+            idPost = publicacionHomeDto.publicationData.id,
+            nombreUsuario = publicacionHomeDto.nombrePerfil,
+            fotoUsuario = publicacionHomeDto.fotoPerfil,
+            fotoPublicacion = publicacionHomeDto.publicationData.fotoPublicacion,
+            mensaje = publicacionHomeDto.publicationData.mensaje,
+            cantidadComentarios = publicacionHomeDto.publicationData.cantidadComentarios,
+            cantidadLikes = publicacionHomeDto.publicationData.cantidadLikes,
+            like = publicacionHomeDto.publicationData.like
+        )
     }
 
     fun loadPosts() {
@@ -97,13 +112,16 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 )
 
                 if (respuesta.isSuccessful) {
-                    val listaObtenida = respuesta.body()
+                    val listaDtoObtenida = respuesta.body()
 
-                    if (listaObtenida != null) {
+                    if (listaDtoObtenida != null) {
+
+                        val nuevasPublicacionesHome = listaDtoObtenida.content.map { postDto -> dtoPostToHomePost(publicacionHomeDto = postDto) }
+
                         _uiState.update {
                             it.copy(
-                                posts = it.posts + listaObtenida.content,
-                                ultimaPaginaPost = listaObtenida.content.size < currentPageSize
+                                posts = it.posts + nuevasPublicacionesHome,
+                                ultimaPaginaPost = listaDtoObtenida.content.size < currentPageSize
                             )
                         }
                         currentPagePosts++

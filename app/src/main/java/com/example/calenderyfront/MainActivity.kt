@@ -61,6 +61,7 @@ import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -68,6 +69,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RetrofitClient.init(applicationContext) //Se inicia UNA SOLA VEZ
+//        SessionManager.clearSession(applicationContext) //Para probar otras pantallas de inicio
         enableEdgeToEdge()
         setContent {
             CalenderyFrontTheme {
