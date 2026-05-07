@@ -27,8 +27,6 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     )
 
-
-
     private val userInfo = route.userInfo // Usuario logeado
     private val otherUserId = route.otherUserId // Usuario con el que chateas
 
@@ -254,7 +252,9 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
 
-                val response = RetrofitClient.usuarioApi.obtenerUsuarioChat(otherUserId)
+                val response = RetrofitClient.usuarioApi.obtenerUsuarioChat(
+                    otherUserId = otherUserId
+                )
 
                 if (response.isSuccessful) {
 
@@ -264,8 +264,8 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
 
                         _uiState.update {
                             it.copy(
-                                otherUserName = user.nombre,
-                                otherUserPhoto = user.fotoPerfil
+                                otherUserName = user.userName,
+                                otherUserPhoto = user.photoUser
                             )
                         }
 

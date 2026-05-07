@@ -4,10 +4,10 @@ import com.example.calenderyfront.Model.DataObjects.PageSelectionUsers
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
 import com.example.calenderyfront.Model.DataObjects.SelectionUserData
 import com.example.calenderyfront.Model.DataObjects.UrlPhotos
+import com.example.calenderyfront.Model.DataObjects.UserChatInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
-import com.example.calenderyfront.Model.DataObjects.UserSearch
 import com.example.calenderyfront.Model.DataObjects.UserSettings
 import com.example.calenderyfront.Model.DataObjects.UserValidation
 import com.example.calenderyfront.pageSize
@@ -85,6 +85,9 @@ interface UsuarioApiService {
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
     ): Response<PageSelectionUsers<SelectionUserData>>
+
+    @GET("")
+    suspend fun obtenerUsuarioChat(@Query ("otherUserId") otherUserId: Int): Response<UserChatInfo>
 
     /**
      * Funcion para validar si el usuario esta enable mediante la cabecera

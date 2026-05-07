@@ -22,6 +22,11 @@ data class UserLogin(
     val keypass: String
 )
 
+data class UserChatInfo(
+    val userName: String,
+    val photoUser: String
+)
+
 /**
  * Clase para manejar los datos configurables del perfil
  */
