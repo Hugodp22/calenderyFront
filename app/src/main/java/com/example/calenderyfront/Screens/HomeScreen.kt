@@ -461,15 +461,19 @@ fun HomeScreen(
         }
     }
 
-    selectedPost?.let {
-        val favouriteIcon = if (it.like) R.drawable.favourite_filled else R.drawable.favourite
+    selectedPost?.let { postClick ->
+
+        val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
+        val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
+
+        val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
         ExpandedPhotoPost(
             post = PostUIData(
-                postId = it.idPost,
-                fotoPublicacion = it.fotoPublicacion,
-                mensaje = it.mensaje,
-                cantidadLikes = it.cantidadLikes,
-                cantidadComentarios = it.cantidadComentarios
+                postId = postToShow.idPost,
+                fotoPublicacion = postToShow.fotoPublicacion,
+                mensaje = postToShow.mensaje,
+                cantidadLikes = postToShow.cantidadLikes,
+                cantidadComentarios = postToShow.cantidadComentarios
             ),
             likeIcon = favouriteIcon,
             onDismiss = {
@@ -477,11 +481,11 @@ fun HomeScreen(
                 viewModel.deleteCommentsLoaded()
             },
             onClickLikes = {
-
+                if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
             },
             onClickComments = {
-                commentsPostId = it.idPost
-                viewModel.getCommentsPost(idPost = it.idPost)
+                commentsPostId = postToShow.idPost
+                viewModel.getCommentsPost(idPost = postToShow.idPost)
                 showComments = true
             },
             windowSize = windowSize

@@ -7,6 +7,7 @@ sealed class HomeState {
     object Cargando : HomeState() // Mientras esperamos al Back
     object PaginaCargada: HomeState()
     object PostCargados: HomeState()
+    object LikeCargando: HomeState()
     data class Exito(val userInfo: UserInfo) : HomeState() //Lo que obtenemos si tenemos exito
     data class Error(val mensaje: Int) : HomeState() // Si el Back falla o no hay internet
 }

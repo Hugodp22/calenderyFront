@@ -77,44 +77,6 @@ import java.time.temporal.WeekFields
 import java.util.Locale
 import java.util.Locale.getDefault
 
-val comentariosPrueba = listOf(
-    Comment(
-        idUsuario = 101,
-        idComentario = 2,
-        nombreUsuario = "Aris_Kotlin",
-        fotoUsuario = "https://picsum.photos/id/64/200/200",
-        comentario = "¡Qué buena foto! Me encanta el enfoque que le has dado."
-    ),
-    Comment(
-        idUsuario = 296,
-        idComentario = 3,
-        nombreUsuario = "Ruben kotlin Andrade",
-        fotoUsuario = "https://picsum.photos/id/91/200/200",
-        comentario = "Increíble. ¿No seras el Lord programador? viva hugo de pablo 67 67 67"
-    ),
-    Comment(
-        idUsuario = 103,
-        idComentario = 4,
-        nombreUsuario = "Dev_Moure",
-        fotoUsuario = "https://picsum.photos/id/177/200/200",
-        comentario = "Este es un comentario bastante más largo para probar cómo se comporta el componente de texto cuando el usuario decide escribir un párrafo entero sobre lo que está viendo en la publicación."
-    ),
-    Comment(
-        idUsuario = 104,
-        idComentario = 5,
-        nombreUsuario = "Brais_Dev",
-        fotoUsuario = "https://picsum.photos/id/447/200/200",
-        comentario = "🚀🚀🚀"
-    ),
-    Comment(
-        idUsuario = 105,
-        idComentario = 7,
-        nombreUsuario = "User_Testing",
-        fotoUsuario = "https://invalid-url-to-test-error.com/photo.jpg", // URL inválida para probar el 'error' en AsyncImage
-        comentario = "Probando qué pasa si la imagen no carga."
-    )
-)
-
 @Composable
 fun ProfileHeader(
     modifier: Modifier = Modifier,
@@ -639,7 +601,8 @@ fun ProfileScreen(
     val gridState = rememberLazyGridState() //State para obtener informacion del lazy
 
     var expandedPhotoProfile by remember { mutableStateOf(false) } //Para saber cuando la foto esta ampliada
-    var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Para saber que publicacion mostrar al hacer click
+    var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Copia estatica de la publicacion a la que le des click
+
 
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
@@ -804,15 +767,18 @@ fun ProfileScreen(
     }
 
     //Si le has dado click a una publicacion
-    selectedPost?.let {
-        val favouriteIcon = if (it.like) R.drawable.favourite_filled else R.drawable.favourite
+    selectedPost?.let { postClick ->
+        val currentPostData = uiState.publicaciones.find { it.id == postClick.id } //Buscamos el post al que le hemos dado click
+        val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
+
+        val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
         ExpandedPhotoPost(
             post = PostUIData(
-                postId = it.id,
-                fotoPublicacion = it.fotoPublicacion,
-                mensaje = it.mensaje,
-                cantidadLikes = it.cantidadLikes,
-                cantidadComentarios = it.cantidadComentarios
+                postId = postToShow.id,
+                fotoPublicacion = postToShow.fotoPublicacion,
+                mensaje = postToShow.mensaje,
+                cantidadLikes = postToShow.cantidadLikes,
+                cantidadComentarios = postToShow.cantidadComentarios
             ),
             likeIcon = favouriteIcon,
             onDismiss = {
@@ -820,13 +786,11 @@ fun ProfileScreen(
                 viewModel.deleteCommentsLoaded()
             },
             onClickLikes = {
-                if (!it.like) viewModel.likePost(it) else viewModel.unLikePost(it)
-                selectedPost = it.copy(like = !it.like) //Para verlo a nivel interno
-
+                if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
             },
             onClickComments = {
-                commentsPostId = it.id
-                viewModel.getCommentsPost(idPost = it.id)
+                commentsPostId = postToShow.id
+                viewModel.getCommentsPost(idPost = postToShow.id)
                 showComments = true
             },
             windowSize = windowSize
