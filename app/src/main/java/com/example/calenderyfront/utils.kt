@@ -87,6 +87,8 @@ import okio.BufferedSink
 import okio.source
 import java.security.KeyPairGenerator
 import java.security.KeyStore
+import java.security.PrivateKey
+import java.security.PublicKey
 
 const val pageSize = 6
 const val rowProfilePostSize = 3
@@ -768,6 +770,24 @@ fun securityKeyCreation(userId: Int): String {
 
     //Enviamos la clave publica e indicamos que este en una sola linea con el wrap
     return Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
+}
+
+/**
+ * Funcion para sacar de local, las claves publica y privada
+ */
+fun getLocalSecurityKeys(userId: Int): Pair<PublicKey?, PrivateKey?> {
+    val privateAlias = "com.calendery.app.auth_key_$userId"
+
+    val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+        load(null)
+    }
+
+    val publicKey = keyStore.getCertificate(privateAlias)?.publicKey
+
+    val entry = keyStore.getEntry(privateAlias, null) as? KeyStore.PrivateKeyEntry
+    val privateKey = entry?.privateKey
+
+    return Pair(publicKey, privateKey)
 }
 
 /**

@@ -88,6 +88,7 @@
     <string name="Chat_bottom_bar">Chat</string>
     <string name="search_input_placeholder">Busca a alguien!!!</string>
     <string name="new_message_selection">Nuevo mensaje</string>
+    <string name="send_chat">Enviar</string>
 
 
 </resources>

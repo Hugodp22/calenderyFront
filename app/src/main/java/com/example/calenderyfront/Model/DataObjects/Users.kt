@@ -22,9 +22,9 @@ data class UserLogin(
     val keypass: String
 )
 
-data class UserChatInfo(
-    val userName: String,
-    val photoUser: String
+data class UserVisualInfo(
+    val fotoPerfil: String,
+    val nombreUsuario: String
 )
 
 /**
@@ -48,7 +48,7 @@ data class UserProfile(
     val seguidor: Boolean = false
 )
 
-data class SelectionUserData(
+data class SelectionUserChatData(
     val idUsuario: Int,
     val nombre: String,
     val fotoPerfil: String,
@@ -56,12 +56,26 @@ data class SelectionUserData(
     val mensajeNuevo: Boolean = false
 )
 
-data class PageSelectionUsers<SelectionUserData>(
-    val content: List<SelectionUserData>,
+data class SelectionUserProfileData(
+    val idUsuario: Int,
+    val nombre: String,
+    val fotoPerfil: String,
+)
+
+data class PageSelectionChatUsers<SelectionUserChatData>(
+    val content: List<SelectionUserChatData>,
     val totalElements: Int,
     val totalPages: Int,
     val last: Boolean
 )
+
+data class PageSelectionProfileUsers<SelectionUserProfileData>(
+    val content: List<SelectionUserProfileData>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
+)
+
 
 /**
  * Informacion del usuario para hacer peticiones y saber que partes de la aplicacion

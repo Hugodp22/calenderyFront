@@ -1,10 +1,12 @@
 package com.example.calenderyfront.Apis
 
-import com.example.calenderyfront.Model.DataObjects.PageSelectionUsers
+import com.example.calenderyfront.Model.DataObjects.PageSelectionChatUsers
+import com.example.calenderyfront.Model.DataObjects.PageSelectionProfileUsers
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
-import com.example.calenderyfront.Model.DataObjects.SelectionUserData
+import com.example.calenderyfront.Model.DataObjects.SelectionUserChatData
+import com.example.calenderyfront.Model.DataObjects.SelectionUserProfileData
 import com.example.calenderyfront.Model.DataObjects.UrlPhotos
-import com.example.calenderyfront.Model.DataObjects.UserChatInfo
+import com.example.calenderyfront.Model.DataObjects.UserVisualInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserProfile
 import com.example.calenderyfront.Model.DataObjects.UserRegister
@@ -39,6 +41,12 @@ interface UsuarioApiService {
      */
     @GET("api/users/app/getUserSettings")
     suspend fun buscarSettingsUsuarioPorId(@Query("idUsuario") idUsuario: Int): Response<UserSettings>
+
+    @GET("api/users/app/getUserCommentData")
+    suspend fun obtenerMisVisuales(): Response<UserVisualInfo>
+
+    @GET("")
+    suspend fun obtenerVisualesDelOtroUsuario(@Query ("otherUserId") otherUserId: Int): Response<UserVisualInfo>
 
     /**
      * Funcion para updatear los datos del usuario segun sus datos configurables
@@ -79,15 +87,18 @@ interface UsuarioApiService {
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>
 
     @GET("")
-    suspend fun obtenerUsuariosBuscados(
-        @Query("idUsuario")idUsuario: Int,
+    suspend fun obtenerPerfilUsuariosBuscados(
         @Query("searchName") searchName: String,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
-    ): Response<PageSelectionUsers<SelectionUserData>>
+    ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>
 
     @GET("")
-    suspend fun obtenerUsuarioChat(@Query ("otherUserId") otherUserId: Int): Response<UserChatInfo>
+    suspend fun obtenerChatUsuariosBuscados(
+        @Query("searchName") searchName: String,
+        @Query("page") page: Int,
+        @Query("size") size : Int = pageSize,
+    ): Response<PageSelectionChatUsers<SelectionUserChatData>>
 
     /**
      * Funcion para validar si el usuario esta enable mediante la cabecera

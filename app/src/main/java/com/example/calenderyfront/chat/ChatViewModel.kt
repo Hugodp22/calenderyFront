@@ -84,6 +84,18 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
                 idUsuario = otherUserId,
                 mensaje = "ENC(mensaje cifrado)",
                 cifrado = true
+            ),
+
+            Message(
+                idUsuario = otherUserId,
+                mensaje = "MENSAJE LARGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+                cifrado = false
+            ),
+
+            Message(
+                idUsuario = userInfo.idUsuario,
+                mensaje = "MENSAJE LARGOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+                cifrado = false
             )
         )
 
@@ -103,6 +115,10 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
     fun sendMessage(text: String) {
 
         val currentUiState = _uiState.value // mensajes actuales
+
+        if (currentUiState.sendMessage.isEmpty()) {
+            return
+        }
 
         // mensaje nuevo del usuario
         val newMessage = Message(
@@ -252,7 +268,7 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
 
-                val response = RetrofitClient.usuarioApi.obtenerUsuarioChat(
+                val response = RetrofitClient.usuarioApi.obtenerVisualesDelOtroUsuario(
                     otherUserId = otherUserId
                 )
 
@@ -264,8 +280,8 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
 
                         _uiState.update {
                             it.copy(
-                                otherUserName = user.userName,
-                                otherUserPhoto = user.photoUser
+                                otherUserName = user.nombreUsuario,
+                                otherUserPhoto = user.fotoPerfil
                             )
                         }
 

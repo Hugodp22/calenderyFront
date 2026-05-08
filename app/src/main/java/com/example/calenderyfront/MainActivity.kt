@@ -107,7 +107,8 @@ fun CalenderyApp(
                     windowSize = windowSize
                 )
             }
-        }
+        },
+        //topBar =
     )
     { innerPadding ->
         NavHost(
@@ -280,7 +281,10 @@ fun CalenderyApp(
             )
             {
                 ChatScreen(
-                    windowSize = windowSize
+                    windowSize = windowSize,
+                    onNavigateToOtherProfile = {userInfo, otherUserId ->
+                        navController.navigate(Profile(userInfo,otherUserId))
+                    }
                 )
             }
         }
