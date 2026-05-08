@@ -35,21 +35,30 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     private val _state = MutableStateFlow<SelectionState>(SelectionState.Iniciado)
     val state: StateFlow<SelectionState> = _state.asStateFlow()
 
-    private var currentPageSelectionUsers = 0
+    private var currentPageSelection = 0
     private val currentPageSize = pageSize
 
     init {
+//        if (chatOption) {
+//
+//        }
+//        else {
+//
+//        }
 
     }
 
     fun onSearchChange(searchName: String) {
         _uiState.update { it.copy(
             searchName = searchName,
-            selectionUsersList = emptyList()
+            selectionUsersChatList = emptyList(),
+            selectionUsersProfileList = emptyList(),
+            lastPage = false
         )}
+        currentPageSelection = 0
     }
 
-    fun searchUserByName() {
+    fun searchUserProfileByName() {
         val currentState = _uiState.value
 
         if (_state.value is SelectionState.Cargando || currentState.lastPage) {
@@ -60,10 +69,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.usuarioApi.obtenerUsuariosBuscados(
-                    idUsuario = userInfo.idUsuario,
+                val respuesta = RetrofitClient.usuarioApi.obtenerPerfilUsuariosBuscados(
                     searchName = currentState.searchName,
-                    page = currentPageSelectionUsers
+                    page = currentPageSelection
                 )
 
                 if (respuesta.isSuccessful) {
@@ -71,15 +79,14 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
 
                     if (usuariosCargados != null) {
                         _uiState.update { it.copy(
-                            selectionUsersList = it.selectionUsersList + usuariosCargados.content,
+                            selectionUsersProfileList = it.selectionUsersProfileList + usuariosCargados.content,
                             lastPage = usuariosCargados.content.size < currentPageSize
                         )}
 
                         _state.value = SelectionState.PaginaCargada
-                        currentPageSelectionUsers++
+                        currentPageSelection++
                     }
                 }
-
                 else {
                     _state.value = SelectionState.Error(errorMessages(respuesta.code()))
                 }
@@ -89,6 +96,55 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
                 _state.value = SelectionState.Error(R.string.Error_Network)
             }
         }
+    }
 
+    fun searchUserChatByName() {
+        val currentState = _uiState.value
+
+        if (_state.value is SelectionState.Cargando || currentState.lastPage) {
+            return
+        }
+
+        _state.value = SelectionState.Cargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.obtenerChatUsuariosBuscados(
+                    searchName = currentState.searchName,
+                    page = currentPageSelection
+                )
+
+                if (respuesta.isSuccessful) {
+                    val usuariosCargados = respuesta.body()
+
+                    if (usuariosCargados != null) {
+                        _uiState.update { it.copy(
+                            selectionUsersChatList = it.selectionUsersChatList + usuariosCargados.content,
+                            lastPage = usuariosCargados.content.size < currentPageSize
+                        )}
+
+                        _state.value = SelectionState.PaginaCargada
+                        currentPageSelection++
+                    }
+                }
+                else {
+                    _state.value = SelectionState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = SelectionState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun loadNextPage() {
+        val uiState = _uiState.value
+
+        if (chatOption) {
+            searchUserChatByName()
+        }
+        else {
+            searchUserProfileByName()
+        }
     }
 }

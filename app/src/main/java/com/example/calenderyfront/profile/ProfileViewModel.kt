@@ -330,11 +330,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun likePost(post: PublicacionProfile) {
         val currentState = _uiState.value
 
-        if (post.like || _state.value is ProfileState.likeCargando) {
+        if (post.like || _state.value is ProfileState.LikeCargando) {
             return
         }
 
-        _state.value = ProfileState.likeCargando
+        _state.value = ProfileState.LikeCargando
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -369,11 +369,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     fun unLikePost(post: PublicacionProfile) {
         val currentState = _uiState.value
 
-        if (!post.like || _state.value is ProfileState.likeCargando) {
+        if (!post.like || _state.value is ProfileState.LikeCargando) {
             return
         }
 
-        _state.value = ProfileState.likeCargando
+        _state.value = ProfileState.LikeCargando
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -393,6 +393,32 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                         }
                         currentState.copy(publicaciones = listaActualizada)
                     }
+                    _state.value = ProfileState.Iniciado
+                }
+
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun getChat(otherUserId: Int) {
+        val currentState = _uiState.value
+
+        if (_state.value is ProfileState.ChatCargando) {
+            return
+        }
+        _state.value = ProfileState.ChatCargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.chatApi.buscarChatUsuario(otherUserId = otherUserId)
+
+                if (respuesta.isSuccessful) {
                     _state.value = ProfileState.Iniciado
                 }
 

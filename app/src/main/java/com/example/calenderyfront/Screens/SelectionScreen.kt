@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -36,45 +37,49 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.calenderyfront.Model.DataObjects.SelectionUserData
+import com.example.calenderyfront.Model.DataObjects.SelectionUserChatData
+import com.example.calenderyfront.Model.DataObjects.SelectionUserProfileData
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
+import com.example.calenderyfront.selection.SelectionState
 import com.example.calenderyfront.selection.SelectionViewModel
 
-val listaPrueba = listOf(
-    SelectionUserData(
+val listaChatPrueba = listOf(
+    SelectionUserChatData(
         idUsuario = 1,
         nombre = "Marcos Galperin",
         fotoPerfil = "https://picsum.photos/id/10/200",
         ultimoMensaje = "El paquete llega hoy",
         mensajeNuevo = true
     ),
-    SelectionUserData(
+    SelectionUserChatData(
         idUsuario = 296,
         nombre = "Martin kotlin Andrade",
         fotoPerfil = "https://picsum.photos/id/20/200",
         ultimoMensaje = "¿Viste el nuevo diseño? eres dios Hugo de Pablooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
         mensajeNuevo = true
     ),
-    SelectionUserData(
+    SelectionUserChatData(
         idUsuario = 300,
         nombre = "Jordi Wild",
         fotoPerfil = "https://picsum.photos/id/30/200",
         ultimoMensaje = null,
         mensajeNuevo = false
     ),
-    SelectionUserData(
+    SelectionUserChatData(
         idUsuario = 302,
         nombre = "Sara Buho",
         fotoPerfil = "https://picsum.photos/id/40/200",
         ultimoMensaje = "¡Feliz lunes!",
         mensajeNuevo = false
     ),
-    SelectionUserData(
+    SelectionUserChatData(
         idUsuario = 5,
         nombre = "Brais Moure",
         fotoPerfil = "https://picsum.photos/id/50/200",
@@ -82,6 +87,35 @@ val listaPrueba = listOf(
         mensajeNuevo = false
     )
 )
+
+val listaProfilePrueba = listOf(
+    SelectionUserProfileData(
+        idUsuario = 1,
+        nombre = "Marcos Galperin",
+        fotoPerfil = "https://picsum.photos/id/10/200",
+    ),
+    SelectionUserProfileData(
+        idUsuario = 296,
+        nombre = "Martin kotlin Andrade",
+        fotoPerfil = "https://picsum.photos/id/20/200",
+    ),
+    SelectionUserProfileData(
+        idUsuario = 300,
+        nombre = "Jordi Wild",
+        fotoPerfil = "https://picsum.photos/id/30/200",
+    ),
+    SelectionUserProfileData(
+        idUsuario = 302,
+        nombre = "Sara Buho",
+        fotoPerfil = "https://picsum.photos/id/40/200",
+    ),
+    SelectionUserProfileData(
+        idUsuario = 5,
+        nombre = "Brais Moure",
+        fotoPerfil = "https://picsum.photos/id/50/200",
+    )
+)
+
 
 @Composable
 fun SearchInput(
@@ -137,9 +171,61 @@ fun SearchInput(
 }
 
 @Composable
-fun UserSelectionInfo(
-    userSelectionUserData: SelectionUserData,
-    chatOption: Boolean,
+fun UserSelectionProfileInfo(
+    userSelectionUserData: SelectionUserProfileData,
+    onClickContainer: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val width  = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.8F
+        else -> 0.8F
+    }
+
+    val photoUserSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 40.dp
+        else -> 40.dp
+    }
+
+    val fontSizeName  = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.sp
+        else -> 20.sp
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(width)
+            .clickable { onClickContainer() },
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    )
+    {
+        PhotoUserContainer(
+            modifier = Modifier.size(photoUserSize),
+            photoPath = userSelectionUserData.fotoPerfil,
+            onClick = {},
+            contentDescription = R.string.profile_search
+        )
+
+        Spacer(Modifier.padding(end = 7.dp))
+
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(3.dp)
+        )
+        {
+            Text(
+                text = userSelectionUserData.nombre,
+                fontSize = fontSizeName,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
+    }
+}
+
+@Composable
+fun UserSelectionChatInfo(
+    userSelectionUserData: SelectionUserChatData,
     onClickContainer: () -> Unit,
     windowSize: WindowWidthSizeClass
 )
@@ -169,14 +255,8 @@ fun UserSelectionInfo(
         else -> 15.sp
     }
 
-    val color = when (chatOption) {
-        true ->
-            if (userSelectionUserData.mensajeNuevo) {
-                MaterialTheme.colorScheme.onPrimary
-            }
-            else {
-                Color.Transparent
-            }
+    val color = when (userSelectionUserData.mensajeNuevo) {
+        true -> MaterialTheme.colorScheme.onPrimary
         else -> Color.Transparent
     }
 
@@ -209,34 +289,52 @@ fun UserSelectionInfo(
                 color = MaterialTheme.colorScheme.tertiary
             )
 
-            if (chatOption) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(width),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+             Row(
+                 modifier = Modifier.fillMaxWidth(width),
+                 horizontalArrangement = Arrangement.spacedBy(7.dp),
                 )
-                {
-                    if (userSelectionUserData.ultimoMensaje != null) {
-                        Text(
-                            text = userSelectionUserData.ultimoMensaje,
-                            fontSize = fontSizeLastMessage,
-                            color = Color.Gray,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-                    }
-                    if (userSelectionUserData.mensajeNuevo) {
-                        Icon(
-                            modifier = Modifier.size(iconSize),
-                            painter = painterResource(R.drawable.new_label),
-                            contentDescription = stringResource(R.string.new_message_selection),
-                            tint = Color.Unspecified
-                        )
-                    }
-                }
-            }
+             {
+                 ChatExtraData(
+                     modifier = Modifier.weight(1f, fill = false),
+                     lastMessage = userSelectionUserData.ultimoMensaje,
+                     newMessage = userSelectionUserData.mensajeNuevo,
+                     fontSize = fontSizeLastMessage,
+                     iconSize = iconSize
+                 )
+             }
         }
     }
+}
+
+@Composable
+fun ChatExtraData(
+    modifier: Modifier = Modifier,
+    lastMessage: String?,
+    newMessage: Boolean,
+    fontSize: TextUnit,
+    iconSize : Dp
+)
+{
+    if (lastMessage != null) {
+        Text(
+            modifier = modifier,
+            text = lastMessage,
+            fontSize = fontSize,
+            color = Color.Gray,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+
+    if (newMessage) {
+        Icon(
+            modifier = Modifier.size(iconSize),
+            painter = painterResource(R.drawable.new_label),
+            contentDescription = stringResource(R.string.new_message_selection),
+            tint = Color.Unspecified
+        )
+    }
+
 }
 
 @Composable
@@ -259,15 +357,15 @@ fun SelectionScreen(
         derivedStateOf {
             val totalItems = gridState.layoutInfo.totalItemsCount
             val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            totalItems > 0 && ultimoItem >= (totalItems - 1)
+            totalItems > 0 && ultimoItem >= (totalItems - 2)
         }
     }
 
-    //LaunchedEffect(scrollEnElFinal) {
-    //    if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
-    //        viewModel.searchUserByName()
-    //    }
-    //}
+//    LaunchedEffect(scrollEnElFinal) {
+//        if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
+//            viewModel.loadNextPage()
+//        }
+//    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
@@ -281,26 +379,35 @@ fun SelectionScreen(
             SearchInput(
                 value = uiState.searchName,
                 onValueChange = { viewModel.onSearchChange(it) },
-                onSearch = { viewModel.searchUserByName() },
+                onSearch = { if (chatOption) viewModel.searchUserChatByName() else viewModel.searchUserProfileByName() },
                 windowSize = windowSize
             )
         }
 
-        items(items = listaPrueba)
-        { user ->
-            UserSelectionInfo(
-                userSelectionUserData = user,
-                windowSize = windowSize,
-                onClickContainer = {
-                    if (chatOption) {
-                        onNavigateToChat(uiState.userInfo, user.idUsuario)
-                    }
-                    else {
-                        onNavigateToOtherProfile(uiState.userInfo,user.idUsuario)
-                    }
-                },
-                chatOption = chatOption
-            )
+        if (chatOption) {
+            //uiState.selectionUsersChatList
+            items(items = listaChatPrueba) { user ->
+                UserSelectionChatInfo(
+                    userSelectionUserData = user,
+                    windowSize = windowSize,
+                    onClickContainer = {
+                            onNavigateToChat(uiState.userInfo, user.idUsuario)
+                        },
+                )
+            }
         }
+        else {
+            //uiState.selectionUsersProfileList
+            items(items = listaProfilePrueba) { user ->
+                UserSelectionProfileInfo(
+                    userSelectionUserData = user,
+                    windowSize = windowSize,
+                    onClickContainer = {
+                        onNavigateToOtherProfile(uiState.userInfo, user.idUsuario)
+                    }
+                )
+            }
+        }
+
     }
 }

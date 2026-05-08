@@ -39,7 +39,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
     private var currentPageComments = 0
     private val currentPageSize = pageSize
 
-
     init {
         loadUserData()
     }
@@ -55,7 +54,7 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.usuarioApi.buscarSettingsUsuarioPorId(userInfo.idUsuario)
+                val respuesta = RetrofitClient.usuarioApi.obtenerMisVisuales()
 
                 if (respuesta.isSuccessful) {
                     val data = respuesta.body()
@@ -63,7 +62,7 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                     if (data != null) {
                         _uiState.update {
                             it.copy(
-                                userName = data.nombre,
+                                userName = data.nombreUsuario,
                                 photoUser = data.fotoPerfil
                             )
                         }

@@ -267,7 +267,16 @@ fun ButtonsBox(
         )
     }
 
-
+    val loadingChatColors = when (stateProcess) {
+        ProfileState.ChatCargando -> buttonColors(
+            contentColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+        else -> buttonColors(
+            contentColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.onSecondary
+        )
+    }
 
     Row(
         modifier = modifier,
@@ -289,11 +298,7 @@ fun ButtonsBox(
         }
         Button(
             modifier = Modifier.size(width = width, height = height),
-            colors = buttonColors(
-                containerColor = MaterialTheme.colorScheme.onSecondary,
-                contentColor = MaterialTheme.colorScheme.tertiary,
-                disabledContentColor = Color.Gray,
-            ),
+            colors = loadingChatColors,
             onClick = onClickRight
         )
         {
@@ -603,7 +608,6 @@ fun ProfileScreen(
     var expandedPhotoProfile by remember { mutableStateOf(false) } //Para saber cuando la foto esta ampliada
     var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Copia estatica de la publicacion a la que le des click
 
-
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
@@ -629,6 +633,9 @@ fun ProfileScreen(
     LaunchedEffect(stateProcess) {
         if (stateProcess is ProfileState.Exito) {
             onNavigateToSettings((stateProcess as ProfileState.Exito).userInfo) //Cambiar obvio a otra cosa
+        }
+        else if (stateProcess is ProfileState.ChatExito) {
+            onNavigateToChat(uiState.usuario,uiState.mainId)
         }
     }
 
@@ -680,7 +687,7 @@ fun ProfileScreen(
                                   },
                 onClickRight = {
                     if (otherUser) {
-                        onNavigateToChat(uiState.usuario,uiState.mainId)
+                        viewModel.getChat(uiState.mainId)
                     }
                     else {
                         onNavigateToSettings(uiState.usuario)

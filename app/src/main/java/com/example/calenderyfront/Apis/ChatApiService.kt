@@ -24,4 +24,7 @@ interface ChatApiService {
         @Query("otherUserId") otherUserId: Int,
         @Body message: Message
     ): Response<Unit>
+
+    @GET("")
+    suspend fun buscarChatUsuario(@Query("otherUserId")otherUserId: Int): Response<Boolean>
 }

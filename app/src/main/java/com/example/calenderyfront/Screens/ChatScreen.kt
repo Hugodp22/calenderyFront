@@ -1,9 +1,7 @@
 package com.example.calenderyfront.Screens
 
-import android.R.attr.maxWidth
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,8 +11,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
@@ -31,9 +27,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.R
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
@@ -42,8 +40,10 @@ import com.example.calenderyfront.chat.Components.ChatTopBar
 @Composable
 fun ChatScreen(
     viewModel: ChatViewModel = viewModel(),
-    windowSize: WindowWidthSizeClass
-) {
+    windowSize: WindowWidthSizeClass,
+    onNavigateToOtherProfile: (UserInfo,Int) -> Unit
+)
+{
 
     val uiState by viewModel.uiState.collectAsState() // Datos
     val state by viewModel.state.collectAsState()     // Estado
@@ -61,11 +61,7 @@ fun ChatScreen(
 
     // paginación al llegar arriba
     LaunchedEffect(scrollEnArriba) {
-        if (
-            scrollEnArriba &&
-            state !is ChatState.Loading &&
-            !uiState.lastMessage
-        ) {
+        if (scrollEnArriba && state !is ChatState.Loading && !uiState.lastMessage) {
             viewModel.loadMessages() // carga más mensajes
         }
     }
@@ -91,7 +87,7 @@ fun ChatScreen(
                 )
 
                 ChatSendButton(
-                    text = "Enviar",
+                    text = stringResource(R.string.send_chat),
                     enabled = uiState.currentMessage.isNotBlank(),
                     onClick = { viewModel.sendMessage() }
                 )
@@ -126,8 +122,11 @@ fun ChatScreen(
 
 
 @Composable
-fun MyMessageItem(text: String, windowSize: WindowWidthSizeClass
-) {
+fun MyMessageItem(
+    text: String,
+    windowSize: WindowWidthSizeClass
+)
+{
 
     val widthFraction = when (windowSize) {
         WindowWidthSizeClass.Compact -> 280.dp   // móvil
@@ -140,9 +139,7 @@ fun MyMessageItem(text: String, windowSize: WindowWidthSizeClass
         horizontalArrangement = Arrangement.End
     ) {
         Card(
-            modifier = Modifier
-                .widthIn(max = widthFraction)
-                .padding(8.dp),
+            modifier = Modifier.widthIn(max = widthFraction).padding(8.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.inversePrimary
             )
@@ -162,7 +159,8 @@ fun MyMessageItem(text: String, windowSize: WindowWidthSizeClass
 fun OtherMessageItem(
     text: String,
     windowSize: WindowWidthSizeClass
-) {
+)
+{
 
     val widthFraction = when (windowSize) {
         WindowWidthSizeClass.Compact -> 280.dp   // móvil
@@ -203,11 +201,11 @@ fun ChatSendButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled
-    ) {
-
+    )
+    {
         Image(
             painter = painterResource(R.drawable.enviar),
-            contentDescription = "Enviar" ,
+            contentDescription = stringResource(R.string.send_chat) ,
             modifier = Modifier.size(28.dp)
         )
     }
