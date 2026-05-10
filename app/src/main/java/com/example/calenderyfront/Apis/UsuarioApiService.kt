@@ -3,6 +3,7 @@ package com.example.calenderyfront.Apis
 import com.example.calenderyfront.Model.DataObjects.PageSelectionChatUsers
 import com.example.calenderyfront.Model.DataObjects.PageSelectionProfileUsers
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
+import com.example.calenderyfront.Model.DataObjects.PublicUserKeyDto
 import com.example.calenderyfront.Model.DataObjects.SelectionUserChatData
 import com.example.calenderyfront.Model.DataObjects.SelectionUserProfileData
 import com.example.calenderyfront.Model.DataObjects.UrlPhotos
@@ -45,9 +46,6 @@ interface UsuarioApiService {
     @GET("api/users/app/getUserCommentData")
     suspend fun obtenerMisVisuales(): Response<UserVisualInfo>
 
-    @GET("")
-    suspend fun obtenerVisualesDelOtroUsuario(@Query ("otherUserId") otherUserId: Int): Response<UserVisualInfo>
-
     /**
      * Funcion para updatear los datos del usuario segun sus datos configurables
      * Y que nos devuelvan sus datos updateados para volver al perfil
@@ -86,9 +84,9 @@ interface UsuarioApiService {
     @GET("api/users/auth/resendRegistrationToken")
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>
 
-    @GET("")
+    @GET("api/users/app/getSearchUsers")
     suspend fun obtenerPerfilUsuariosBuscados(
-        @Query("searchName") searchName: String,
+        @Query("nombre") nombre: String,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
     ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>
@@ -99,6 +97,9 @@ interface UsuarioApiService {
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
     ): Response<PageSelectionChatUsers<SelectionUserChatData>>
+
+    @GET("api/users/app/getPublicKey")
+    suspend fun getOtherUserPublicKey(@Query("idUsuario") idUsuario: Int): Response<PublicUserKeyDto>
 
     /**
      * Funcion para validar si el usuario esta enable mediante la cabecera

@@ -3,6 +3,7 @@ package com.example.calenderyfront.Apis;
 import com.example.calenderyfront.Model.DataObjects.ChatDto
 import com.example.calenderyfront.Model.DataObjects.Message;
 import com.example.calenderyfront.Model.DataObjects.PageChatMessages;
+import com.example.calenderyfront.Model.DataObjects.UserVisualInfo
 import retrofit2.Response;
 import retrofit2.http.Body
 import retrofit2.http.GET;

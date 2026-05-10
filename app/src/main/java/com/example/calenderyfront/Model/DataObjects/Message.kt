@@ -3,7 +3,6 @@ package com.example.calenderyfront.Model.DataObjects
 data class Message(
     val idUsuario: Int,
     val mensaje: String,
-    val cifrado: Boolean = true
 )
 
 data class ChatDto(
@@ -12,10 +11,14 @@ data class ChatDto(
     val id : Int?,
 )
 
+data class PublicUserKeyDto(
+    val publicKey: String
+)
+
 data class MessageToSend(
-    val idChat: Int,
-    val idUsuario: Int,
-    val otherUserId: Int,
-    val myPublickKeyMessage: String,
-    val otherPublickKeyMessage: String
+    val chatId: Int,
+    val fromUser: Int,
+    val toUser: Int,
+    val selfMessage: String,
+    val content: String
 )

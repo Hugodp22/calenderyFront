@@ -31,96 +31,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.calenderyfront.Model.DataObjects.Message
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.R
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
 import com.example.calenderyfront.chat.Components.ChatTopBar
-
-@Composable
-fun ChatScreen(
-    viewModel: ChatViewModel = viewModel(),
-    windowSize: WindowWidthSizeClass,
-    onNavigateToOtherProfile: (UserInfo,Int) -> Unit
-)
-{
-
-    val uiState by viewModel.uiState.collectAsState() // Datos
-    val state by viewModel.state.collectAsState()     // Estado
-
-    val listState = rememberLazyListState() // estado del scroll
-
-    // detecta llegas arriba
-    val scrollEnArriba by remember {
-        derivedStateOf {
-            val totalItems = listState.layoutInfo.totalItemsCount // total mensajes
-            val ultimoVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 // Último visible
-            totalItems > 0 && ultimoVisible >= totalItems - 1 // detecta arriba
-        }
-    }
-
-    // paginación al llegar arriba
-    LaunchedEffect(scrollEnArriba) {
-        if (scrollEnArriba && state !is ChatState.Loading && !uiState.lastMessage) {
-            viewModel.loadMessages() // carga más mensajes
-        }
-    }
-
-    Scaffold(
-
-        topBar = {
-            ChatTopBar(uiState)
-        },
-
-        // input abajo anclado (donde escribes)
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-
-                TextField(
-                    value = uiState.currentMessage,
-                    onValueChange = { viewModel.onMessageChange(it) },
-                    modifier = Modifier.weight(1f)
-                )
-
-                ChatSendButton(
-                    text = stringResource(R.string.send_chat),
-                    enabled = uiState.currentMessage.isNotBlank(),
-                    onClick = { viewModel.sendMessage() }
-                )
-            }
-        }
-
-    ) { paddingValues ->
-
-        // contenido (mensajes)
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            reverseLayout = true
-        ) {
-
-            items(uiState.messages) { message ->
-
-                val isMine =
-                    message.idUsuario == uiState.userInfo.idUsuario
-
-                if (isMine) {
-                    MyMessageItem(message.mensaje, windowSize)
-                } else {
-                    OtherMessageItem(message.mensaje, windowSize)
-                }
-            }
-        }
-    }
-}
-
-
 @Composable
 fun MyMessageItem(
     text: String,
@@ -208,5 +124,95 @@ fun ChatSendButton(
             contentDescription = stringResource(R.string.send_chat) ,
             modifier = Modifier.size(28.dp)
         )
+    }
+}
+
+@Composable
+fun ChatScreen(
+    viewModel: ChatViewModel = viewModel(),
+    windowSize: WindowWidthSizeClass,
+    onNavigateToOtherProfile: (UserInfo,Int) -> Unit
+)
+{
+    val uiState by viewModel.uiState.collectAsState() // Datos
+    val state by viewModel.state.collectAsState()     // Estado
+
+    val listState = rememberLazyListState() // estado del scroll
+
+    val chatLog = listOf(
+        Message(idUsuario = uiState.userInfo.idUsuario, mensaje = "¡Hola! ¿Cómo vas con el proyecto?"),
+        Message(idUsuario = uiState.otherUserId, mensaje = "Hola, todo bien. Justo acabo de terminar el módulo de datos."),
+        Message(idUsuario = uiState.userInfo.idUsuario, mensaje = "Genial, ¿tuviste algún problema con la implementación de Kotlin?"),
+        Message(idUsuario = uiState.otherUserId, mensaje = "Para nada, las data classes ahorran mucho código."),
+        Message(idUsuario = uiState.userInfo.idUsuario, mensaje = "Totalmente de acuerdo. Pásame el PR cuando puedas.")
+    )
+
+    // detecta llegas arriba
+    val scrollEnArriba by remember {
+        derivedStateOf {
+            val totalItems = listState.layoutInfo.totalItemsCount // total mensajes
+            val ultimoVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 // Último visible
+            totalItems > 0 && ultimoVisible >= totalItems - 1 // detecta arriba
+        }
+    }
+
+    // paginación al llegar arriba
+//    LaunchedEffect(scrollEnArriba) {
+//        if (scrollEnArriba && state !is ChatState.Loading && !uiState.lastMessage) {
+//            viewModel.loadMessages() // carga más mensajes
+//        }
+//    }
+
+    Scaffold(
+        topBar = {
+            ChatTopBar(uiState)
+        },
+        // input abajo anclado (donde escribes)
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+
+                TextField(
+                    value = uiState.currentMessage,
+                    onValueChange = { viewModel.onMessageChange(it) },
+                    modifier = Modifier.weight(1f)
+                )
+
+                ChatSendButton(
+                    text = stringResource(R.string.send_chat),
+                    enabled = uiState.currentMessage.isNotBlank(),
+                    onClick = { viewModel.sendMessage() }
+                )
+            }
+        }
+
+    )
+    { paddingValues ->
+
+        // contenido (mensajes)
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            reverseLayout = true
+        )
+        {
+            items(chatLog) { message ->
+
+                val isMine = message.idUsuario == uiState.userInfo.idUsuario
+
+                if (isMine) {
+                    MyMessageItem(message.mensaje, windowSize)
+                }
+
+                else {
+                    OtherMessageItem(message.mensaje, windowSize)
+                }
+            }
+        }
     }
 }

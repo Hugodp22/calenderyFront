@@ -2,15 +2,18 @@ package com.example.calenderyfront.chat
 
 import com.example.calenderyfront.Model.DataObjects.Message
 import com.example.calenderyfront.Model.DataObjects.UserInfo
+import java.security.PrivateKey
+import java.security.PublicKey
 
 data class ChatUiState(
     val userInfo: UserInfo,                   // Info del usuario logeado
     val otherUserId: Int,                     // Id del usuario con el que chateas
+    val idChat: Int,
     val sendMessage: String,
     val messages: List<Message> = emptyList(), // Lita de mensajes del chat
     val lastMessage: Boolean = false,
     val currentMessage: String = "",
     //topBar donde ver el nombre e imagen de ususario
     val otherUserName: String = "",   // nombre del otro usuario
-    val otherUserPhoto: String = ""    // otro foto perfil
+    val otherUserPhoto: String = "",    // otro foto perfil
 )

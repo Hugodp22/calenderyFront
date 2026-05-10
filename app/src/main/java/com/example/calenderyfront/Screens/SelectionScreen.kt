@@ -342,7 +342,7 @@ fun SelectionScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     onNavigateToOtherProfile: (UserInfo,Int) -> Unit,
-    onNavigateToChat: (UserInfo,Int) -> Unit,
+    onNavigateToChat: (UserInfo,Int,String,String) -> Unit,
     viewModel: SelectionViewModel = viewModel()
 )
 {
@@ -361,11 +361,11 @@ fun SelectionScreen(
         }
     }
 
-//    LaunchedEffect(scrollEnElFinal) {
-//        if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
-//            viewModel.loadNextPage()
-//        }
-//    }
+    LaunchedEffect(scrollEnElFinal) {
+        if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
+            viewModel.loadNextPage()
+        }
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
@@ -391,14 +391,14 @@ fun SelectionScreen(
                     userSelectionUserData = user,
                     windowSize = windowSize,
                     onClickContainer = {
-                            onNavigateToChat(uiState.userInfo, user.idUsuario)
+                            onNavigateToChat(uiState.userInfo, user.idUsuario, user.nombre, user.fotoPerfil)
                         },
                 )
             }
         }
         else {
             //uiState.selectionUsersProfileList
-            items(items = listaProfilePrueba) { user ->
+            items(items = uiState.selectionUsersProfileList) { user ->
                 UserSelectionProfileInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,

@@ -594,7 +594,7 @@ fun ProfileScreen(
     windowSize: WindowWidthSizeClass,
     onNavigateToSettings: (UserInfo) -> Unit,
     onNavigateToUpload: (UserInfo) -> Unit,
-    onNavigateToChat: (UserInfo,Int) -> Unit,
+    onNavigateToChat: (UserInfo,Int,String,String) -> Unit,
     onNavigateToOtherProfile: (UserInfo, Int) -> Unit,
     viewModel: ProfileViewModel = viewModel(),
 )
@@ -634,7 +634,7 @@ fun ProfileScreen(
             onNavigateToSettings((stateProcess as ProfileState.Exito).userInfo)
         }
         else if (stateProcess is ProfileState.ChatExito) {
-            onNavigateToChat(uiState.usuario,uiState.mainId)
+            onNavigateToChat(uiState.usuario,uiState.mainId,uiState.nombreUsuario,uiState.fotoUsuario)
         }
     }
 
@@ -681,7 +681,7 @@ fun ProfileScreen(
                               },
                 onClickRight = {
                     if (otherUser) {
-                        if (uiState.existeChat) onNavigateToChat(uiState.usuario,uiState.mainId)
+                        if (uiState.existeChat) onNavigateToChat(uiState.usuario,uiState.mainId,uiState.nombreUsuario,uiState.fotoUsuario)
                         else viewModel.createChat(otherUserId = uiState.mainId)
                     }
                     else {
