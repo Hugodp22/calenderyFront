@@ -1,5 +1,6 @@
 package com.example.calenderyfront.Apis;
 
+import com.example.calenderyfront.Model.DataObjects.ChatDto
 import com.example.calenderyfront.Model.DataObjects.Message;
 import com.example.calenderyfront.Model.DataObjects.PageChatMessages;
 import retrofit2.Response;
@@ -25,6 +26,8 @@ interface ChatApiService {
         @Body message: Message
     ): Response<Unit>
 
-    @GET("")
-    suspend fun buscarChatUsuario(@Query("otherUserId")otherUserId: Int): Response<Boolean>
+    @POST("api/chat/saveChat")
+    suspend fun crearChatUsuario(@Body chatDto: ChatDto): Response<Unit>
+
+
 }

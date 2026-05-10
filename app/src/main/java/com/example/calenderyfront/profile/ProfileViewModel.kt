@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.ChatDto
 import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostCommentDto
 import com.example.calenderyfront.Model.DataObjects.Profile
@@ -80,6 +81,41 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 cantidadSeguidos = userData.cantidadSeguidos,
                                 cantidadSeguidores = userData.cantidadSeguidores,
                                 seguidor = userData.seguidor,
+                                existeChat = userData.existeChat
+                            )
+                        }
+                        if (mainId != userInfo.idUsuario) {
+                            loadMyData()
+                        }
+                    }
+                    else {
+                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                    }
+                }
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun loadMyData() {
+        val currentUiState = _uiState.value
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.usuarioApi.obtenerMisVisuales()
+
+                if (respuesta.isSuccessful) {
+                    val userData = respuesta.body()
+
+                    if (userData != null) {
+                        _uiState.update {
+                            it.copy(
+                                miNombre = userData.nombreUsuario,
+                                miFoto = userData.fotoPerfil
                             )
                         }
                     }
@@ -282,8 +318,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                         val newComment = Comment(
                             idUsuario = userInfo.idUsuario,
                             idComentario = idComentario,
-                            nombreUsuario = currentState.nombreUsuario,
-                            fotoUsuario = currentState.fotoUsuario,
+                            nombreUsuario = currentState.miNombre ?: currentState.nombreUsuario,
+                            fotoUsuario = currentState.miFoto ?: currentState.fotoUsuario,
                             comentario = currentState.comment
                         )
 
@@ -406,20 +442,25 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
-    fun getChat(otherUserId: Int) {
+    fun createChat(otherUserId: Int) {
         val currentState = _uiState.value
 
-        if (_state.value is ProfileState.ChatCargando) {
+        if (_state.value is ProfileState.ChatCargando || currentState.existeChat) {
             return
         }
+
         _state.value = ProfileState.ChatCargando
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.chatApi.buscarChatUsuario(otherUserId = otherUserId)
+                val respuesta = RetrofitClient.chatApi.crearChatUsuario(ChatDto(
+                    user2 = if (userInfo.idUsuario > otherUserId) userInfo.idUsuario else otherUserId,
+                    user1 = if (userInfo.idUsuario > otherUserId) otherUserId else userInfo.idUsuario,
+                    id = null
+                ))
 
                 if (respuesta.isSuccessful) {
-                    _state.value = ProfileState.Iniciado
+                    _state.value = ProfileState.ChatExito
                 }
 
                 else {
@@ -431,4 +472,5 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             }
         }
     }
+
 }

@@ -45,7 +45,8 @@ data class UserProfile(
     val descripcion: String = "",
     val cantidadSeguidores: Int = 0,
     val cantidadSeguidos: Int = 0,
-    val seguidor: Boolean = false
+    val seguidor: Boolean = false,
+    val existeChat: Boolean = false
 )
 
 data class SelectionUserChatData(

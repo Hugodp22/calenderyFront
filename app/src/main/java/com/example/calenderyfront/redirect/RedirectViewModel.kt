@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +39,7 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
                             if (userValidation != null) {
 
                                 if (userValidation.enable) {
+                                    WebSocketClient.connect(getApplication())
                                     _state.value = RedirectState.Exito(userValidation.userInfo)
                                 }
 

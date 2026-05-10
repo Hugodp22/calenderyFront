@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.userAuth.SessionManager
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +81,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     val userInfo = respuesta.body()
 
                     if (userInfo != null) {
+                        WebSocketClient.connect(getApplication())
                         _state.value = LoginState.Exito(userInfo)
                     }
 
