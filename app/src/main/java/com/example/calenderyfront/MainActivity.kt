@@ -1,5 +1,6 @@
 package com.example.calenderyfront
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -35,14 +36,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.calenderyfront.Model.DataObjects.Selection
+import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.Login
-import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.PostDataUpload
 import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.Register
+import com.example.calenderyfront.Model.DataObjects.Selection
 import com.example.calenderyfront.Model.DataObjects.Settings
 import com.example.calenderyfront.Model.DataObjects.Upload
 import com.example.calenderyfront.Model.DataObjects.UserInfo
@@ -60,14 +61,18 @@ import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketService
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val intent = Intent(this, WebSocketService::class.java)
+        startService(intent)
+
         RetrofitClient.init(applicationContext) //Se inicia UNA SOLA VEZ
 //        SessionManager.clearSession(applicationContext) //Para probar otras pantallas de inicio
         enableEdgeToEdge()

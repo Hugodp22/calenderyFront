@@ -1,8 +1,9 @@
 package com.example.calenderyfront.waitingForLink
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
@@ -11,8 +12,9 @@ import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.errorMessages
-import com.example.calenderyfront.securityKeyCreation
+import com.example.calenderyfront.userSecurityKeyCreation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
-class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
+class WaitingForLinkViewModel(application: Application,path: SavedStateHandle): AndroidViewModel(application) {
 
     val userInfo: UserInfo = path.toRoute<VerifyLink>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
@@ -72,11 +74,12 @@ class WaitingForLinkViewModel(path: SavedStateHandle): ViewModel() {
     fun sendPublicKey() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val publicKey = securityKeyCreation(userInfo.idUsuario)
+                val publicKey = userSecurityKeyCreation(userInfo.idUsuario)
                 val publicKeyDto = PublicKeyDto(publicKey) //Lo envolvemos para que el back no tenga problemas
                 val respuesta = RetrofitClient.usuarioApi.mandarClavePublica(userInfo.idUsuario, publicKeyDto)
 
                 if (respuesta.isSuccessful) {
+                    WebSocketClient.connect(getApplication())
                     _state.value = WaitingForLinkState.Exito(userInfo)
                 }
 

@@ -113,7 +113,6 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
 
     // enviar mensaje
     fun sendMessage(text: String) {
-
         val currentUiState = _uiState.value // mensajes actuales
 
         if (currentUiState.sendMessage.isEmpty()) {
@@ -134,7 +133,7 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-
+            //Peticion de envio
         }
     }
 
@@ -146,7 +145,8 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
             message.copy(
                 mensaje = decrypt(message.mensaje)
             )
-        } else {
+        }
+        else {
             message
         }
     }
@@ -212,6 +212,10 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
         }
     }
 
+    private fun crypt(text: String) {
+
+    }
+
     fun sendMessage() {
 
         val messageText = _uiState.value.currentMessage
@@ -231,7 +235,9 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
             )
         }
 
-        // llamada al backend
+        // Aqui se encripta
+
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
 
@@ -244,19 +250,13 @@ class ChatViewModel(path: SavedStateHandle) : ViewModel() {
                 if (!response.isSuccessful) {
                     // backend err
                 }
-
-            } catch (e: Exception) {
-
-                // reintento
-                try {
-                    RetrofitClient.chatApi.sendMessage(
-                        userId = userInfo.idUsuario,
-                        otherUserId = otherUserId,
-                        message = newMessage
-                    )
-                } catch (_: Exception) {
-                    // falla con tod0
+                else {
+                    _state.value = ChatState.Error(errorMessages(response.code()))
                 }
+
+            }
+            catch (e: Exception) {
+                _state.value = ChatState.Error(R.string.Error_Network)
             }
         }
     }

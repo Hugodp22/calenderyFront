@@ -58,7 +58,6 @@ import coil.size.Precision
 import com.example.calenderyfront.CommentsPostWindow
 import com.example.calenderyfront.ExpandedPhotoPost
 import com.example.calenderyfront.ExpandedPhotoProfile
-import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostUIData
 import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.TimeData
@@ -632,7 +631,7 @@ fun ProfileScreen(
 
     LaunchedEffect(stateProcess) {
         if (stateProcess is ProfileState.Exito) {
-            onNavigateToSettings((stateProcess as ProfileState.Exito).userInfo) //Cambiar obvio a otra cosa
+            onNavigateToSettings((stateProcess as ProfileState.Exito).userInfo)
         }
         else if (stateProcess is ProfileState.ChatExito) {
             onNavigateToChat(uiState.usuario,uiState.mainId)
@@ -674,20 +673,16 @@ fun ProfileScreen(
                 onClickPhoto = { expandedPhotoProfile = true },
                 onClickLeft = {
                     if (otherUser) {
-                        if (uiState.seguidor) {
-                            viewModel.unFollowUser()
-                        }
-                        else {
-                            viewModel.followUser()
-                        }
+                        if (uiState.seguidor) viewModel.unFollowUser() else viewModel.followUser()
                     }
                     else {
                         onNavigateToUpload(uiState.usuario)
                     }
-                                  },
+                              },
                 onClickRight = {
                     if (otherUser) {
-                        viewModel.getChat(uiState.mainId)
+                        if (uiState.existeChat) onNavigateToChat(uiState.usuario,uiState.mainId)
+                        else viewModel.createChat(otherUserId = uiState.mainId)
                     }
                     else {
                         onNavigateToSettings(uiState.usuario)

@@ -35,6 +35,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,6 +67,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,8 +90,10 @@ import okio.BufferedSink
 import okio.source
 import java.security.KeyPairGenerator
 import java.security.KeyStore
-import java.security.PrivateKey
+import androidx.core.content.edit
+import java.security.KeyFactory
 import java.security.PublicKey
+import java.security.spec.X509EncodedKeySpec
 
 const val pageSize = 6
 const val rowProfilePostSize = 3
@@ -239,7 +244,8 @@ fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: 
 @Composable
 fun ZoomImage(
     photoPath: Any?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onZoomChange: (Float) -> Unit = {}
 )
 {
     var scale by remember { mutableStateOf(1f) }
@@ -261,6 +267,7 @@ fun ZoomImage(
             .pointerInput(Unit) {
                 detectTransformGestures { _, _, zoom, _ ->
                     scale = (scale * zoom).coerceIn(1f, 5f)
+                    onZoomChange(scale)
                 }
             },
         contentScale = ContentScale.Fit,
@@ -307,11 +314,22 @@ fun ExpandedPhotoPost(
     windowSize: WindowWidthSizeClass
 )
 {
+    var currentZoom by remember { mutableStateOf(1f) }
+
+    val maxZoomIcons = 2F
+
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 64.dp
         WindowWidthSizeClass.Medium -> 66.dp
         WindowWidthSizeClass.Expanded -> 68.dp
         else -> 64.dp
+    }
+
+    val width = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.5F
+        WindowWidthSizeClass.Medium -> 0.5F
+        WindowWidthSizeClass.Expanded -> 0.5F
+        else -> 0.5F
     }
 
     Dialog(
@@ -331,7 +349,8 @@ fun ExpandedPhotoPost(
         {
             ZoomImage(
                 photoPath = post.fotoPublicacion,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                onZoomChange = { currentZoom = it }
             )
 
             Column(
@@ -340,18 +359,34 @@ fun ExpandedPhotoPost(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             )
             {
-                IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
-                IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
+                if (currentZoom < maxZoomIcons) {
+                    IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
+                    IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
+                }
             }
 
             post.mensaje?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 30.dp)
-                )
+                if (currentZoom < maxZoomIcons) {
+                    Card(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth(width)
+                            .padding(bottom = 30.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimary,
+                            contentColor = MaterialTheme.colorScheme.tertiary
+                        ),
+                    )
+                    {
+                        Text(
+                            text = it,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 10.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -744,7 +779,7 @@ fun TextLink(
  * la publica para guardar en la DB y guardando la privada a nivel
  * local para su uso
  */
-fun securityKeyCreation(userId: Int): String {
+fun userSecurityKeyCreation(userId: Int): String {
     val privateAlias = "com.calendery.app.auth_key_$userId"
     val kpg = KeyPairGenerator.getInstance(
         KeyProperties.KEY_ALGORITHM_RSA,
@@ -755,7 +790,9 @@ fun securityKeyCreation(userId: Int): String {
     //establecemos que se usara para encriptar
     val parameterSpec = KeyGenParameterSpec.Builder(
         privateAlias,
-        KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_DECRYPT
+        KeyProperties.PURPOSE_SIGN or
+                KeyProperties.PURPOSE_DECRYPT or
+                KeyProperties.PURPOSE_ENCRYPT
     ).run {
         setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
         setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1)
@@ -773,21 +810,48 @@ fun securityKeyCreation(userId: Int): String {
 }
 
 /**
- * Funcion para sacar de local, las claves publica y privada
+ * Funcion para obtener clave publica a nivel interno en androidKeyStore
  */
-fun getLocalSecurityKeys(userId: Int): Pair<PublicKey?, PrivateKey?> {
-    val privateAlias = "com.calendery.app.auth_key_$userId"
+fun getPublicKeyFromAndroidStore(userId: Int): PublicKey? {
+    val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+    val alias = "com.calendery.app.auth_key_$userId"
+    val entry = keyStore.getEntry(alias, null) as? KeyStore.PrivateKeyEntry
+    return entry?.certificate?.publicKey
+}
 
-    val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
-        load(null)
-    }
+/**
+ * Funcion para obtener clave puvlica a nivel interno en sharedPreferences
+ */
+fun getOtherUsersPublicKeyFromLocal(context: Context, userId: Int): String? {
+    val prefs = context.getSharedPreferences("user_public_keys", Context.MODE_PRIVATE)
+    return prefs.getString("key_$userId", null)
+}
 
-    val publicKey = keyStore.getCertificate(privateAlias)?.publicKey
+/**
+ * Funcion para saber si existe clave publica a nivel interno en sharedPreferences
+ */
+fun existPublicKeyInLocal(context: Context, userId: Int): Boolean {
+    val prefs = context.getSharedPreferences("user_public_keys", Context.MODE_PRIVATE)
+    return prefs.contains("key_$userId")
+}
 
-    val entry = keyStore.getEntry(privateAlias, null) as? KeyStore.PrivateKeyEntry
-    val privateKey = entry?.privateKey
+/**
+ * Funcion para guardar a nivel interno clave publica
+ */
+fun savePublicKeyInLocal(context: Context, userId: Int, publicKey: String) {
+    val prefs = context.getSharedPreferences("user_public_keys", Context.MODE_PRIVATE)
+    prefs.edit { putString("key_$userId", publicKey) }
+}
 
-    return Pair(publicKey, privateKey)
+/**
+ * Funcion para transformar de String a public key con formato RSA
+ * un string pasado, ya que nuestras claves publicas se guardan como String
+ */
+fun stringToPublicKey(encodedKey: String): PublicKey {
+    val keyBytes = Base64.decode(encodedKey, Base64.NO_WRAP)
+    val spec = X509EncodedKeySpec(keyBytes)
+    val keyFactory = KeyFactory.getInstance("RSA")
+    return keyFactory.generatePublic(spec)
 }
 
 /**

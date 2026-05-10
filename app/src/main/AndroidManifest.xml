@@ -33,6 +33,11 @@
 
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".clients.WebSocketService"
+            android:stopWithTask="false" />
+
     </application>
 
 </manifest>
