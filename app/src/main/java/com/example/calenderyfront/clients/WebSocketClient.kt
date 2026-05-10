@@ -10,10 +10,15 @@ import okhttp3.Credentials
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 object WebSocketClient {
     private var stompClient: StompClient? = null
     private val compositeDisposable = CompositeDisposable()
+
+    private val _messageFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val messageFlow = _messageFlow.asSharedFlow()
 
     fun connect(context: Context) {
         if (stompClient != null) {
@@ -101,5 +106,6 @@ object WebSocketClient {
 //    fun updateListMessages(message: String) : List<Message> {
 //
 //    }
+
 
 }

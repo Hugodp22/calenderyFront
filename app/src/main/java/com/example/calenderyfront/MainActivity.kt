@@ -70,10 +70,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //Cargamos el servicio de webSocket
         val intent = Intent(this, WebSocketService::class.java)
         startService(intent)
 
-        RetrofitClient.init(applicationContext) //Se inicia UNA SOLA VEZ
+        RetrofitClient.init(applicationContext) //Iniciamos el retroFit para las peticiones
 //        SessionManager.clearSession(applicationContext) //Para probar otras pantallas de inicio
         enableEdgeToEdge()
         setContent {

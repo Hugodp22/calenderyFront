@@ -460,6 +460,9 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 ))
 
                 if (respuesta.isSuccessful) {
+                    _uiState.update { it.copy(
+                        existeChat = true
+                    )}
                     _state.value = ProfileState.ChatExito
                 }
 
