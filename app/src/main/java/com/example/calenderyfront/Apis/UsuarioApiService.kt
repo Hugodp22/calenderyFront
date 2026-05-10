@@ -86,9 +86,9 @@ interface UsuarioApiService {
     @GET("api/users/auth/resendRegistrationToken")
     suspend fun reenviarCorreo(@Query("idUsuario") idUsuario: Int): Response<Unit>
 
-    @GET("")
+    @GET("api/users/app/getSearchUsers")
     suspend fun obtenerPerfilUsuariosBuscados(
-        @Query("searchName") searchName: String,
+        @Query("nombre") nombre: String,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
     ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>

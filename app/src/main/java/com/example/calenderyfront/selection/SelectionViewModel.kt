@@ -39,13 +39,7 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     private val currentPageSize = pageSize
 
     init {
-//        if (chatOption) {
-//
-//        }
-//        else {
-//
-//        }
-
+        loadNextPage()
     }
 
     fun onSearchChange(searchName: String) {
@@ -70,7 +64,7 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.usuarioApi.obtenerPerfilUsuariosBuscados(
-                    searchName = currentState.searchName,
+                    nombre = currentState.searchName,
                     page = currentPageSelection
                 )
 
@@ -138,10 +132,8 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     }
 
     fun loadNextPage() {
-        val uiState = _uiState.value
-
         if (chatOption) {
-            searchUserChatByName()
+//            searchUserChatByName()
         }
         else {
             searchUserProfileByName()

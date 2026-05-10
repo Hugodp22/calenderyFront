@@ -361,11 +361,11 @@ fun SelectionScreen(
         }
     }
 
-//    LaunchedEffect(scrollEnElFinal) {
-//        if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
-//            viewModel.loadNextPage()
-//        }
-//    }
+    LaunchedEffect(scrollEnElFinal) {
+        if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
+            viewModel.loadNextPage()
+        }
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(1),
@@ -398,7 +398,7 @@ fun SelectionScreen(
         }
         else {
             //uiState.selectionUsersProfileList
-            items(items = listaProfilePrueba) { user ->
+            items(items = uiState.selectionUsersProfileList) { user ->
                 UserSelectionProfileInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,
