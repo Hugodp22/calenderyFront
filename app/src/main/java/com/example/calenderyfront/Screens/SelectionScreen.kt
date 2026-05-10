@@ -342,7 +342,7 @@ fun SelectionScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     onNavigateToOtherProfile: (UserInfo,Int) -> Unit,
-    onNavigateToChat: (UserInfo,Int) -> Unit,
+    onNavigateToChat: (UserInfo,Int,String,String) -> Unit,
     viewModel: SelectionViewModel = viewModel()
 )
 {
@@ -391,7 +391,7 @@ fun SelectionScreen(
                     userSelectionUserData = user,
                     windowSize = windowSize,
                     onClickContainer = {
-                            onNavigateToChat(uiState.userInfo, user.idUsuario)
+                            onNavigateToChat(uiState.userInfo, user.idUsuario, user.nombre, user.fotoPerfil)
                         },
                 )
             }

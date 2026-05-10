@@ -63,6 +63,7 @@ import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.clients.WebSocketService
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -123,7 +124,6 @@ fun CalenderyApp(
             startDestination = Redirect,
         )
         {
-
             composable<Redirect> {
                 RedirectScreen(
                     modifier = Modifier,
@@ -134,7 +134,7 @@ fun CalenderyApp(
                         navController.navigate(VerifyLink(userInfo))
                     },
                     onNavigateToProfile = { userInfo ->
-                        navController.navigate(Profile(userInfo))
+                        navController.navigate(Home(userInfo))
                     }
                 )
             }
@@ -195,8 +195,8 @@ fun CalenderyApp(
                     onNavigateToOtherProfile = {userInfo,otherUserId ->
                         navController.navigate(Profile(userInfo,otherUserId))
                     },
-                    onNavigateToChat = {userInfo,otherUserId ->
-                        navController.navigate(Chat(userInfo,otherUserId))
+                    onNavigateToChat = {userInfo,otherUserId, otherUserName, otherUserPhoto ->
+                        navController.navigate(Chat(userInfo,otherUserId, otherUserName, otherUserPhoto))
                     }
                 )
             }
@@ -227,8 +227,8 @@ fun CalenderyApp(
                     onNavigateToUpload = { userInfo ->
                         navController.navigate(Upload(userInfo))
                     },
-                    onNavigateToChat = { userInfo, otherUserId ->
-                        navController.navigate(Chat(userInfo,otherUserId))
+                    onNavigateToChat = { userInfo, otherUserId, otherUserName, otherUserPhoto ->
+                        navController.navigate(Chat(userInfo,otherUserId,otherUserName,otherUserPhoto))
                     },
                     onNavigateToOtherProfile = { userInfo, otherUserId ->
                         navController.navigate(Profile(userInfo, otherUserId))

@@ -89,6 +89,8 @@
     <string name="search_input_placeholder">Busca a alguien!!!</string>
     <string name="new_message_selection">Nuevo mensaje</string>
     <string name="send_chat">Enviar</string>
+    <string name="Error_PublicKey_Android">Error al obtener tu clave publica</string>
+    <string name="Error_PublicKey_Local">Error al obtener la otra clave publica</string>
 
 
 </resources>

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -73,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.edit
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -88,10 +90,10 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
+import java.security.KeyFactory
+import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.KeyStore
-import androidx.core.content.edit
-import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 
@@ -810,13 +812,31 @@ fun userSecurityKeyCreation(userId: Int): String {
 }
 
 /**
- * Funcion para obtener clave publica a nivel interno en androidKeyStore
+ * Funcion para obtener la clave publica y privada a nivel interno en androidKeyStore
  */
-fun getPublicKeyFromAndroidStore(userId: Int): PublicKey? {
-    val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-    val alias = "com.calendery.app.auth_key_$userId"
-    val entry = keyStore.getEntry(alias, null) as? KeyStore.PrivateKeyEntry
-    return entry?.certificate?.publicKey
+fun getUserKeyPairFromAndroidStore(userId: Int): KeyPair? {
+    try {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        val alias = "com.calendery.app.auth_key_$userId"
+
+        if (!keyStore.containsAlias(alias)) {
+            Log.e("KeyStore", "El alias $alias no existe")
+            return null
+        }
+
+        val entry = keyStore.getEntry(alias, null) as? KeyStore.PrivateKeyEntry
+
+        return if (entry != null) {
+            KeyPair(entry.certificate.publicKey, entry.privateKey)
+        }
+        else {
+            Log.e("KeyStore", "Error recuperando claves")
+            null
+        }
+    }
+    catch (e: Exception) {
+        return null
+    }
 }
 
 /**

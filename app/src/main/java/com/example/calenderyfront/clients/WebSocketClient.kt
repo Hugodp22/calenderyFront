@@ -2,7 +2,9 @@ package com.example.calenderyfront.clients
 
 import android.content.Context
 import android.util.Log
+import com.example.calenderyfront.Model.DataObjects.MessageToSend
 import com.example.calenderyfront.userAuth.SessionManager
+import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -90,10 +92,11 @@ object WebSocketClient {
         compositeDisposable.add(disposable)
     }
 
-    fun sendPrivateMessage(destinatarioId: Long, texto: String) {
-        val body = """{"destinatarioId": $destinatarioId, "texto": "$texto"}"""
+    fun sendPrivateMessage(messageToSend: MessageToSend) {
+        val gson = Gson()
+        val jsonBody = gson.toJson(messageToSend)
 
-        val disposable = stompClient!!.send("/app/chat/privado", body)
+        val disposable = stompClient!!.send("/app/chat.sendPrivate", jsonBody)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
