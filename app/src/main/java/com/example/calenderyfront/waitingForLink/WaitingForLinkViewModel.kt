@@ -80,6 +80,7 @@ class WaitingForLinkViewModel(application: Application,path: SavedStateHandle): 
 
                 if (respuesta.isSuccessful) {
                     WebSocketClient.connect(getApplication())
+                    WebSocketClient.userValidation()
                     _state.value = WaitingForLinkState.Exito(userInfo)
                 }
 

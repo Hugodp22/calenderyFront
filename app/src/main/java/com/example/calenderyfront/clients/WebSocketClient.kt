@@ -8,24 +8,36 @@ import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import okhttp3.Credentials
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 
 object WebSocketClient {
     private var stompClient: StompClient? = null
     private val compositeDisposable = CompositeDisposable()
+    private var userWantsConnect = false
+
+    var userValid = false
+
+    var appInFirstFlat = false
 
     private val _messageFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val messageFlow = _messageFlow.asSharedFlow()
 
+    fun userValidation() {
+        userValid = true
+    }
+
     fun connect(context: Context) {
-        if (stompClient != null) {
+
+        if (stompClient?.isConnected == true) {
             return
         }
+
+        userWantsConnect = true
 
         val email = SessionManager.getEmail(context)
         val keypass = SessionManager.getKeypass(context)
@@ -48,7 +60,8 @@ object WebSocketClient {
             .subscribe { event ->
                 when (event.type) {
                     LifecycleEvent.Type.OPENED ->  {
-                        Log.d("STOMP-CALENDERY", "Conectado ✓")
+                        Log.d("STOMP-CALENDERY", "Conectado")
+                        userWantsConnect = true
 
                         //Me devolvera idChat, idUsuario y mensaje
 
@@ -65,8 +78,12 @@ object WebSocketClient {
                         }
 
                     }
-                    LifecycleEvent.Type.CLOSED -> Log.d("STOMP-CALENDERY", "Desconectado")
-                    LifecycleEvent.Type.ERROR -> Log.e("STOMP-CALENDERY", "Error: ${event.exception}")
+                    LifecycleEvent.Type.ERROR, LifecycleEvent.Type.CLOSED -> {
+                        Log.d("STOMP-CALENDERY", "Desconectado")
+                        if (userWantsConnect && appInFirstFlat) {
+                            tryToReconect(context)
+                        }
+                    }
                     else -> {}
                 }
             }
@@ -75,11 +92,33 @@ object WebSocketClient {
         stompClient?.connect()
     }
 
+     fun tryToReconect(context: Context) {
+         if (stompClient?.isConnected == true) {
+             Log.d("STOMP-CALENDERY", "Ya conectado, no hace falta reconectar")
+             return
+         }
+
+         if (!userWantsConnect) {
+             Log.d("STOMP-CALENDERY", "El usuario no quiere estar conectado, ignorando...")
+             return
+         }
+
+         Log.d("STOMP-CALENDERY", "Usuario volvio, reconectando...")
+         cleanClient()
+         connect(context)
+    }
+
+    private fun cleanClient() {
+        compositeDisposable.clear()
+        stompClient?.disconnect()
+        stompClient = null
+        Log.d("STOMP-CALENDERY", "Cliente limpiado")
+    }
+
     fun disconnect() {
         Log.d("STOMP-CALENDERY", "Cerrando conexion...")
-        stompClient?.disconnect()
-        compositeDisposable.clear()
-        stompClient = null
+        userWantsConnect = false
+        cleanClient()
     }
 
     fun suscribeToPrivateMessage(onMensaje: (String) -> Unit) {

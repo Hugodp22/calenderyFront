@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -61,7 +62,8 @@ import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
 import com.example.calenderyfront.clients.RetrofitClient
-import com.example.calenderyfront.clients.WebSocketService
+import com.example.calenderyfront.observer.AppLifecycleObserver
+import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
@@ -74,6 +76,9 @@ class MainActivity : ComponentActivity() {
         //Cargamos el servicio de webSocket
         val intent = Intent(this, WebSocketService::class.java)
         startService(intent)
+
+        //Añadimos un observador a la app
+        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver(this))
 
         RetrofitClient.init(applicationContext) //Iniciamos el retroFit para las peticiones
 //        SessionManager.clearSession(applicationContext) //Para probar otras pantallas de inicio
