@@ -40,6 +40,7 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
 
                                 if (userValidation.enable) {
                                     WebSocketClient.connect(getApplication())
+                                    WebSocketClient.userValidation()
                                     _state.value = RedirectState.Exito(userValidation.userInfo)
                                 }
 

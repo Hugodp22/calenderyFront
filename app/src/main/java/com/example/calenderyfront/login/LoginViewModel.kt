@@ -82,6 +82,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (userInfo != null) {
                         WebSocketClient.connect(getApplication())
+                        WebSocketClient.userValidation()
                         _state.value = LoginState.Exito(userInfo)
                     }
 
