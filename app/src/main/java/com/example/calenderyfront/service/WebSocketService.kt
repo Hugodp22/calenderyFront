@@ -23,11 +23,4 @@ class WebSocketService : Service() {
         super.onDestroy()
     }
 
-    override fun onRebind(intent: Intent?) {
-        super.onRebind(intent)
-    }
-
-    override fun onUnbind(intent: Intent?): Boolean {
-        return super.onUnbind(intent)
-    }
 }

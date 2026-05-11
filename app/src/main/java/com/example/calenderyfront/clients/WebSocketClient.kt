@@ -18,11 +18,11 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent
 object WebSocketClient {
     private var stompClient: StompClient? = null
     private val compositeDisposable = CompositeDisposable()
-    private var userWantsConnect = false
+    private var userWantsConnect = false //Variable para saber si se quiere reconectar o no
 
-    var userValid = false
+    var userValid = false //Variable para saber si el usuario ya esta validado
 
-    var appInFirstFlat = false
+    var appInForeground = false //Variable para saber si estamos en primer plano
 
     private val _messageFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
     val messageFlow = _messageFlow.asSharedFlow()
@@ -63,6 +63,10 @@ object WebSocketClient {
                         Log.d("STOMP-CALENDERY", "Conectado")
                         userWantsConnect = true
 
+                        suscribeToPrivateMessage { message ->
+                            Log.d("STOMP-CALENDERY", "Mensaje: $message")
+                        }
+
                         //Me devolvera idChat, idUsuario y mensaje
 
                         // 1 si estas en el chat, se pone abajo con el id del usuario para saber cual es
@@ -73,21 +77,17 @@ object WebSocketClient {
                         // 3 Si estas en cualquier otra pantalla con bottom bar, cambiar la botom bar a naranja
                         // y que cuando le des click, hacer que no sea naranja.
 
-                        suscribeToPrivateMessage { message ->
-                            Log.d("STOMP-CALENDERY", "Mensaje: $message")
-                        }
-
                     }
+
                     LifecycleEvent.Type.ERROR, LifecycleEvent.Type.CLOSED -> {
                         Log.d("STOMP-CALENDERY", "Desconectado")
-                        if (userWantsConnect && appInFirstFlat) {
+                        if (userWantsConnect && appInForeground) {
                             tryToReconect(context)
                         }
                     }
                     else -> {}
                 }
             }
-
         compositeDisposable.add(disposable)
         stompClient?.connect()
     }

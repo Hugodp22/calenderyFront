@@ -9,13 +9,16 @@ class AppLifecycleObserver(private val context: Context) : DefaultLifecycleObser
 
     override fun onStart(owner: LifecycleOwner) {
         // La app vuelve al primer plano
-        WebSocketClient.appInFirstFlat = true
+        WebSocketClient.appInForeground = true
+
+        //Si ya esta validado
         if (WebSocketClient.userValid) {
             WebSocketClient.connect(context)
         }
     }
 
     override fun onStop(owner: LifecycleOwner) {
-        WebSocketClient.appInFirstFlat = false
+        //La app esta en segundo plano
+        WebSocketClient.appInForeground = false
     }
 }
