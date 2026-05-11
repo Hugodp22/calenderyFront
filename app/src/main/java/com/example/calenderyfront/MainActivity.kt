@@ -324,14 +324,14 @@ fun CalenderyBottomBar(
             modifier = Modifier.navigationBarsPadding().height(navigationBarHeight)
         )
         {
+
             NavigationBarItemCalendery(
-                selected = currentDestination == Selection,
-                onClick = {navController.navigate(Selection(
-                    userInfo = currentUserInfo,
-                    chatOption = true)
+                selected = currentDestination == Home,
+                onClick = {navController.navigate(Home(
+                    userInfo = currentUserInfo)
                 )},
-                icon = R.drawable.chat,
-                contentDescription = R.string.Chat_bottom_bar,
+                icon = R.drawable.home,
+                contentDescription = R.string.Home_bottom_bar,
                 iconSize = iconSize
             )
 
@@ -347,14 +347,16 @@ fun CalenderyBottomBar(
             )
 
             NavigationBarItemCalendery(
-                selected = currentDestination == Home,
-                onClick = {navController.navigate(Home(
-                    userInfo = currentUserInfo)
+                selected = currentDestination == Selection,
+                onClick = {navController.navigate(Selection(
+                    userInfo = currentUserInfo,
+                    chatOption = true)
                 )},
-                icon = R.drawable.home,
-                contentDescription = R.string.Home_bottom_bar,
+                icon = R.drawable.chat,
+                contentDescription = R.string.Chat_bottom_bar,
                 iconSize = iconSize
             )
+
 
             NavigationBarItemCalendery(
                 selected = currentDestination == Profile,
