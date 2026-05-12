@@ -159,7 +159,7 @@ fun UserSelectionProfileInfo(
 @Composable
 fun UserSelectionChatInfo(
     userSelectionUserData: SelectionUserChatData,
-    onClickContainer: () -> Unit,
+    onClickContact: () -> Unit,
     windowSize: WindowWidthSizeClass
 )
 {
@@ -196,7 +196,7 @@ fun UserSelectionChatInfo(
     Row(
         modifier = Modifier
             .fillMaxWidth(width)
-            .clickable { onClickContainer() }
+            .clickable { onClickContact() }
             .background(color),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
@@ -205,7 +205,7 @@ fun UserSelectionChatInfo(
         PhotoUserContainer(
             modifier = Modifier.size(photoUserSize),
             photoPath = userSelectionUserData.fotoPerfil,
-            onClick = {},
+            onClick = onClickContact,
             contentDescription = R.string.profile_search
         )
 
@@ -322,7 +322,7 @@ fun SelectionScreen(
                 UserSelectionChatInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,
-                    onClickContainer = {
+                    onClickContact = {
                             onNavigateToChat(uiState.userInfo, user.idUsuario,user.idChat, user.nombre, user.fotoPerfil)
                         },
                 )

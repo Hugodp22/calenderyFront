@@ -135,11 +135,13 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
                         currentPageMessages++ // siguiente página
                     }
 
-                } else {
+                }
+                else {
                     _state.value = ChatState.Error(errorMessages(respuesta.code()))
                 }
 
-            } catch (e: Exception) {
+            }
+            catch (e: Exception) {
                 _state.value = ChatState.Error(R.string.Error_Network) // err de red
             }
         }
