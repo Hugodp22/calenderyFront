@@ -1,16 +1,20 @@
 package com.example.calenderyfront.chat
 
 import android.app.Application
+import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.Message
+import com.example.calenderyfront.Model.DataObjects.MessageToSend
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.existPublicKeyInLocal
 import com.example.calenderyfront.getOtherUsersPublicKeyFromLocal
@@ -26,12 +30,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.security.PrivateKey
 import java.security.PublicKey
-import kotlin.reflect.typeOf
 import javax.crypto.Cipher
-import android.util.Base64
-import android.util.Log
-import com.example.calenderyfront.Model.DataObjects.MessageToSend
-import com.example.calenderyfront.clients.WebSocketClient
+import kotlin.reflect.typeOf
 
 class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidViewModel(application) {
 
@@ -41,6 +41,7 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     )
     private val userInfo = route.userInfo // Usuario logeado
     private val otherUserId = route.otherUserId // Usuario con el que chateas
+    private val idChat = route.idChat
     private val otherUserName = route.otherUserName
     private val otherUserPhoto = route.otherUserPhoto
 
@@ -51,7 +52,6 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     private var myPrivateKey : PrivateKey? = null
     private var otherUserPublicKey : PublicKey? = null
 
-
     // state control de flujo
     private val _state = MutableStateFlow<ChatState>(ChatState.Started) // Estado inicial
     val state: StateFlow<ChatState> = _state.asStateFlow()
@@ -60,7 +60,7 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
         ChatUiState(
             userInfo = userInfo,
             otherUserId = otherUserId,
-            idChat = 22,
+            idChat = idChat,
             sendMessage = "",
             otherUserName = otherUserName,
             otherUserPhoto = otherUserPhoto
@@ -86,8 +86,9 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
             myPublicKey = myKeys.public
             myPrivateKey = myKeys.private
             loadOtherUserPublicKeyFromLocal()
-        } else {
-            _state.value = ChatState.Error(R.string.Error_PublicKey_Android)
+        }
+        else {
+            _state.value = ChatState.Error(R.string.Error_Keys_Android)
         }
     }
 

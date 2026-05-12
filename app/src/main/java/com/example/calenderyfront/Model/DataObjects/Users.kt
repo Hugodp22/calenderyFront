@@ -51,10 +51,11 @@ data class UserProfile(
 
 data class SelectionUserChatData(
     val idUsuario: Int,
+    val idChat: Int,
     val nombre: String,
     val fotoPerfil: String,
-    val ultimoMensaje: String? = "",
-    val mensajeNuevo: Boolean = false
+    val ultimoMensaje: String = "",
+    val mensajeNuevo: Boolean? = false
 )
 
 data class SelectionUserProfileData(

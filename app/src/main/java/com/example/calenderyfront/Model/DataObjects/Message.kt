@@ -5,6 +5,10 @@ data class Message(
     val mensaje: String,
 )
 
+data class ChatId(
+    val idChat: Int
+)
+
 data class ChatDto(
     val user1: Int,
     val user2: Int,

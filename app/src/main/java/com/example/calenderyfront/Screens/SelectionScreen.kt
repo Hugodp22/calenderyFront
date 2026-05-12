@@ -50,73 +50,6 @@ import com.example.calenderyfront.R
 import com.example.calenderyfront.selection.SelectionState
 import com.example.calenderyfront.selection.SelectionViewModel
 
-val listaChatPrueba = listOf(
-    SelectionUserChatData(
-        idUsuario = 1,
-        nombre = "Marcos Galperin",
-        fotoPerfil = "https://picsum.photos/id/10/200",
-        ultimoMensaje = "El paquete llega hoy",
-        mensajeNuevo = true
-    ),
-    SelectionUserChatData(
-        idUsuario = 296,
-        nombre = "Martin kotlin Andrade",
-        fotoPerfil = "https://picsum.photos/id/20/200",
-        ultimoMensaje = "¿Viste el nuevo diseño? eres dios Hugo de Pablooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
-        mensajeNuevo = true
-    ),
-    SelectionUserChatData(
-        idUsuario = 300,
-        nombre = "Jordi Wild",
-        fotoPerfil = "https://picsum.photos/id/30/200",
-        ultimoMensaje = null,
-        mensajeNuevo = false
-    ),
-    SelectionUserChatData(
-        idUsuario = 302,
-        nombre = "Sara Buho",
-        fotoPerfil = "https://picsum.photos/id/40/200",
-        ultimoMensaje = "¡Feliz lunes!",
-        mensajeNuevo = false
-    ),
-    SelectionUserChatData(
-        idUsuario = 5,
-        nombre = "Brais Moure",
-        fotoPerfil = "https://picsum.photos/id/50/200",
-        ultimoMensaje = "Mañana hay directo",
-        mensajeNuevo = false
-    )
-)
-
-val listaProfilePrueba = listOf(
-    SelectionUserProfileData(
-        idUsuario = 1,
-        nombre = "Marcos Galperin",
-        fotoPerfil = "https://picsum.photos/id/10/200",
-    ),
-    SelectionUserProfileData(
-        idUsuario = 296,
-        nombre = "Martin kotlin Andrade",
-        fotoPerfil = "https://picsum.photos/id/20/200",
-    ),
-    SelectionUserProfileData(
-        idUsuario = 300,
-        nombre = "Jordi Wild",
-        fotoPerfil = "https://picsum.photos/id/30/200",
-    ),
-    SelectionUserProfileData(
-        idUsuario = 302,
-        nombre = "Sara Buho",
-        fotoPerfil = "https://picsum.photos/id/40/200",
-    ),
-    SelectionUserProfileData(
-        idUsuario = 5,
-        nombre = "Brais Moure",
-        fotoPerfil = "https://picsum.photos/id/50/200",
-    )
-)
-
-
 @Composable
 fun SearchInput(
     value: String,
@@ -173,7 +106,7 @@ fun SearchInput(
 @Composable
 fun UserSelectionProfileInfo(
     userSelectionUserData: SelectionUserProfileData,
-    onClickContainer: () -> Unit,
+    onClickProfile: () -> Unit,
     windowSize: WindowWidthSizeClass
 )
 {
@@ -195,7 +128,7 @@ fun UserSelectionProfileInfo(
     Row(
         modifier = Modifier
             .fillMaxWidth(width)
-            .clickable { onClickContainer() },
+            .clickable { onClickProfile() },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     )
@@ -203,7 +136,7 @@ fun UserSelectionProfileInfo(
         PhotoUserContainer(
             modifier = Modifier.size(photoUserSize),
             photoPath = userSelectionUserData.fotoPerfil,
-            onClick = {},
+            onClick = onClickProfile,
             contentDescription = R.string.profile_search
         )
 
@@ -297,7 +230,7 @@ fun UserSelectionChatInfo(
                  ChatExtraData(
                      modifier = Modifier.weight(1f, fill = false),
                      lastMessage = userSelectionUserData.ultimoMensaje,
-                     newMessage = userSelectionUserData.mensajeNuevo,
+                     newMessage = userSelectionUserData.mensajeNuevo ?: false,
                      fontSize = fontSizeLastMessage,
                      iconSize = iconSize
                  )
@@ -342,7 +275,7 @@ fun SelectionScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     onNavigateToOtherProfile: (UserInfo,Int) -> Unit,
-    onNavigateToChat: (UserInfo,Int,String,String) -> Unit,
+    onNavigateToChat: (UserInfo,Int,Int,String,String) -> Unit,
     viewModel: SelectionViewModel = viewModel()
 )
 {
@@ -379,19 +312,18 @@ fun SelectionScreen(
             SearchInput(
                 value = uiState.searchName,
                 onValueChange = { viewModel.onSearchChange(it) },
-                onSearch = { if (chatOption) viewModel.searchUserChatByName() else viewModel.searchUserProfileByName() },
+                onSearch = { if (chatOption) viewModel.searchContactByName() else viewModel.searchProfileByName() },
                 windowSize = windowSize
             )
         }
 
         if (chatOption) {
-            //uiState.selectionUsersChatList
-            items(items = listaChatPrueba) { user ->
+            items(items = uiState.selectionUsersChatList) { user ->
                 UserSelectionChatInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,
                     onClickContainer = {
-                            onNavigateToChat(uiState.userInfo, user.idUsuario, user.nombre, user.fotoPerfil)
+                            onNavigateToChat(uiState.userInfo, user.idUsuario,user.idChat, user.nombre, user.fotoPerfil)
                         },
                 )
             }
@@ -402,7 +334,7 @@ fun SelectionScreen(
                 UserSelectionProfileInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,
-                    onClickContainer = {
+                    onClickProfile = {
                         onNavigateToOtherProfile(uiState.userInfo, user.idUsuario)
                     }
                 )

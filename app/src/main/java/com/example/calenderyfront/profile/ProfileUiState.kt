@@ -8,6 +8,7 @@ data class ProfileUiState(
     val usuario: UserInfo,
     val otherUserId: Int?,
     val mainId: Int,
+    val chatId: Int? = null,
     val nombreUsuario: String,
     val fotoUsuario: String,
     val descripcion: String?,

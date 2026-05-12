@@ -91,9 +91,9 @@ interface UsuarioApiService {
         @Query("size") size : Int = pageSize,
     ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>
 
-    @GET("")
-    suspend fun obtenerChatUsuariosBuscados(
-        @Query("searchName") searchName: String,
+    @GET("api/users/app/getUserContacts")
+    suspend fun obtenerContactosBuscados(
+        @Query("nombre") nombre: String,
         @Query("page") page: Int,
         @Query("size") size : Int = pageSize,
     ): Response<PageSelectionChatUsers<SelectionUserChatData>>

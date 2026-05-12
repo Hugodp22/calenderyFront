@@ -318,7 +318,7 @@ fun ExpandedPhotoPost(
 {
     var currentZoom by remember { mutableStateOf(1f) }
 
-    val maxZoomIcons = 2F
+    val maxZoomIcons = 1.1F
 
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 64.dp
@@ -328,10 +328,10 @@ fun ExpandedPhotoPost(
     }
 
     val width = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 0.5F
-        WindowWidthSizeClass.Medium -> 0.5F
-        WindowWidthSizeClass.Expanded -> 0.5F
-        else -> 0.5F
+        WindowWidthSizeClass.Compact -> 0.7F
+        WindowWidthSizeClass.Medium -> 0.7F
+        WindowWidthSizeClass.Expanded -> 0.7F
+        else -> 0.7F
     }
 
     Dialog(
@@ -385,7 +385,7 @@ fun ExpandedPhotoPost(
                             text = it,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 10.dp)
+                            modifier = Modifier.fillMaxWidth().padding(10.dp)
                         )
                     }
                 }

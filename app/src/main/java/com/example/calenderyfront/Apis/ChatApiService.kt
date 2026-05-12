@@ -1,9 +1,13 @@
 package com.example.calenderyfront.Apis;
 
 import com.example.calenderyfront.Model.DataObjects.ChatDto
+import com.example.calenderyfront.Model.DataObjects.ChatId
 import com.example.calenderyfront.Model.DataObjects.Message;
 import com.example.calenderyfront.Model.DataObjects.PageChatMessages;
+import com.example.calenderyfront.Model.DataObjects.PageSelectionChatUsers
+import com.example.calenderyfront.Model.DataObjects.SelectionUserChatData
 import com.example.calenderyfront.Model.DataObjects.UserVisualInfo
+import com.example.calenderyfront.pageSize
 import retrofit2.Response;
 import retrofit2.http.Body
 import retrofit2.http.GET;
@@ -28,7 +32,9 @@ interface ChatApiService {
     ): Response<Unit>
 
     @POST("api/chat/saveChat")
-    suspend fun crearChatUsuario(@Body chatDto: ChatDto): Response<Unit>
+    suspend fun crearChatUsuario(@Body chatDto: ChatDto): Response<ChatId>
 
+    @GET("api/chat/getUserChat")
+    suspend fun obtenerIdChat(@Query("idUsuario") idUsuario: Int): Response<ChatId>
 
 }
