@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -31,71 +30,41 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.calenderyfront.Model.DataObjects.Message
+import com.example.calenderyfront.Model.DataObjects.MessageResponseDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.R
-import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
 import com.example.calenderyfront.chat.Components.ChatTopBar
 @Composable
-fun MyMessageItem(
-    text: String,
+fun MessageItem(
+    message: MessageResponseDto,
+    isMine: Boolean,
     windowSize: WindowWidthSizeClass
 )
 {
-
     val widthFraction = when (windowSize) {
         WindowWidthSizeClass.Compact -> 280.dp   // móvil
         WindowWidthSizeClass.Medium -> 400.dp    // tablet
         else -> 280.dp
     }
 
+    val color = when (isMine) {
+        true -> CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inversePrimary)
+        else -> CardDefaults.cardColors()
+    }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End
-    ) {
+        horizontalArrangement = if (isMine) Arrangement.End else Arrangement.Start
+    )
+    {
         Card(
             modifier = Modifier.widthIn(max = widthFraction).padding(8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.inversePrimary
-            )
-        ) {
+            colors = color
+        )
+        {
             Text(
-                text = text,
-                modifier = Modifier.padding(8.dp),
-                softWrap = true,
-                overflow = TextOverflow.Clip,
-                maxLines = Int.MAX_VALUE
-            )
-        }
-    }
-}
-
-@Composable
-fun OtherMessageItem(
-    text: String,
-    windowSize: WindowWidthSizeClass
-)
-{
-
-    val widthFraction = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 280.dp   // móvil
-        WindowWidthSizeClass.Medium -> 400.dp    // tablet
-        else -> 280.dp
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Card(
-            modifier = Modifier
-                .widthIn(max = widthFraction)
-                .padding(8.dp),
-
-        ) {
-            Text(
-                text = text,
+                text = message.contenido,
                 modifier = Modifier.padding(8.dp),
                 softWrap = true,
                 overflow = TextOverflow.Clip,
@@ -107,12 +76,11 @@ fun OtherMessageItem(
 
 @Composable
 fun ChatSendButton(
-    text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true
-) {
-
+)
+{
     IconButton(
         onClick = onClick,
         modifier = modifier,
@@ -121,7 +89,7 @@ fun ChatSendButton(
     {
         Image(
             painter = painterResource(R.drawable.enviar),
-            contentDescription = stringResource(R.string.send_chat) ,
+            contentDescription = stringResource(R.string.send_chat),
             modifier = Modifier.size(28.dp)
         )
     }
@@ -138,14 +106,6 @@ fun ChatScreen(
     val state by viewModel.state.collectAsState()     // Estado
 
     val listState = rememberLazyListState() // estado del scroll
-
-    val chatLog = listOf(
-        Message(idUsuario = uiState.userInfo.idUsuario, mensaje = "¡Hola! ¿Cómo vas con el proyecto?"),
-        Message(idUsuario = uiState.otherUserId, mensaje = "Hola, todo bien. Justo acabo de terminar el módulo de datos."),
-        Message(idUsuario = uiState.userInfo.idUsuario, mensaje = "Genial, ¿tuviste algún problema con la implementación de Kotlin?"),
-        Message(idUsuario = uiState.otherUserId, mensaje = "Para nada, las data classes ahorran mucho código."),
-        Message(idUsuario = uiState.userInfo.idUsuario, mensaje = "Totalmente de acuerdo. Pásame el PR cuando puedas.")
-    )
 
     // detecta llegas arriba
     val scrollEnArriba by remember {
@@ -173,8 +133,8 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-            ) {
-
+            )
+            {
                 TextField(
                     value = uiState.currentMessage,
                     onValueChange = { viewModel.onMessageChange(it) },
@@ -182,7 +142,6 @@ fun ChatScreen(
                 )
 
                 ChatSendButton(
-                    text = stringResource(R.string.send_chat),
                     enabled = uiState.currentMessage.isNotBlank(),
                     onClick = { viewModel.sendMessage() }
                 )
@@ -195,23 +154,13 @@ fun ChatScreen(
         // contenido (mensajes)
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize().padding(paddingValues),
             reverseLayout = true
         )
         {
-            items(chatLog) { message ->
-
+            items(uiState.messages) { message ->
                 val isMine = message.idUsuario == uiState.userInfo.idUsuario
-
-                if (isMine) {
-                    MyMessageItem(message.mensaje, windowSize)
-                }
-
-                else {
-                    OtherMessageItem(message.mensaje, windowSize)
-                }
+                MessageItem(message, isMine = isMine,windowSize)
             }
         }
     }

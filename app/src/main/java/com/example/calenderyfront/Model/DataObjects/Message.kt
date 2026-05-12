@@ -1,5 +1,9 @@
 package com.example.calenderyfront.Model.DataObjects
 
+enum class EstadoMensaje {
+    ENVIADO,ENTREGADO,LEIDO
+}
+
 data class Message(
     val idUsuario: Int,
     val mensaje: String,
@@ -25,4 +29,19 @@ data class MessageToSend(
     val toUser: Int,
     val selfMessage: String,
     val content: String
+)
+
+data class MessageResponseDto(
+    val idUsuario: Int,
+    val idMensaje: Int,
+    val contenido: String,
+    val timeStamp: String,
+    val estadoMensaje: String? = null,
+)
+
+data class PageChatMessages<MessageResponseDto>(
+    val content: List<MessageResponseDto>,
+    val totalElements: Int,
+    val totalPages: Int,
+    val last: Boolean
 )

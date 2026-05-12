@@ -8,7 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Chat
-import com.example.calenderyfront.Model.DataObjects.Message
+import com.example.calenderyfront.Model.DataObjects.MessageResponseDto
 import com.example.calenderyfront.Model.DataObjects.MessageToSend
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
@@ -93,34 +93,32 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     }
 
     fun loadMessages() {
-
-        if (_state.value is ChatState.Loading) return
+        if (_state.value is ChatState.Loading)  {
+            return
+        }
 
         _state.value = ChatState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-
                 val respuesta = RetrofitClient.chatApi.getMessages(
-                    userId = userInfo.idUsuario,
-                    otherUserId = otherUserId,
+                    usuarioActual = userInfo.idUsuario,
+                    idChat = idChat,
                     page = currentPageMessages,
                     size = currentPageSize
                 )
 
                 if (respuesta.isSuccessful) {
-
                     val mensajesCargados = respuesta.body()
 
                     if (mensajesCargados != null) {
-
                          val mensajesDesencriptados = mensajesCargados.content.map { message ->
 
                              val realMessage = myPrivateKey?.let { key ->
-                                 decryptMessage(message.mensaje, key)
+                                 decryptMessage(message.contenido, key)
                              }
                              message.copy(
-                                 mensaje = realMessage ?: "Error"
+                                 contenido = realMessage ?: "Error"
                              )
                          }
 
@@ -158,7 +156,7 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
 
             if (stringPublicKey != null) {
                 otherUserPublicKey = stringToPublicKey(encodedKey = stringPublicKey)
-//                loadMessages()
+                loadMessages()
             }
             else {
                 _state.value = ChatState.Error(R.string.Error_PublicKey_Local)
@@ -186,10 +184,10 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
                             userId = otherUserId,
                             publicKey = stringPublickKey.publicKey
                         )
-//                        loadMessages()
+                        loadMessages()
                     }
-
-                } else {
+                }
+                else {
                     _state.value = ChatState.Error(errorMessages(respuesta.code()))
                 }
             }
@@ -217,6 +215,7 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
 
     private fun decryptMessage(message: String, myPrivateKey: PrivateKey): String? {
         return try {
+//            val cleanMessage = message.replace("\n", "").replace("\r", "").trim()
             val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
             cipher.init(Cipher.DECRYPT_MODE, myPrivateKey)
 
@@ -255,9 +254,12 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
             content = otherPublickKeyMessage
         )
 
-        val chatMessage = Message(
+        val chatMessage = MessageResponseDto(
             idUsuario = userInfo.idUsuario,
-            mensaje = currentUiState.sendMessage
+            idMensaje = userInfo.idUsuario,
+            contenido = currentUiState.currentMessage,
+            timeStamp = "",
+            estadoMensaje = "Enviado" //Ver aqui como manejar los enum
         )
 
         val updatedList = listOf(chatMessage) + currentUiState.messages // añade arriba el mensaje
