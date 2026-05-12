@@ -364,12 +364,35 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         )}
     }
 
-    fun likePost(post: PublicacionProfile) {
+    fun changeLikesVisuals(post: PublicacionProfile,like: Boolean) {
         val currentState = _uiState.value
 
+        _uiState.update {
+            val listaActualizada = currentState.publicaciones.map { postInList ->
+
+                if (postInList.id == post.id) {
+                    postInList.copy(
+                        like = like,
+                        cantidadLikes = if (like) postInList.cantidadLikes + 1 else postInList.cantidadLikes - 1
+                    )
+                }
+                else {
+                    postInList
+                }
+            }
+            currentState.copy(publicaciones = listaActualizada)
+        }
+    }
+
+    fun likePost(post: PublicacionProfile) {
         if (post.like || _state.value is ProfileState.LikeCargando) {
             return
         }
+
+        changeLikesVisuals(
+            post = post,
+            like = true
+        )
 
         _state.value = ProfileState.LikeCargando
 
@@ -378,37 +401,35 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(idPublicacion = post.id)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update {
-                        val listaActualizada = currentState.publicaciones.map { postInList ->
-
-                            if (postInList.id == post.id) {
-                                postInList.copy(like = true, cantidadLikes = postInList.cantidadLikes + 1)
-                            }
-
-                            else {
-                                postInList
-                            }
-                        }
-                        currentState.copy(publicaciones = listaActualizada)
-                    }
                     _state.value = ProfileState.Iniciado
                 }
                 else {
+                    changeLikesVisuals(
+                        post = post,
+                        like = false
+                    )
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
+                changeLikesVisuals(
+                    post = post,
+                    like = false
+                )
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
     }
 
     fun unLikePost(post: PublicacionProfile) {
-        val currentState = _uiState.value
-
         if (!post.like || _state.value is ProfileState.LikeCargando) {
             return
         }
+
+        changeLikesVisuals(
+            post = post,
+            like = false
+        )
 
         _state.value = ProfileState.LikeCargando
 
@@ -417,27 +438,22 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(idPublicacion = post.id)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update {
-                        val listaActualizada = currentState.publicaciones.map { postInList ->
-
-                            if (postInList.id == post.id) {
-                                postInList.copy(like = false, cantidadLikes = postInList.cantidadLikes - 1)
-                            }
-
-                            else {
-                                postInList
-                            }
-                        }
-                        currentState.copy(publicaciones = listaActualizada)
-                    }
                     _state.value = ProfileState.Iniciado
                 }
 
                 else {
+                    changeLikesVisuals(
+                        post = post,
+                        like = true
+                    )
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
+                changeLikesVisuals(
+                    post = post,
+                    like = true
+                )
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
