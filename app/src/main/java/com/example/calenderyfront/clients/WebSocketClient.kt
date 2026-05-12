@@ -139,8 +139,8 @@ object WebSocketClient {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
-                { Log.d("STOMP", "Mensaje privado enviado ✓") },
-                { error -> Log.e("STOMP", "Error al enviar privado: $error") }
+                { Log.d("STOMP-CALENDERY", "Mensaje privado enviado ✓") },
+                { error -> Log.e("STOMP-CALENDERY", "Error al enviar privado: $error") }
             )
         compositeDisposable.add(disposable)
     }

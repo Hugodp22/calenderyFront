@@ -37,7 +37,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
     private val mainId: Int = otherUserId ?: userInfo.idUsuario  //Seleccionamos el Id con el que se van a cargar los datos
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, otherUserId, mainId,"", "Perfil_defecto.png", ""))
+    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, otherUserId, mainId,null,"", "Perfil_defecto.png", ""))
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
@@ -189,6 +189,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             }
         }
     }
+
     fun followUser() {
         val currentState = _uiState.value
 
@@ -460,16 +461,53 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 ))
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(
-                        existeChat = true
-                    )}
-                    _state.value = ProfileState.ChatExito
+                    val idChat = respuesta.body()
+                    if (idChat != null) {
+                        _uiState.update { it.copy(
+                            existeChat = true,
+                            chatId = idChat.idChat
+                        )}
+                        _state.value = ProfileState.ChatExito
+                    }
                 }
-
                 else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
             }
+            catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun getChatId() {
+        val currentState = _uiState.value
+
+        if (_state.value is ProfileState.ChatCargando || !currentState.existeChat || otherUserId == null) {
+            return
+        }
+
+        _state.value = ProfileState.ChatCargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.chatApi.obtenerIdChat(idUsuario = otherUserId)
+
+                if (respuesta.isSuccessful) {
+                    val idChat = respuesta.body()
+                    if (idChat != null) {
+                        _uiState.update { it.copy(
+                            chatId = idChat.idChat
+                        )}
+                        _state.value = ProfileState.ChatExito
+                    }
+                }
+                else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            }
+
+
             catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }

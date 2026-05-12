@@ -81,7 +81,9 @@ class MainActivity : ComponentActivity() {
         ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver(this))
 
         RetrofitClient.init(applicationContext) //Iniciamos el retroFit para las peticiones
+
 //        SessionManager.clearSession(applicationContext) //Para probar otras pantallas de inicio
+
         enableEdgeToEdge()
         setContent {
             CalenderyFrontTheme {
@@ -183,8 +185,8 @@ fun CalenderyApp(
                     onNavigateToRegister = {
                         navController.navigate(Register)
                     },
-                    onNavigateToProfile = { userInfo ->
-                        navController.navigate(Profile(userInfo))
+                    onNavigateToHome = { userInfo ->
+                        navController.navigate(Home(userInfo))
                     },
                     windowSize = windowSize,
                 )
@@ -200,8 +202,8 @@ fun CalenderyApp(
                     onNavigateToOtherProfile = {userInfo,otherUserId ->
                         navController.navigate(Profile(userInfo,otherUserId))
                     },
-                    onNavigateToChat = {userInfo,otherUserId, otherUserName, otherUserPhoto ->
-                        navController.navigate(Chat(userInfo,otherUserId, otherUserName, otherUserPhoto))
+                    onNavigateToChat = {userInfo,otherUserId,chatId, otherUserName, otherUserPhoto ->
+                        navController.navigate(Chat(userInfo,otherUserId,chatId, otherUserName, otherUserPhoto))
                     }
                 )
             }
@@ -232,8 +234,8 @@ fun CalenderyApp(
                     onNavigateToUpload = { userInfo ->
                         navController.navigate(Upload(userInfo))
                     },
-                    onNavigateToChat = { userInfo, otherUserId, otherUserName, otherUserPhoto ->
-                        navController.navigate(Chat(userInfo,otherUserId,otherUserName,otherUserPhoto))
+                    onNavigateToChat = { userInfo, otherUserId,chatId, otherUserName, otherUserPhoto ->
+                        navController.navigate(Chat(userInfo,otherUserId,chatId,otherUserName,otherUserPhoto))
                     },
                     onNavigateToOtherProfile = { userInfo, otherUserId ->
                         navController.navigate(Profile(userInfo, otherUserId))

@@ -40,7 +40,7 @@ import com.example.calenderyfront.ui.theme.BebasNeue
 fun LoginScreen(
     modifier: Modifier = Modifier,
     onNavigateToRegister : () -> Unit,
-    onNavigateToProfile: (UserInfo) -> Unit,
+    onNavigateToHome: (UserInfo) -> Unit,
     windowSize: WindowWidthSizeClass,
     viewModel: LoginViewModel = viewModel()
 )
@@ -61,7 +61,7 @@ fun LoginScreen(
 
     LaunchedEffect(stateProcess) {
         if (stateProcess is LoginState.Exito) {
-            onNavigateToProfile((stateProcess as LoginState.Exito).userInfo)
+            onNavigateToHome((stateProcess as LoginState.Exito).userInfo)
         }
     }
 
