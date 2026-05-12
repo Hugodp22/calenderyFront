@@ -653,7 +653,7 @@ fun ProfileScreen(
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
     LaunchedEffect(scrollEnElFinal) {
-        if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPaginaPosts) {
+        if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPaginaPosts && uiState.publicaciones.isNotEmpty()) {
             viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
         }
     }
@@ -708,14 +708,12 @@ fun ProfileScreen(
                 localDate = selectedMonth,
                 windowSize = windowSize,
                 onPreviousMonth = {
-                    val newMonth = selectedMonth.minusMonths(1)
-                    selectedMonth = newMonth
+                    selectedMonth = selectedMonth.minusMonths(1)
                     viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
                                   },
                 onNextMonth = {
                     if (canGoNext) {
-                        val newMonth = selectedMonth.plusMonths(1)
-                        selectedMonth = newMonth
+                        selectedMonth = selectedMonth.plusMonths(1)
                         viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
                     }
                 },

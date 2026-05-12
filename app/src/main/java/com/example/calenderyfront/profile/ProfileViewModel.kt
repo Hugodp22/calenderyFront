@@ -190,12 +190,21 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    fun updateFollowVisuals(follow: Boolean) {
+        _uiState.update { it.copy(
+            cantidadSeguidores = if (follow) it.cantidadSeguidores + 1 else it.cantidadSeguidores - 1,
+            seguidor = follow
+        )}
+    }
+
     fun followUser() {
         val currentState = _uiState.value
 
         if (currentState.seguidor) {
             return
         }
+
+        updateFollowVisuals(follow = true)
 
         _state.value = ProfileState.Siguiendo
 
@@ -204,18 +213,16 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.usuarioApi.seguirUsuario(userInfo.idUsuario,mainId)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(
-                        cantidadSeguidores = it.cantidadSeguidores + 1,
-                        seguidor = true
-                    )}
                     _state.value = ProfileState.Iniciado
                 }
 
                 else {
+                    updateFollowVisuals(follow = false)
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
+                updateFollowVisuals(follow = false)
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
@@ -228,6 +235,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             return
         }
 
+        updateFollowVisuals(follow = false)
+
         _state.value = ProfileState.Siguiendo
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -235,18 +244,16 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 val respuesta = RetrofitClient.usuarioApi.dejarDeSeguirUsuario(userInfo.idUsuario,mainId)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update { it.copy(
-                        cantidadSeguidores = it.cantidadSeguidores - 1,
-                        seguidor = false
-                    )}
                     _state.value = ProfileState.Iniciado
                 }
 
                 else {
+                    updateFollowVisuals(follow = true)
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
+                updateFollowVisuals(follow = true)
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }

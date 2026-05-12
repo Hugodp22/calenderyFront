@@ -316,10 +316,11 @@ fun HomeScreen(
     }
 
     LaunchedEffect(scrollEnElFinal) {
-        if (scrollEnElFinal && stateProcess != HomeState.Cargando && !uiState.ultimaPaginaPost) {
+        if (scrollEnElFinal && stateProcess != HomeState.Cargando && !uiState.ultimaPaginaPost && uiState.posts.isNotEmpty()) {
             viewModel.loadPosts()
         }
     }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(2),
@@ -328,10 +329,9 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
         )
         {
-            items(uiState.posts) { postClick ->
+            items(items = uiState.posts, key = { it.idPost }) { postClick ->
                 val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
                 val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
-
                 val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
 
                 PostHomeCreation(
