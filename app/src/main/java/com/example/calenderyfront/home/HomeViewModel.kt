@@ -1,7 +1,5 @@
 package com.example.calenderyfront.home
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,8 +48,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
     }
 
     fun loadUserData() {
-        val currentUiState = _uiState.value
-
         _state.value = HomeState.Cargando
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -116,7 +112,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                     val listaDtoObtenida = respuesta.body()
 
                     if (listaDtoObtenida != null) {
-
                         val nuevasPublicacionesHome = listaDtoObtenida.content.map { postDto -> dtoPostToHomePost(publicacionHomeDto = postDto) }
 
                         _uiState.update {
@@ -231,7 +226,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                         _state.value = HomeState.Iniciado
                     }
                 }
-
                 else {
                     _state.value = HomeState.Error(errorMessages(respuesta.code()))
                 }
@@ -251,12 +245,32 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
         )}
     }
 
-    fun likePost(post: PublicacionHome) {
+    fun changeLikesVisuals(post: PublicacionHome,like: Boolean) {
         val currentState = _uiState.value
+
+        _uiState.update {
+            val listaActualizada = currentState.posts.map { postInList ->
+
+                if (postInList.idPost == post.idPost) {
+                    postInList.copy(
+                        like = like,
+                        cantidadLikes = if (like) postInList.cantidadLikes + 1 else postInList.cantidadLikes - 1
+                    )
+                }
+                else {
+                    postInList
+                }
+            }
+            currentState.copy(posts = listaActualizada)
+        }
+    }
+
+    fun likePost(post: PublicacionHome) {
 
         if (post.like || _state.value is HomeState.LikeCargando) {
             return
         }
+        changeLikesVisuals(post = post, like = true)
 
         _state.value = HomeState.LikeCargando
 
@@ -265,37 +279,27 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(idPublicacion = post.idPost)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update {
-                        val listaActualizada = currentState.posts.map { postInList ->
-
-                            if (postInList.idPost == post.idPost) {
-                                postInList.copy(like = true, cantidadLikes = postInList.cantidadLikes + 1)
-                            }
-
-                            else {
-                                postInList
-                            }
-                        }
-                        currentState.copy(posts = listaActualizada)
-                    }
                     _state.value = HomeState.Iniciado
                 }
                 else {
+                    changeLikesVisuals(post = post, like = false)
                     _state.value = HomeState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
+                changeLikesVisuals(post = post, like = false)
                 _state.value = HomeState.Error(R.string.Error_Network)
             }
         }
     }
 
     fun unLikePost(post: PublicacionHome) {
-        val currentState = _uiState.value
 
         if (!post.like || _state.value is HomeState.LikeCargando) {
             return
         }
+
+        changeLikesVisuals(post = post, like = false)
 
         _state.value = HomeState.LikeCargando
 
@@ -304,25 +308,15 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                 val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(idPublicacion = post.idPost)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update {
-                        val listaActualizada = currentState.posts.map { postInList ->
-
-                            if (postInList.idPost == post.idPost) {
-                                postInList.copy(like = false, cantidadLikes = postInList.cantidadLikes - 1)
-                            }
-                            else {
-                                postInList
-                            }
-                        }
-                        currentState.copy(posts = listaActualizada)
-                    }
                     _state.value = HomeState.Iniciado
                 }
                 else {
+                    changeLikesVisuals(post = post, like = true)
                     _state.value = HomeState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
+                changeLikesVisuals(post = post, like = true)
                 _state.value = HomeState.Error(R.string.Error_Network)
             }
         }
