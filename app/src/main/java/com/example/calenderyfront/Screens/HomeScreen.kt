@@ -141,7 +141,7 @@ fun PostHomeCreation(
 
             if (post.mensaje != null) {
                 Text(
-                    modifier = Modifier.padding(start = 2.dp),
+                    modifier = Modifier.padding(4.dp),
                     text = post.mensaje,
                     fontSize = fontSizeMessage,
                     color = MaterialTheme.colorScheme.tertiary,

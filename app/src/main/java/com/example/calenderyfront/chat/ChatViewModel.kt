@@ -22,6 +22,7 @@ import com.example.calenderyfront.getUserKeyPairFromAndroidStore
 import com.example.calenderyfront.pageSize
 import com.example.calenderyfront.savePublicKeyInLocal
 import com.example.calenderyfront.stringToPublicKey
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,6 +53,8 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     private var myPrivateKey : PrivateKey? = null
     private var otherUserPublicKey : PublicKey? = null
 
+    private var firstRead: Boolean = true
+
     // state control de flujo
     private val _state = MutableStateFlow<ChatState>(ChatState.Started) // Estado inicial
     val state: StateFlow<ChatState> = _state.asStateFlow()
@@ -71,11 +74,49 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
 
     init {
         loadPublicKeys()
+        observerMessages()
     }
 
     fun onMessageChange(message: String) {
         _uiState.update {
             it.copy(currentMessage = message)
+        }
+    }
+
+    fun observerMessages() {
+        viewModelScope.launch {
+            WebSocketClient.messageFlow.collect { messageJSON ->
+                val messageResponseDtoReceived = Gson().fromJson(messageJSON, MessageResponseDto::class.java)
+
+                if (messageResponseDtoReceived.idChat != idChat) {
+                    return@collect
+                }
+                _uiState.update {
+                    it.copy(
+                        messages = it.messages + messageResponseDtoReceived
+                    )
+                }
+                markMessageAsRead()
+            }
+        }
+    }
+
+    fun markMessageAsRead() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.chatApi.marcarMensajesComoLeidos(idChat)
+
+                if (respuesta.isSuccessful) {
+                    _state.value = ChatState.Started
+                }
+
+                else {
+                    _state.value = ChatState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ChatState.Error(R.string.Error_Network)
+            }
         }
     }
 
@@ -128,11 +169,14 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
                                 lastMessage = mensajesCargados.content.size < currentPageSize
                             )
                         }
-
                         _state.value = ChatState.Started
                         currentPageMessages++ // siguiente página
-                    }
 
+                        if (firstRead) {
+                            markMessageAsRead()
+                            firstRead = false
+                        }
+                    }
                 }
                 else {
                     _state.value = ChatState.Error(errorMessages(respuesta.code()))
@@ -255,8 +299,9 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
         )
 
         val chatMessage = MessageResponseDto(
-            idUsuario = userInfo.idUsuario,
             idMensaje = userInfo.idUsuario,
+            idChat = idChat,
+            idUsuario = userInfo.idUsuario,
             contenido = currentUiState.currentMessage,
             timeStamp = "",
             estadoMensaje = "Enviado" //Ver aqui como manejar los enum

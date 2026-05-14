@@ -25,4 +25,7 @@ interface ChatApiService {
     @GET("api/chat/getUserChat")
     suspend fun obtenerIdChat(@Query("idUsuario") idUsuario: Int): Response<ChatId>
 
+    @POST("")
+    suspend fun marcarMensajesComoLeidos(@Query("idChat")idChat: Int): Response<Unit>
+
 }

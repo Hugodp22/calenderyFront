@@ -22,8 +22,13 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -61,11 +66,12 @@ import com.example.calenderyfront.Screens.SelectionScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.UploadScreen
 import com.example.calenderyfront.Screens.WaitingForLinkScreen
+import com.example.calenderyfront.bottomBar.BottomBarState
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -107,6 +113,23 @@ fun CalenderyApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    val userInChatSelection = currentDestination?.hasRoute<Selection>() ?: false
+    var bottomBarState by remember { mutableStateOf(BottomBarState()) }
+
+    LaunchedEffect(Unit) {
+        WebSocketClient.messageFlow.collect {
+            if (!userInChatSelection) {
+                bottomBarState = bottomBarState.copy(newMessage = true)
+            }
+        }
+    }
+
+    LaunchedEffect(userInChatSelection) {
+        if (userInChatSelection)  {
+            bottomBarState = bottomBarState.copy(newMessage = false)
+        }
+    }
+
     val showBottomBar = currentDestination?.let { dest ->
         dest.hasRoute<Home>() || dest.hasRoute<Selection>() || dest.hasRoute<Profile>()
     } ?: false
@@ -118,6 +141,7 @@ fun CalenderyApp(
                 CalenderyBottomBar(
                     navController = navController,
                     navBackStackEntry = navBackStackEntry,
+                    bottomBarState = bottomBarState,
                     windowSize = windowSize
                 )
             }
@@ -308,6 +332,7 @@ fun CalenderyApp(
 fun CalenderyBottomBar(
     windowSize: WindowWidthSizeClass,
     navController: NavHostController,
+    bottomBarState: BottomBarState,
     navBackStackEntry: NavBackStackEntry?
 )
 {
@@ -325,6 +350,10 @@ fun CalenderyBottomBar(
             WindowWidthSizeClass.Compact -> 65.dp
             else -> 65.dp
         }
+
+        val iconColor =
+            if (bottomBarState.newMessage) MaterialTheme.colorScheme.onPrimaryFixed
+            else Color.Unspecified
 
         NavigationBar(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -361,9 +390,9 @@ fun CalenderyBottomBar(
                 )},
                 icon = R.drawable.chat,
                 contentDescription = R.string.Chat_bottom_bar,
-                iconSize = iconSize
+                iconSize = iconSize,
+                color = iconColor
             )
-
 
             NavigationBarItemCalendery(
                 selected = currentDestination == Profile,
@@ -384,7 +413,8 @@ fun RowScope.NavigationBarItemCalendery( //Añadimos RowScope para usar la funci
     onClick: () -> Unit,
     @DrawableRes icon: Int,
     @StringRes contentDescription: Int,
-    iconSize: Dp
+    iconSize: Dp,
+    color: Color = Color.Unspecified
 )
 {
     NavigationBarItem(
@@ -394,7 +424,8 @@ fun RowScope.NavigationBarItemCalendery( //Añadimos RowScope para usar la funci
             Icon(
                 painter = painterResource(icon),
                 contentDescription = stringResource(contentDescription),
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier.size(iconSize),
+                tint = color
             )
         },
         alwaysShowLabel = false

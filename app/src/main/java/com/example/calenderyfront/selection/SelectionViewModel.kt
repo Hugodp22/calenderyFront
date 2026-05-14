@@ -148,13 +148,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
                     if (contactosCargados != null) {
 
                         val mensajesDesencriptados = contactosCargados.content.map { contact ->
-
                             val realMessage = myPrivateKey?.let { key ->
                                 decryptMessage(contact.ultimoMensaje, key)
                             }
-
-                            Log.d("chatId"," Es = ${contact.idChat}")
-
                             contact.copy(
                                 ultimoMensaje = realMessage ?: "Error"
                         )}

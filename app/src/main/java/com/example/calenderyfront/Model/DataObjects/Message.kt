@@ -32,8 +32,9 @@ data class MessageToSend(
 )
 
 data class MessageResponseDto(
-    val idUsuario: Int,
     val idMensaje: Int,
+    val idChat: Int,
+    val idUsuario: Int,
     val contenido: String,
     val timeStamp: String,
     val estadoMensaje: String? = null,

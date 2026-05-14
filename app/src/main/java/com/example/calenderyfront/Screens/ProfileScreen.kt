@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -462,6 +467,7 @@ fun PostProfile(
 @Composable
 fun MonthTitle(
     localDate: LocalDate,
+    onClickTitle : () -> Unit,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     canGoNext : Boolean,
@@ -496,8 +502,7 @@ fun MonthTitle(
         else -> 35.sp
     }
 
-    val monthTitle =
-        localDate.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
+    val monthTitle = localDate.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
 
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -527,6 +532,7 @@ fun MonthTitle(
                 )
 
                 Column(
+                    modifier = Modifier.clickable {onClickTitle()},
                     horizontalAlignment = Alignment.CenterHorizontally
                 )
                 {
@@ -554,12 +560,175 @@ fun MonthTitle(
     }
 }
 
+@Composable
+fun DatePickerDialog(
+    initialDate: LocalDate,
+    onDismiss: () -> Unit,
+    onConfirm: (LocalDate) -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val currentDate = LocalDate.now()
+    var selectedYear by remember { mutableStateOf(initialDate.year) }
+    var selectedMonth by remember { mutableStateOf(initialDate.monthValue) }
+
+    val canGoNextYear = selectedYear < currentDate.year
+
+    val monthName = remember(selectedMonth, selectedYear) {
+        LocalDate.of(selectedYear, selectedMonth, 1).format(DateTimeFormatter.ofPattern("MMMM"))
+            .replaceFirstChar { it.uppercase() }
+    }
+
+    val fontSizeTitle = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 30.sp
+        else -> 30.sp
+    }
+
+    val fontSizeButton = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 17.sp
+        else -> 17.sp
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+
+                    Text(
+                        text = stringResource(R.string.month),
+                        modifier = Modifier.weight(1f),
+                        fontSize = fontSizeTitle,
+                        fontFamily = BebasNeue,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+
+                    Text(
+                        text = stringResource(R.string.year),
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        fontFamily = BebasNeue,
+                        fontSize = fontSizeTitle,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    PickerDateRow(
+                        modifier = Modifier.weight(1F),
+                        windowSize = windowSize,
+                        midleText = monthName,
+                        onClickLeftArrow = {
+                            if (selectedMonth == 1) selectedMonth = 12 else selectedMonth--
+                        },
+                        onClickRightArrow = {
+                            if (selectedMonth == 12) selectedMonth = 1 else selectedMonth++
+                        }
+                    )
+                    PickerDateRow(
+                        modifier = Modifier.weight(1F),
+                        windowSize = windowSize,
+                        midleText = selectedYear.toString(),
+                        onClickLeftArrow = { selectedYear-- },
+                        onClickRightArrow = { if (canGoNextYear) selectedYear++ }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.BottomCenter
+            )
+            {
+                TextButton(
+                    onClick = {
+                        if (selectedMonth > currentDate.monthValue && selectedYear == currentDate.year) {
+                            selectedMonth = currentDate.monthValue
+                        }
+                        onConfirm(LocalDate.of(selectedYear, selectedMonth, 1))
+                    },
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondary,
+                        contentColor = MaterialTheme.colorScheme.tertiary,
+                        disabledContentColor = Color.Red,
+                        disabledContainerColor = Color.Gray
+                    )
+                )
+                {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        text = stringResource(R.string.accept),
+                        fontSize = fontSizeButton,
+                    )
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun PickerDateRow(
+    modifier: Modifier = Modifier,
+    windowSize: WindowWidthSizeClass,
+    midleText: String,
+    onClickLeftArrow: () -> Unit,
+    onClickRightArrow: () -> Unit,
+)
+{
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 15.sp
+        else -> 15.sp
+    }
+
+    val fontSizeArrows = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 25.sp
+        else -> 25.sp
+    }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    )
+    {
+        Text(
+            modifier = Modifier.clickable {onClickLeftArrow()},
+            text = stringResource(R.string.left_arrow),
+            fontSize = fontSizeArrows,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+
+        Text(
+            text = midleText,
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+            textAlign = TextAlign.Center,
+            fontSize = fontSize,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+
+        Text(
+            modifier = Modifier.clickable {onClickRightArrow()},
+            text = stringResource(R.string.right_arrow),
+            fontSize = fontSizeArrows,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+    }
+}
+
 /**
  * Función para ordenar las publicaciones, mediante su mes, y dentro del mes, mediante número de semana
  */
 fun getGroupedPosts(posts: List<PublicacionProfile>): Map<LocalDate, Map<TimeData, List<PublicacionProfile>>> {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val weekFields = WeekFields.of(Locale.getDefault())
+    val weekFields = WeekFields.of(getDefault())
 
     return posts
         .groupBy { post ->
@@ -607,6 +776,7 @@ fun ProfileScreen(
     var expandedPhotoProfile by remember { mutableStateOf(false) } //Para saber cuando la foto esta ampliada
     var selectedPost by remember { mutableStateOf<PublicacionProfile?>(null) } //Copia estatica de la publicacion a la que le des click
 
+    var showDatePicker by remember { mutableStateOf(false) }
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
@@ -707,6 +877,7 @@ fun ProfileScreen(
             MonthTitle(
                 localDate = selectedMonth,
                 windowSize = windowSize,
+                onClickTitle = { showDatePicker = true },
                 onPreviousMonth = {
                     selectedMonth = selectedMonth.minusMonths(1)
                     viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
@@ -754,7 +925,7 @@ fun ProfileScreen(
                                 strokeWidth = 12.dp
                             )
                         }
-                        else {
+                        else if (stateProcess is ProfileState.NoPublicaciones) {
                             Text(
                                 text = stringResource(R.string.no_post_month_message),
                                 color = MaterialTheme.colorScheme.tertiary
@@ -799,6 +970,19 @@ fun ProfileScreen(
                 commentsPostId = postToShow.id
                 viewModel.getCommentsPost(idPost = postToShow.id)
                 showComments = true
+            },
+            windowSize = windowSize
+        )
+    }
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            initialDate = selectedMonth,
+            onDismiss = { showDatePicker = false },
+            onConfirm = { selectedDate ->
+                selectedMonth = selectedDate
+                viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
+                showDatePicker = false
             },
             windowSize = windowSize
         )
