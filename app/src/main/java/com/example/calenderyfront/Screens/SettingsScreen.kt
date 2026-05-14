@@ -1,27 +1,40 @@
 package com.example.calenderyfront.Screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,12 +49,153 @@ import com.example.calenderyfront.galleryLauncher
 import com.example.calenderyfront.settings.SettingsState
 import com.example.calenderyfront.settings.SettingsViewModel
 import com.example.calenderyfront.ui.theme.BebasNeue
+import com.example.calenderyfront.userAuth.SessionManager
+
+@Composable
+fun ExitButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val iconSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 30.dp
+        else -> 30.dp
+    }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.TopEnd
+    )
+    {
+        IconButton(
+            modifier = modifier.size(iconSize),
+            onClick = onClick
+        )
+        {
+            Icon(
+                modifier = Modifier.size(iconSize),
+                painter = painterResource(R.drawable.exit),
+                contentDescription = stringResource(R.string.exit_app),
+                tint = Color.Unspecified
+            )
+        }
+    }
+}
+
+@Composable
+fun ButtonDialog(
+    onClick: () -> Unit,
+    @StringRes textButton: Int,
+    colors: ButtonColors,
+    windowSize: WindowWidthSizeClass
+)
+{
+    val height = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.05F
+        else -> 0.05F
+    }
+
+    val fontSizeButton = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 15.sp
+        else -> 15.sp
+    }
+    
+    Box(
+        modifier = Modifier.fillMaxWidth().fillMaxHeight(height),
+        contentAlignment = Alignment.BottomCenter
+    )
+    {
+        TextButton(
+            onClick = onClick,
+            colors = colors
+        )
+        {
+            Text(
+                modifier = Modifier.padding(horizontal = 20.dp),
+                text = stringResource(textButton),
+                fontSize = fontSizeButton,
+            )
+        }
+    }
+}
+
+@Composable
+fun ExitDialog(
+    windowSize: WindowWidthSizeClass,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+)
+{
+    val fontSizeTitle = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 25.sp
+        else -> 25.sp
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 0.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                Text(
+                    text = stringResource(R.string.exit_session),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontSize = fontSizeTitle,
+                    fontFamily = BebasNeue
+                )
+            }
+        },
+        
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                Box(modifier = Modifier.weight(1f)) {
+                    ButtonDialog(
+                        onClick = onConfirm,
+                        windowSize = windowSize,
+                        textButton = R.string.accept,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.onSecondary,
+                            contentColor = MaterialTheme.colorScheme.tertiary,
+                            disabledContentColor = Color.Red,
+                            disabledContainerColor = Color.Gray
+                        )
+                    )
+                }
+
+                Spacer(Modifier.padding(end = 10.dp))
+
+                Box(modifier = Modifier.weight(1f)) {
+                    ButtonDialog(
+                        onClick = onDismiss,
+                        windowSize = windowSize,
+                        textButton = R.string.cancel_text,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.tertiary,
+                            disabledContentColor = Color.Red,
+                            disabledContainerColor = Color.Gray
+                        )
+                    )
+                }
+            }
+        },
+    )
+}
 
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     onNavigateToProfile: (UserInfo) -> Unit,
+    onNavigateToLogin: () -> Unit,
     viewModel: SettingsViewModel = viewModel()
 )
 {
@@ -53,6 +207,8 @@ fun SettingScreen(
     val errorName by viewModel.errorName.collectAsState()
 
     val enableButton = stateProcess !is SettingsState.Cargando && stateProcess !is SettingsState.Exito
+
+    var showExit by remember { mutableStateOf(false) }
 
     //Funcion para abrir la galeria y selecionar una foto de esta
     val openGallery = galleryLauncher { uri -> uri?.let {
@@ -71,6 +227,11 @@ fun SettingScreen(
         WindowWidthSizeClass.Medium -> 115.dp
         WindowWidthSizeClass.Expanded -> 120.dp
         else -> 100.dp
+    }
+
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 32.sp
+        else -> 32.sp
     }
 
     LaunchedEffect(stateProcess) {
@@ -101,7 +262,7 @@ fun SettingScreen(
             {
                 Text(
                     text = stringResource(R.string.Settings_Title),
-                    fontSize = 32.sp,
+                    fontSize = fontSize,
                     fontFamily = BebasNeue,
                     color = MaterialTheme.colorScheme.tertiary
                 )
@@ -124,6 +285,27 @@ fun SettingScreen(
                     )
                 }
             }
+        }
+
+        ExitButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 20.dp, end = 10.dp),
+            onClick = { showExit = true },
+            windowSize = windowSize
+        )
+
+        if (showExit) {
+            ExitDialog(
+                windowSize = windowSize,
+                onConfirm = {
+                    onNavigateToLogin()
+                    SessionManager.clearSession(context)
+                },
+                onDismiss = {
+                    showExit = false
+                }
+            )
         }
     }
 }
