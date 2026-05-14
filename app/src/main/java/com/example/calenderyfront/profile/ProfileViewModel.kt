@@ -13,7 +13,6 @@ import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
-import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.pageSize
@@ -282,7 +281,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                     page = currentPageComments,
                     size = currentPageSize
                 )
-
                     if (respuesta.isSuccessful) {
                         val comentariosCargados = respuesta.body()
 

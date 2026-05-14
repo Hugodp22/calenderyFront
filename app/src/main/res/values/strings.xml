@@ -93,6 +93,8 @@
     <string name="Error_PublicKey_Local">Error al obtener la otra clave publica</string>
     <string name="previous_month">Mes anterior</string>
     <string name="accept">Aceptar</string>
+    <string name="exit_app">Salir de la app</string>
+    <string name="exit_session">Cerrar Sesión</string>
 
 
 </resources>

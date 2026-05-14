@@ -75,6 +75,9 @@ interface UsuarioApiService {
     @POST("api/users/auth/login")
     suspend fun buscarPerfilUsuarioPorCabecera(): Response<UserInfo>
 
+    @GET("api/users/app/checkPublicKey")
+    suspend fun comprobarClavePublica(@Query("idUsuario")idUsuario: Int, @Query("clavePublica") clavePublica: String): Response<Unit>
+
     @GET("api/users/auth/validateUser")
     suspend fun validarUsuarioPorCorreo(@Query("email",encoded = true) email: String): Response<UserValidation>
 

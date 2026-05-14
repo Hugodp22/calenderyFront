@@ -24,6 +24,7 @@ import com.example.calenderyfront.savePublicKeyInLocal
 import com.example.calenderyfront.stringToPublicKey
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,8 +53,9 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     private var myPublicKey : PublicKey? = null
     private var myPrivateKey : PrivateKey? = null
     private var otherUserPublicKey : PublicKey? = null
-
     private var firstRead: Boolean = true
+    private var jobReadMessages: Job? = null
+
 
     // state control de flujo
     private val _state = MutableStateFlow<ChatState>(ChatState.Started) // Estado inicial
@@ -159,7 +161,7 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
                                  decryptMessage(message.contenido, key)
                              }
                              message.copy(
-                                 contenido = realMessage ?: "Error"
+                                 contenido = realMessage ?: ""
                              )
                          }
 

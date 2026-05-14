@@ -72,6 +72,7 @@ import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.userAuth.SessionManager
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -240,6 +241,9 @@ fun CalenderyApp(
                     modifier = Modifier,
                     onNavigateToProfile = { userInfo ->
                         navController.navigate((Profile(userInfo)))
+                    },
+                    onNavigateToLogin =  {
+                        navController.navigate(Login)
                     },
                     windowSize = windowSize,
                 )
