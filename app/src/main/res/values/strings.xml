@@ -69,8 +69,8 @@
     <string name="cancel_text">Cancelar</string>
     <string name="selected_date">FECHA SELECCIONADA</string>
     <string name="day">"dia: "</string>
-    <string name="month">"mes: "</string>
-    <string name="year">"año: "</string>
+    <string name="month">"mes"</string>
+    <string name="year">"año"</string>
     <string name="Error_date">Error: No hay fecha seleccionada</string>
     <string name="sidebar">/</string>
     <string name="next">Siguiente</string>
@@ -91,6 +91,8 @@
     <string name="send_chat">Enviar</string>
     <string name="Error_Keys_Android">Error al obtener tu claves de android</string>
     <string name="Error_PublicKey_Local">Error al obtener la otra clave publica</string>
+    <string name="previous_month">Mes anterior</string>
+    <string name="accept">Aceptar</string>
 
 
 </resources>

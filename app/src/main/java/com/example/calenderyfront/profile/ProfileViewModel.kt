@@ -13,11 +13,13 @@ import com.example.calenderyfront.Model.DataObjects.PublicacionProfile
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
+import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,7 +51,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     private var lastLoadedYear: Int? = null
     private var lastLoadedMonth: Int? = null
 
-    private var searchJob: Job? = null
+    private var searchJobMonth: Job? = null
 
     init {
         //Para evitar errores si llegas a tu perfil mediante un comentario tuyo
@@ -103,7 +105,6 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     }
 
     fun loadMyData() {
-        val currentUiState = _uiState.value
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.usuarioApi.obtenerMisVisuales()
@@ -149,9 +150,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
             return
         }
 
-        _state.value = ProfileState.Cargando
+        searchJobMonth?.cancel()
 
-        viewModelScope.launch(Dispatchers.IO) {
+        searchJobMonth = viewModelScope.launch(Dispatchers.IO) {
+            delay(550)
+            _state.value = ProfileState.Cargando
             try {
                 //Pedimos mediante el id, una pagina con tal tamaño de publicaciones, indicando el mes y el año
                 val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesPerfil(
@@ -166,15 +169,18 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                     val publicacionesCargadas = respuesta.body()
 
                     if (publicacionesCargadas != null) {
-                        _uiState.update { it.copy(
-                            publicaciones = it.publicaciones + publicacionesCargadas.content,
 
-                            //Si nos devuelven menos del tamaño de cada pagina, es que ya no hay mas en el server
-                            //asi que lo guardamos para evitar hacer peticiones de mas
-                            ultimaPaginaPosts = publicacionesCargadas.content.size < currentPageSize
-                        )}
-                        _state.value = ProfileState.PaginaCargada
-                        currentPagePosts++
+                        if (publicacionesCargadas.content.isEmpty()) {
+                            _state.value = ProfileState.NoPublicaciones
+                        }
+                        else {
+                            _uiState.update { it.copy(
+                                publicaciones = it.publicaciones + publicacionesCargadas.content,
+                                ultimaPaginaPosts = publicacionesCargadas.content.size < currentPageSize
+                            )}
+                            _state.value = ProfileState.PaginaCargada
+                            currentPagePosts++
+                        }
                     }
                     else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))

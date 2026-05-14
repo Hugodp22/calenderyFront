@@ -20,6 +20,7 @@ private val DarkColorScheme = darkColorScheme(
     primaryContainer = BotonCargandoSeguirOscuro,
     secondaryContainer = BotonCargandoDejarSeguirOscuro,
     tertiaryContainer = BotonDejarSeguirOscuro,
+    onPrimaryFixed = ColorNotificacionOscuro
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,6 +33,7 @@ private val LightColorScheme = lightColorScheme(
     primaryContainer = BotonCargandoSeguirClaro,
     secondaryContainer = BotonCargandoDejarSeguirClaro,
     tertiaryContainer = BotonDejarSeguirClaro,
+    onPrimaryFixed = ColorNotificacionClaro
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

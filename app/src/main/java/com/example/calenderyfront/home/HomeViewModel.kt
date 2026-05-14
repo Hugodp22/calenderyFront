@@ -41,7 +41,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
     init {
         loadUserData()
-        loadPosts() //Y esto estaba abajo al acabar loadUserData con succesful
     }
 
     fun onCommentChange(comment: String) {
@@ -49,7 +48,7 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
     }
 
     fun loadUserData() {
-//        _state.value = HomeState.Cargando
+        _state.value = HomeState.Cargando
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.usuarioApi.obtenerMisVisuales()
@@ -64,7 +63,8 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                                 photoUser = data.fotoPerfil
                             )
                         }
-//                        _state.value = HomeState.Iniciado
+                        _state.value = HomeState.Iniciado
+                        loadPosts()
                     }
                 }
                 else {

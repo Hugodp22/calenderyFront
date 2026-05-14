@@ -5,6 +5,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 sealed class ProfileState {
     object Iniciado : ProfileState() //Estado base
     object Cargando : ProfileState() // Mientras esperamos al Back
+    object NoPublicaciones: ProfileState()
     object Siguiendo: ProfileState()
     object PaginaCargada: ProfileState()
     object LikeCargando: ProfileState()

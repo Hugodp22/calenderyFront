@@ -65,18 +65,17 @@ object WebSocketClient {
 
                         suscribeToPrivateMessage { message ->
                             Log.d("STOMP-CALENDERY", "Mensaje: $message")
+
+                            //Me devolvera idChat, idUsuario y mensaje
+
+                            // 1 si estas en el chat, se pone abajo con el id del usuario para saber cual es
+
+                            // 2 si estas en chat selection, hacer un mapeo para marcar ese chat como nuevo mensaje,
+                            // y poner como ultimo mensaje el mensaje recibido.
+
+                            // 3 Si estas en cualquier otra pantalla con bottom bar, cambiar la botom bar a naranja
+                            // y que cuando le des click, hacer que no sea naranja.
                         }
-
-                        //Me devolvera idChat, idUsuario y mensaje
-
-                        // 1 si estas en el chat, se pone abajo con el id del usuario para saber cual es
-
-                        // 2 si estas en chat selection, hacer un mapeo para marcar ese chat como nuevo mensaje,
-                        // y poner como ultimo mensaje el mensaje recibido.
-
-                        // 3 Si estas en cualquier otra pantalla con bottom bar, cambiar la botom bar a naranja
-                        // y que cuando le des click, hacer que no sea naranja.
-
                     }
 
                     LifecycleEvent.Type.ERROR, LifecycleEvent.Type.CLOSED -> {
@@ -127,6 +126,7 @@ object WebSocketClient {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { message ->
                 onMensaje(message.payload)
+                _messageFlow.tryEmit(message.payload)
             }
         compositeDisposable.add(disposable)
     }
