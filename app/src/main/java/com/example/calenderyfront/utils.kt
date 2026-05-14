@@ -82,6 +82,7 @@ import coil.size.Precision
 import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostUIData
 import com.example.calenderyfront.clients.PhotoClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.userAuth.SessionManager
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -878,7 +879,7 @@ fun stringToPublicKey(encodedKey: String): PublicKey {
  * Funcion para borrar todas las claves generadas y que no me explote el ordenador
  * al hacer tantas pruebas
  */
-fun deleteAllKeys() {
+fun deleteAllAndroidKeys() {
     try {
         val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
             load(null)
@@ -889,11 +890,16 @@ fun deleteAllKeys() {
         while (aliases.hasMoreElements()) {
             val alias = aliases.nextElement()
             keyStore.deleteEntry(alias)
-            println("Clave eliminada: $alias")
         }
-    } catch (e: Exception) {
-        e.printStackTrace()
     }
+    catch (e: Exception) {
+
+    }
+}
+
+fun connectWebSocket(context: Context) {
+    WebSocketClient.connect(context)
+    WebSocketClient.userValidation()
 }
 
 /**

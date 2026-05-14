@@ -13,6 +13,7 @@ import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.clients.WebSocketClient
+import com.example.calenderyfront.connectWebSocket
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.userSecurityKeyCreation
 import kotlinx.coroutines.Dispatchers
@@ -79,17 +80,16 @@ class WaitingForLinkViewModel(application: Application,path: SavedStateHandle): 
                 val respuesta = RetrofitClient.usuarioApi.mandarClavePublica(userInfo.idUsuario, publicKeyDto)
 
                 if (respuesta.isSuccessful) {
-                    WebSocketClient.connect(getApplication())
-                    WebSocketClient.userValidation()
+                    connectWebSocket(context = getApplication())
                     _state.value = WaitingForLinkState.Exito(userInfo)
                 }
 
                 else {
-                    Log.d("WaitingValidation","Error al mandar la PK ${respuesta.code()} ${respuesta.message()}")
+                    _state.value = WaitingForLinkState.Error(errorMessages(respuesta.code()))
                 }
             }
             catch (e: Exception) {
-                Log.d("WaitingValidation","Error desconocido PK $e")
+                _state.value = WaitingForLinkState.Error(errorMessages(R.string.Error_Network))
             }
         }
     }
