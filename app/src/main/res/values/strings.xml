@@ -95,6 +95,8 @@
     <string name="accept">Aceptar</string>
     <string name="exit_app">Salir de la app</string>
     <string name="exit_session">Cerrar Sesión</string>
+    <string name="select_year_text">Selecciona un año</string>
+    <string name="introduce_year">Introduce una fecha</string>
 
 
 </resources>

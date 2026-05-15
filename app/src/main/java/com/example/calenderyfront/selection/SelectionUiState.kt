@@ -8,7 +8,7 @@ data class SelectionUiState (
     val userInfo: UserInfo,
     val chatOption: Boolean,
     val searchName : String = "",
-    val selectionUsersChatList: List<SelectionUserChatData> = emptyList(),
-    val selectionUsersProfileList: List<SelectionUserProfileData> = emptyList(),
+    val selectionContactsList: List<SelectionUserChatData> = emptyList(),
+    val selectionProfilesList: List<SelectionUserProfileData> = emptyList(),
     val lastPage: Boolean = false
 )

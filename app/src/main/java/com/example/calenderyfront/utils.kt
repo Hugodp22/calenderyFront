@@ -100,6 +100,8 @@ import java.security.spec.X509EncodedKeySpec
 
 const val pageSize = 6
 const val rowProfilePostSize = 3
+const val initialLoadDelay: Long = 1300
+const val datePastLimit = 1826
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -189,8 +191,7 @@ fun MessageLimitContent(
     postMessage: Boolean = false
 )
 {
-
-    OutlinedTextField (
+    OutlinedTextField(
         value = description ?: "",
         onValueChange = {
             //Le ponemos limite a la descripcion
@@ -721,7 +722,7 @@ fun SaveButton(
     }
 
     val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 15.sp
+        WindowWidthSizeClass.Compact -> 13.sp
         WindowWidthSizeClass.Medium -> 30.sp
         WindowWidthSizeClass.Expanded -> 20.sp
         else -> 18.sp

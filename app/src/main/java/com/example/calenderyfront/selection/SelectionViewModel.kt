@@ -45,6 +45,7 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     private var currentPageSelection = 0
     private val currentPageSize = pageSize
 
+
     init {
         loadNextPage()
     }
@@ -52,8 +53,8 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     fun onSearchChange(searchName: String) {
         _uiState.update { it.copy(
             searchName = searchName,
-            selectionUsersChatList = emptyList(),
-            selectionUsersProfileList = emptyList(),
+            selectionContactsList = emptyList(),
+            selectionProfilesList = emptyList(),
             lastPage = false
         )}
         currentPageSelection = 0
@@ -108,7 +109,7 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
 
                     if (usuariosCargados != null) {
                         _uiState.update { it.copy(
-                            selectionUsersProfileList = it.selectionUsersProfileList + usuariosCargados.content,
+                            selectionProfilesList = it.selectionProfilesList + usuariosCargados.content,
                             lastPage = usuariosCargados.content.size < currentPageSize
                         )}
 
@@ -156,7 +157,7 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
                         )}
 
                         _uiState.update { it.copy(
-                            selectionUsersChatList = it.selectionUsersChatList + mensajesDesencriptados,
+                            selectionContactsList = it.selectionContactsList + mensajesDesencriptados,
                             lastPage = contactosCargados.content.size < currentPageSize
                         )}
                         _state.value = SelectionState.PaginaCargada

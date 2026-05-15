@@ -14,8 +14,11 @@ import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
+import com.example.calenderyfront.initialLoadDelay
 import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,6 +41,7 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
     private var currentPagePosts = 0
     private var currentPageComments = 0
     private val currentPageSize = pageSize
+    private var jobLoadUserData : Job? = null
 
     init {
         loadUserData()
@@ -49,7 +53,11 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
     fun loadUserData() {
         _state.value = HomeState.Cargando
-        viewModelScope.launch(Dispatchers.IO) {
+
+        jobLoadUserData?.cancel()
+
+        jobLoadUserData = viewModelScope.launch(Dispatchers.IO) {
+            delay(initialLoadDelay)
             try {
                 val respuesta = RetrofitClient.usuarioApi.obtenerMisVisuales()
 
@@ -180,6 +188,10 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
             return
         }
 
+        _uiState.update { it.copy(
+            comment = ""
+        )}
+
         _state.value = HomeState.Cargando
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -203,24 +215,21 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                             comentario = currentState.comment
                         )
 
-                        _uiState.update {
-                            val postActualizados = currentState.posts.map { postInList ->
+                        val postActualizados = currentState.posts.map { postInList ->
 
-                                if (postInList.idPost == idPost) {
-                                    postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
-                                }
-                                else {
-                                    postInList
-                                }
+                            if (postInList.idPost == idPost) {
+                                postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
                             }
-                            val comentariosActualizados = listOf(newComment) + it.listComments
-
-                            currentState.copy(
-                                posts = postActualizados,
-                                listComments = comentariosActualizados,
-                                comment = ""
-                            )
+                            else {
+                                postInList
+                            }
                         }
+
+                        _uiState.update { it.copy(
+                            posts = postActualizados,
+                            listComments = listOf(newComment) + it.listComments,
+                            comment = ""
+                        )}
                         _state.value = HomeState.Iniciado
                     }
                 }

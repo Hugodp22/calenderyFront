@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -68,6 +71,7 @@ import com.example.calenderyfront.Model.DataObjects.TimeData
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
+import com.example.calenderyfront.datePastLimit
 import com.example.calenderyfront.profile.ProfileState
 import com.example.calenderyfront.profile.ProfileViewModel
 import com.example.calenderyfront.rowProfilePostSize
@@ -469,6 +473,7 @@ fun MonthTitle(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     canGoNext : Boolean,
+    canGoPrevious : Boolean,
     windowSize: WindowWidthSizeClass
 )
 {
@@ -524,9 +529,9 @@ fun MonthTitle(
             {
                 Text(
                     text = stringResource(R.string.left_arrow),
-                    modifier = Modifier.clickable { onPreviousMonth() },
+                    modifier = Modifier.then(if (canGoPrevious) Modifier.clickable { onPreviousMonth() } else Modifier),
                     fontSize = fontSizeArrows,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = if (canGoPrevious) MaterialTheme.colorScheme.tertiary else Color.Gray,
                 )
 
                 Column(
@@ -568,14 +573,8 @@ fun DatePickerDialog(
 {
     val currentDate = LocalDate.now()
     var selectedYear by remember { mutableStateOf(initialDate.year) }
-    var selectedMonth by remember { mutableStateOf(initialDate.monthValue) }
-
-    val canGoNextYear = selectedYear < currentDate.year
-
-    val monthName = remember(selectedMonth, selectedYear) {
-        LocalDate.of(selectedYear, selectedMonth, 1).format(DateTimeFormatter.ofPattern("MMMM"))
-            .replaceFirstChar { it.uppercase() }
-    }
+    val currentMonth = initialDate.monthValue
+    val currentYear = initialDate.year
 
     val fontSizeTitle = when (windowSize) {
         WindowWidthSizeClass.Compact -> 30.sp
@@ -590,54 +589,29 @@ fun DatePickerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-
-                    Text(
-                        text = stringResource(R.string.month),
-                        modifier = Modifier.weight(1f),
-                        fontSize = fontSizeTitle,
-                        fontFamily = BebasNeue,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-
-                    Text(
-                        text = stringResource(R.string.year),
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                        fontFamily = BebasNeue,
-                        fontSize = fontSizeTitle,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+            )
+            {
+                Text(
+                    text = stringResource(R.string.select_year_text),
+                    modifier = Modifier.weight(1f),
+                    fontSize = fontSizeTitle,
+                    fontFamily = BebasNeue,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
-                {
-                    PickerDateRow(
-                        modifier = Modifier.weight(1F),
-                        windowSize = windowSize,
-                        midleText = monthName,
-                        onClickLeftArrow = {
-                            if (selectedMonth == 1) selectedMonth = 12 else selectedMonth--
-                        },
-                        onClickRightArrow = {
-                            if (selectedMonth == 12) selectedMonth = 1 else selectedMonth++
-                        }
-                    )
-                    PickerDateRow(
-                        modifier = Modifier.weight(1F),
-                        windowSize = windowSize,
-                        midleText = selectedYear.toString(),
-                        onClickLeftArrow = { selectedYear-- },
-                        onClickRightArrow = { if (canGoNextYear) selectedYear++ }
-                    )
-                }
+
+                Spacer(Modifier.padding(bottom = 10.dp))
+
+                InputYearSelection(
+                    currentYear = selectedYear,
+                    modifier = Modifier,
+                    windowSize = windowSize,
+                    futureYearLimit = currentYear,
+                    pastYearLimit = datePastLimit,
+                    onValueChange = { selectedYear = it }
+                )
             }
         },
         confirmButton = {
@@ -648,10 +622,13 @@ fun DatePickerDialog(
             {
                 TextButton(
                     onClick = {
-                        if (selectedMonth > currentDate.monthValue && selectedYear == currentDate.year) {
-                            selectedMonth = currentDate.monthValue
+                        if (selectedYear < datePastLimit) {
+                            selectedYear = datePastLimit
                         }
-                        onConfirm(LocalDate.of(selectedYear, selectedMonth, 1))
+                        else if (selectedYear > currentYear) {
+                            selectedYear = currentYear
+                        }
+                        onConfirm(LocalDate.of(selectedYear, currentMonth, 1))
                     },
                     colors = ButtonColors(
                         containerColor = MaterialTheme.colorScheme.onSecondary,
@@ -673,22 +650,20 @@ fun DatePickerDialog(
 }
 
 @Composable
-fun PickerDateRow(
+fun InputYearSelection(
     modifier: Modifier = Modifier,
+    currentYear: Int,
+    futureYearLimit: Int,
+    pastYearLimit: Int,
+    onValueChange: (Int) -> Unit,
     windowSize: WindowWidthSizeClass,
-    midleText: String,
-    onClickLeftArrow: () -> Unit,
-    onClickRightArrow: () -> Unit,
 )
 {
+    var yearValue by remember(currentYear) { mutableStateOf(currentYear.toString()) }
+
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
         else -> 15.sp
-    }
-
-    val fontSizeArrows = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 25.sp
-        else -> 25.sp
     }
 
     Row(
@@ -697,26 +672,21 @@ fun PickerDateRow(
         horizontalArrangement = Arrangement.Center
     )
     {
-        Text(
-            modifier = Modifier.clickable {onClickLeftArrow()},
-            text = stringResource(R.string.left_arrow),
-            fontSize = fontSizeArrows,
-            color = MaterialTheme.colorScheme.tertiary
-        )
-
-        Text(
-            text = midleText,
-            modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-            textAlign = TextAlign.Center,
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
-        )
-
-        Text(
-            modifier = Modifier.clickable {onClickRightArrow()},
-            text = stringResource(R.string.right_arrow),
-            fontSize = fontSizeArrows,
-            color = MaterialTheme.colorScheme.tertiary
+        TextField(
+            modifier = Modifier,
+            value = yearValue,
+            onValueChange =  { currentYear ->
+                var yearInt = currentYear.toIntOrNull()
+                yearInt?.let {
+                    if (yearInt > futureYearLimit) {
+                        yearInt = futureYearLimit
+                    }
+                    onValueChange(if (yearInt > pastYearLimit) yearInt else pastYearLimit)
+                }
+            },
+            placeholder = { stringResource(R.string.introduce_year) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
     }
 }
@@ -778,9 +748,11 @@ fun ProfileScreen(
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
-    var selectedMonth by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes que puede variar
+    var selectedDate by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes que puede variar
     val realCurrentMonth = remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
-    val canGoNext = selectedMonth.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
+
+    val canGoNext = selectedDate.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
+    val canGoPrevious = selectedDate.isAfter(LocalDate.ofYearDay(1826,1))
 
     val otherUser = uiState.otherUserId != null //Para saber si hemos entrado en el perfil nuestro o de otro usuario
 
@@ -814,15 +786,15 @@ fun ProfileScreen(
         }
     }
 
-    LaunchedEffect(selectedMonth) {
+    LaunchedEffect(selectedDate) {
         gridState.scrollToItem(0) //Cuando cambiemos de mes, vamos al indice 0 para volver arriba y no quedarnos abajo
-        viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
+        viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
     }
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
     LaunchedEffect(scrollEnElFinal) {
         if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPaginaPosts && uiState.publicaciones.isNotEmpty()) {
-            viewModel.loadPublicationsByDate(selectedMonth.year, selectedMonth.monthValue)
+            viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
         }
     }
 
@@ -873,24 +845,27 @@ fun ProfileScreen(
 
         item(span = { GridItemSpan(maxLineSpan) }) {
             MonthTitle(
-                localDate = selectedMonth,
+                localDate = selectedDate,
                 windowSize = windowSize,
                 onClickTitle = { showDatePicker = true },
                 onPreviousMonth = {
-                    selectedMonth = selectedMonth.minusMonths(1)
-                    viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
+                    selectedDate = selectedDate.minusMonths(1)
+                    if (canGoPrevious) {
+                        viewModel.loadPublicationsByDate(selectedDate.year,selectedDate.monthValue)
+                    }
                                   },
                 onNextMonth = {
                     if (canGoNext) {
-                        selectedMonth = selectedMonth.plusMonths(1)
-                        viewModel.loadPublicationsByDate(selectedMonth.year,selectedMonth.monthValue)
+                        selectedDate = selectedDate.plusMonths(1)
+                        viewModel.loadPublicationsByDate(selectedDate.year,selectedDate.monthValue)
                     }
                 },
-                canGoNext = canGoNext
+                canGoNext = canGoNext,
+                canGoPrevious = canGoPrevious
             )
         }
 
-        val currentMonthData = groupedPost[selectedMonth]
+        val currentMonthData = groupedPost[selectedDate]
 
             if (currentMonthData != null) {
                 currentMonthData.forEach { (weekOfMonth, postsOfWeek) ->
@@ -975,10 +950,10 @@ fun ProfileScreen(
 
     if (showDatePicker) {
         DatePickerDialog(
-            initialDate = selectedMonth,
+            initialDate = selectedDate,
             onDismiss = { showDatePicker = false },
-            onConfirm = { selectedDate ->
-                selectedMonth = selectedDate
+            onConfirm = { dateSelected ->
+                selectedDate = dateSelected
                 viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
                 showDatePicker = false
             },

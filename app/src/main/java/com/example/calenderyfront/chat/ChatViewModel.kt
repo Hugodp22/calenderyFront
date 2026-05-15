@@ -19,12 +19,14 @@ import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.existPublicKeyInLocal
 import com.example.calenderyfront.getOtherUsersPublicKeyFromLocal
 import com.example.calenderyfront.getUserKeyPairFromAndroidStore
+import com.example.calenderyfront.initialLoadDelay
 import com.example.calenderyfront.pageSize
 import com.example.calenderyfront.savePublicKeyInLocal
 import com.example.calenderyfront.stringToPublicKey
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,13 +50,14 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     private val otherUserPhoto = route.otherUserPhoto
 
     private var currentPageMessages = 0 // página actual
-    private val currentPageSize = pageSize // tamaño dee la página
+    private val currentPageSize = 20 // tamaño dee la página
 
     private var myPublicKey : PublicKey? = null
     private var myPrivateKey : PrivateKey? = null
     private var otherUserPublicKey : PublicKey? = null
     private var firstRead: Boolean = true
-    private var jobReadMessages: Job? = null
+    private var jobNewMessage: Job? = null
+    private var jobLoadAllMessages: Job? = null
 
 
     // state control de flujo
@@ -88,28 +91,60 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
     fun observerMessages() {
         viewModelScope.launch {
             WebSocketClient.messageFlow.collect { messageJSON ->
-                val messageResponseDtoReceived = Gson().fromJson(messageJSON, MessageResponseDto::class.java)
+                var messageResponseDtoReceived = Gson().fromJson(messageJSON, MessageResponseDto::class.java)
 
-                if (messageResponseDtoReceived.idChat != idChat) {
+                if (messageResponseDtoReceived.idChat != idChat || myPrivateKey == null) {
                     return@collect
                 }
+
+                val desencryptMessage = decryptMessage(messageResponseDtoReceived.contenido, myPrivateKey!!) ?: return@collect
+
+                messageResponseDtoReceived = messageResponseDtoReceived.copy(
+                    contenido = desencryptMessage
+                )
+
                 _uiState.update {
                     it.copy(
-                        messages = it.messages + messageResponseDtoReceived
+                        messages = listOf(messageResponseDtoReceived) + it.messages
                     )
                 }
-                markMessageAsRead()
+                markNewMessageAsRead(messageResponseDtoReceived.idMensaje)
             }
         }
     }
 
-    fun markMessageAsRead() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun markNewMessageAsRead(idMensaje: Int) {
+        viewModelScope.launch {
             try {
-                val respuesta = RetrofitClient.chatApi.marcarMensajesComoLeidos(idChat)
+                val respuesta = RetrofitClient.chatApi.marcarNuevoMensajeComoLeido(idMensaje = idMensaje)
 
                 if (respuesta.isSuccessful) {
                     _state.value = ChatState.Started
+                }
+
+                else {
+                    _state.value = ChatState.Error(errorMessages(respuesta.code()))
+                }
+            }
+            catch (e: Exception) {
+                _state.value = ChatState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun markMessagesAsRead() {
+        val currentUiState = uiState.value
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.chatApi.marcarMensajesComoLeidos(idUsuario = userInfo.idUsuario, idChat = idChat)
+
+                if (respuesta.isSuccessful) {
+                    currentUiState.messages.map { message ->
+                        message.copy(
+                            estadoMensaje = "LEIDO"
+                        )
+                    }
                 }
 
                 else {
@@ -142,7 +177,10 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
 
         _state.value = ChatState.Loading
 
-        viewModelScope.launch(Dispatchers.IO) {
+        jobLoadAllMessages?.cancel()
+
+        jobLoadAllMessages = viewModelScope.launch(Dispatchers.IO) {
+            delay(initialLoadDelay)
             try {
                 val respuesta = RetrofitClient.chatApi.getMessages(
                     usuarioActual = userInfo.idUsuario,
@@ -171,11 +209,12 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
                                 lastMessage = mensajesCargados.content.size < currentPageSize
                             )
                         }
+
                         _state.value = ChatState.Started
                         currentPageMessages++ // siguiente página
 
                         if (firstRead) {
-                            markMessageAsRead()
+                            markMessagesAsRead()
                             firstRead = false
                         }
                     }
@@ -261,7 +300,6 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
 
     private fun decryptMessage(message: String, myPrivateKey: PrivateKey): String? {
         return try {
-//            val cleanMessage = message.replace("\n", "").replace("\r", "").trim()
             val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
             cipher.init(Cipher.DECRYPT_MODE, myPrivateKey)
 
@@ -271,7 +309,7 @@ class ChatViewModel(application: Application, path: SavedStateHandle) : AndroidV
             String(decryptedBytes, Charsets.UTF_8)
         }
         catch (e: Exception) {
-            Log.d("CRYPT","Error al desencriptar mensaje $e")
+            Log.d("DECRYPT","Error al desencriptar mensaje $e")
             null
         }
     }

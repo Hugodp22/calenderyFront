@@ -15,6 +15,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.errorMessages
+import com.example.calenderyfront.initialLoadDelay
 import com.example.calenderyfront.pageSize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -49,8 +50,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
     private val currentPageSize = pageSize
     private var lastLoadedYear: Int? = null
     private var lastLoadedMonth: Int? = null
-
     private var searchJobMonth: Job? = null
+    private var jobLoadUserData: Job? = null
 
     init {
         //Para evitar errores si llegas a tu perfil mediante un comentario tuyo
@@ -66,7 +67,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
     private fun loadProfile() {
         val currentUiState = _uiState.value
-        viewModelScope.launch(Dispatchers.IO) {
+
+        jobLoadUserData?.cancel()
+
+        jobLoadUserData = viewModelScope.launch(Dispatchers.IO) {
+            delay(initialLoadDelay)
             try {
                 val respuesta = RetrofitClient.usuarioApi.buscarDatosPerfil(currentUiState.mainId)
 
@@ -303,6 +308,35 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    fun newCommentLocal(currentState: ProfileUiState,idPost: Int,idComentario: Int) {
+
+        val newComment = Comment(
+            idUsuario = userInfo.idUsuario,
+            idComentario = idComentario,
+            nombreUsuario = currentState.miNombre ?: currentState.nombreUsuario,
+            fotoUsuario = currentState.miFoto ?: currentState.fotoUsuario,
+            comentario = currentState.comment
+        )
+
+        _uiState.update {
+            val postActualizados = currentState.publicaciones.map { postInList ->
+
+                if (postInList.id == idPost) {
+                    postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
+                }
+                else {
+                    postInList
+                }
+            }
+            val comentariosActualizados = listOf(newComment) + it.comentarios
+
+            currentState.copy(
+                publicaciones = postActualizados,
+                comentarios = comentariosActualizados,
+            )
+        }
+    }
+
     fun sendCommentToPost(idPost: Int) {
         val currentState = _uiState.value
 
@@ -312,6 +346,10 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
 
         _state.value = ProfileState.Cargando
+
+        _uiState.update { it.copy(
+            comment = ""
+        )}
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -327,32 +365,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                     val idComentario = respuesta.body()
 
                     if (idComentario != null) {
-                        val newComment = Comment(
-                            idUsuario = userInfo.idUsuario,
-                            idComentario = idComentario,
-                            nombreUsuario = currentState.miNombre ?: currentState.nombreUsuario,
-                            fotoUsuario = currentState.miFoto ?: currentState.fotoUsuario,
-                            comentario = currentState.comment
-                        )
-
-                        _uiState.update {
-                            val postActualizados = currentState.publicaciones.map { postInList ->
-
-                                if (postInList.id == idPost) {
-                                    postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
-                                }
-                                else {
-                                    postInList
-                                }
-                            }
-                            val comentariosActualizados = listOf(newComment) + it.comentarios
-
-                            currentState.copy(
-                                publicaciones = postActualizados,
-                                comentarios = comentariosActualizados,
-                                comment = ""
-                            )
-                        }
+                        newCommentLocal(currentState = currentState, idPost = idPost, idComentario = idComentario)
                         _state.value = ProfileState.Iniciado
                     }
                 }

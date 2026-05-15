@@ -45,6 +45,7 @@ import androidx.navigation.toRoute
 import com.example.calenderyfront.Model.DataObjects.Chat
 import com.example.calenderyfront.Model.DataObjects.Home
 import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.MessageResponseDto
 import com.example.calenderyfront.Model.DataObjects.PostDataUpload
 import com.example.calenderyfront.Model.DataObjects.Profile
 import com.example.calenderyfront.Model.DataObjects.Redirect
@@ -72,7 +73,8 @@ import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import com.example.calenderyfront.userAuth.SessionManager
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
 class MainActivity : ComponentActivity() {
@@ -83,14 +85,9 @@ class MainActivity : ComponentActivity() {
         //Cargamos el servicio de webSocket
         val intent = Intent(this, WebSocketService::class.java)
         startService(intent)
-
         //Añadimos un observador a la app
         ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleObserver(this))
-
         RetrofitClient.init(applicationContext) //Iniciamos el retroFit para las peticiones
-
-//        SessionManager.clearSession(applicationContext) //Para probar otras pantallas de inicio
-
         enableEdgeToEdge()
         setContent {
             CalenderyFrontTheme {
@@ -114,19 +111,23 @@ fun CalenderyApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    val userInChatSelection = currentDestination?.hasRoute<Selection>() ?: false
-    var bottomBarState by remember { mutableStateOf(BottomBarState()) }
+    var bottomBarState by remember { mutableStateOf(BottomBarState(currentScreen = currentDestination)) }
+    val userInChatSelection = bottomBarState.currentScreen?.hasRoute<Selection>() ?: false
 
     LaunchedEffect(Unit) {
-        WebSocketClient.messageFlow.collect {
+        WebSocketClient.messageFlow.collect { messageJSON ->
             if (!userInChatSelection) {
                 bottomBarState = bottomBarState.copy(newMessage = true)
+                val messageResponseDtoReceived = Gson().fromJson(messageJSON, MessageResponseDto::class.java)
+                launch {
+                    RetrofitClient.chatApi.marcarNuevoMensajeComoPendiente(idMensaje = messageResponseDtoReceived.idMensaje)
+                }
             }
         }
     }
 
     LaunchedEffect(userInChatSelection) {
-        if (userInChatSelection)  {
+        if (userInChatSelection) {
             bottomBarState = bottomBarState.copy(newMessage = false)
         }
     }
