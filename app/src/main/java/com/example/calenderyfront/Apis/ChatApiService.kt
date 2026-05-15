@@ -8,6 +8,7 @@ import retrofit2.Response;
 import retrofit2.http.Body
 import retrofit2.http.GET;
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query;
 
 interface ChatApiService {
@@ -25,7 +26,13 @@ interface ChatApiService {
     @GET("api/chat/getUserChat")
     suspend fun obtenerIdChat(@Query("idUsuario") idUsuario: Int): Response<ChatId>
 
-    @POST("")
-    suspend fun marcarMensajesComoLeidos(@Query("idChat")idChat: Int): Response<Unit>
+    @PUT("api/messages/app/changeMessageToDeliveredState")
+    suspend fun marcarNuevoMensajeComoPendiente(@Query ("idMensaje") idMensaje: Int): Response<Unit>
+
+    @PUT("api/messages/app/changeMessageToReadedState")
+    suspend fun marcarNuevoMensajeComoLeido(@Query("idMensaje") idMensaje: Int): Response<Unit>
+
+    @PUT("api/messages/app/changeAllChatMessagesToReadedState")
+    suspend fun marcarMensajesComoLeidos(@Query("idUsuario") idUsuario: Int, @Query("idChat")idChat: Int): Response<Unit>
 
 }

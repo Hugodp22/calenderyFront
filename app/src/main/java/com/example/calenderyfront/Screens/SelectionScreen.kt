@@ -318,7 +318,7 @@ fun SelectionScreen(
         }
 
         if (chatOption) {
-            items(items = uiState.selectionUsersChatList) { user ->
+            items(items = uiState.selectionContactsList) { user ->
                 UserSelectionChatInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,
@@ -330,7 +330,7 @@ fun SelectionScreen(
         }
         else {
             //uiState.selectionUsersProfileList
-            items(items = uiState.selectionUsersProfileList) { user ->
+            items(items = uiState.selectionProfilesList) { user ->
                 UserSelectionProfileInfo(
                     userSelectionUserData = user,
                     windowSize = windowSize,

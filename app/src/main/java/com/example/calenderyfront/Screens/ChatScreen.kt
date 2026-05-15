@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -33,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.calenderyfront.Model.DataObjects.MessageResponseDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.R
+import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
 import com.example.calenderyfront.chat.Components.ChatTopBar
 @Composable
@@ -116,12 +118,11 @@ fun ChatScreen(
         }
     }
 
-    // paginación al llegar arriba
-//    LaunchedEffect(scrollEnArriba) {
-//        if (scrollEnArriba && state !is ChatState.Loading && !uiState.lastMessage) {
-//            viewModel.loadMessages() // carga más mensajes
-//        }
-//    }
+    LaunchedEffect(scrollEnArriba) {
+        if (scrollEnArriba && state !is ChatState.Loading && !uiState.lastMessage) {
+            viewModel.loadMessages()
+        }
+    }
 
     Scaffold(
         topBar = {
