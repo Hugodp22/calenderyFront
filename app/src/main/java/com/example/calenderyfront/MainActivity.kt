@@ -166,7 +166,7 @@ fun CalenderyApp(
                     onNavigateToWaitingForLink = { userInfo ->
                         navController.navigate(VerifyLink(userInfo))
                     },
-                    onNavigateToProfile = { userInfo ->
+                    onNavigateToHome = { userInfo ->
                         navController.navigate(Home(userInfo))
                     }
                 )

@@ -101,7 +101,7 @@ import java.security.spec.X509EncodedKeySpec
 const val pageSize = 6
 const val rowProfilePostSize = 3
 const val initialLoadDelay: Long = 1300
-const val datePastLimit = 1826
+const val datePastLimit = 1900
 
 /**
  * Creacion de un input con capacidad de manejar errores
@@ -320,7 +320,7 @@ fun ExpandedPhotoPost(
 {
     var currentZoom by remember { mutableStateOf(1f) }
 
-    val maxZoomIcons = 1.1F
+    val maxZoomIcons = 1.01F
 
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 64.dp
@@ -331,9 +331,14 @@ fun ExpandedPhotoPost(
 
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.7F
-        WindowWidthSizeClass.Medium -> 0.7F
-        WindowWidthSizeClass.Expanded -> 0.7F
-        else -> 0.7F
+        WindowWidthSizeClass.Medium -> 0.4F
+        WindowWidthSizeClass.Expanded -> 0.4F
+        else -> 0.4F
+    }
+
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 17.sp
+        else -> 22.sp
     }
 
     Dialog(
@@ -364,8 +369,18 @@ fun ExpandedPhotoPost(
             )
             {
                 if (currentZoom < maxZoomIcons) {
-                    IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
-                    IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
+                    Card(
+                        shape = RoundedCornerShape(32.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.onSecondaryFixed,
+                            contentColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    )
+                    {
+                        IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
+                        IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
+                        Spacer(Modifier.padding(bottom = 20.dp))
+                    }
                 }
             }
 
@@ -378,13 +393,14 @@ fun ExpandedPhotoPost(
                             .padding(bottom = 30.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.onSecondaryFixed,
                             contentColor = MaterialTheme.colorScheme.tertiary
                         ),
                     )
                     {
                         Text(
                             text = it,
+                            fontSize = fontSize,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.fillMaxWidth().padding(10.dp)

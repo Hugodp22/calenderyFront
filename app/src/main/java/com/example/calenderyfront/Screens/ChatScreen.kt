@@ -18,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,6 +70,7 @@ fun MessageItem(
         {
             Text(
                 text = message.contenido,
+                color = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier.padding(8.dp),
                 softWrap = true,
                 overflow = TextOverflow.Clip,
@@ -139,6 +143,10 @@ fun ChatScreen(
                 TextField(
                     value = uiState.currentMessage,
                     onValueChange = { viewModel.onMessageChange(it) },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.tertiary
+                    ),
                     modifier = Modifier.weight(1f)
                 )
 
