@@ -7,17 +7,26 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -27,12 +36,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -72,6 +83,7 @@ import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
+import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -135,8 +147,9 @@ fun CalenderyApp(
     val showBottomBar = currentDestination?.let { dest ->
         dest.hasRoute<Home>() || dest.hasRoute<Selection>() || dest.hasRoute<Profile>()
     } ?: false
+
     val showTopBar = currentDestination?.let { dest ->
-        dest.hasRoute<Home>() || dest.hasRoute<Selection>() || dest.hasRoute<Profile>()
+        dest.hasRoute<Home>() || dest.hasRoute<Selection>()
     } ?: false
 
     Scaffold(
@@ -151,12 +164,12 @@ fun CalenderyApp(
                 )
             }
         },
-        // TOP BAR
         topBar = {
-
-            CalenderyTopBar(
-                windowSize = windowSize
-            )
+            if (showTopBar) {
+                CalenderyTopBar(
+                    windowSize = windowSize,
+                )
+            }
         }
     )
     { innerPadding ->
@@ -340,6 +353,62 @@ fun CalenderyApp(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CalenderyTopBar(
+    windowSize: WindowWidthSizeClass
+)
+{
+    val logoSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 72.dp
+        WindowWidthSizeClass.Medium -> 86.dp
+        WindowWidthSizeClass.Expanded -> 96.dp
+        else -> 72.dp
+    }
+
+    val titleSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 28.sp
+        WindowWidthSizeClass.Medium -> 34.sp
+        WindowWidthSizeClass.Expanded -> 38.sp
+        else -> 28.sp
+    }
+
+    val spacerWidth = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 8.dp
+        WindowWidthSizeClass.Medium -> 10.dp
+        WindowWidthSizeClass.Expanded -> 12.dp
+        else -> 8.dp
+    }
+
+    CenterAlignedTopAppBar(
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            )
+            {
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = stringResource(R.string.calendary_app),
+                    modifier = Modifier.size(logoSize)
+                )
+
+                Spacer(
+                    modifier = Modifier.width(spacerWidth)
+                )
+
+                Text(
+                    text = stringResource(R.string.calendary_app),
+                    fontFamily = BebasNeue,
+                    fontSize = titleSize,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+        }
+    )
 }
 
 @Composable

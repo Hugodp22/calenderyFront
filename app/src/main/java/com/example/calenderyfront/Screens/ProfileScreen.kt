@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -128,7 +127,7 @@ fun ProfileHeader(
                 .fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.primary)
                 .padding(horizontal = width)
-                .padding(top = 64.dp)
+                .padding(top = 32.dp)
         )
         {
             Row(
@@ -199,7 +198,7 @@ fun ProfileHeader(
             IconsBox(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 34.dp, end = 18.dp),
+                    .padding(top = 14.dp, end = 18.dp),
                 windowSize = windowSize,
                 leftIcon = R.drawable.upload,
                 descriptionLeft = R.string.upload_message,
@@ -574,7 +573,7 @@ fun DatePickerDialog(
 {
     var selectedYear by remember { mutableStateOf(initialDate.year) }
     val currentMonth = initialDate.monthValue
-    val currentYear = initialDate.year
+    val realCurrentYear = LocalDate.now().year
 
     val fontSizeTitle = when (windowSize) {
         WindowWidthSizeClass.Compact -> 30.sp
@@ -613,7 +612,7 @@ fun DatePickerDialog(
                 InputYearSelection(
                     currentYear = selectedYear,
                     modifier = Modifier,
-                    futureYearLimit = currentYear,
+                    futureYearLimit = realCurrentYear,
                     onValueChange = { selectedYear = it }
                 )
             }
@@ -629,8 +628,8 @@ fun DatePickerDialog(
                         if (selectedYear < datePastLimit) {
                             selectedYear = datePastLimit
                         }
-                        else if (selectedYear > currentYear) {
-                            selectedYear = currentYear
+                        else if (selectedYear > realCurrentYear) {
+                            selectedYear = realCurrentYear
                         }
                         onConfirm(LocalDate.of(selectedYear, currentMonth, 1))
                     },
