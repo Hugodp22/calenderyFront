@@ -97,6 +97,6 @@
     <string name="exit_session">Cerrar Sesión</string>
     <string name="select_year_text">Selecciona un año</string>
     <string name="introduce_year">Introduce una fecha</string>
-
+    <string name="calendary_app">CalenderyApp</string>
 
 </resources>

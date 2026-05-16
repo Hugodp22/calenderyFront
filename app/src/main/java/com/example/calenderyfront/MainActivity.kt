@@ -135,6 +135,9 @@ fun CalenderyApp(
     val showBottomBar = currentDestination?.let { dest ->
         dest.hasRoute<Home>() || dest.hasRoute<Selection>() || dest.hasRoute<Profile>()
     } ?: false
+    val showTopBar = currentDestination?.let { dest ->
+        dest.hasRoute<Home>() || dest.hasRoute<Selection>() || dest.hasRoute<Profile>()
+    } ?: false
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -148,11 +151,17 @@ fun CalenderyApp(
                 )
             }
         },
-        //topBar =
+        // TOP BAR
+        topBar = {
+
+            CalenderyTopBar(
+                windowSize = windowSize
+            )
+        }
     )
     { innerPadding ->
         NavHost(
-            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding()),
+            modifier = Modifier.padding(innerPadding),
             navController = navController,
             startDestination = Redirect,
         )
