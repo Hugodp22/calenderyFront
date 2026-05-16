@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -117,8 +118,8 @@ fun ProfileHeader(
     val fontSizeName = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
         WindowWidthSizeClass.Medium -> 20.sp
-        WindowWidthSizeClass.Expanded -> 15.sp
-        else -> 15.sp
+        WindowWidthSizeClass.Expanded -> 22.sp
+        else -> 22.sp
     }
 
     Box(modifier = modifier.fillMaxWidth()) {
@@ -571,45 +572,48 @@ fun DatePickerDialog(
     windowSize: WindowWidthSizeClass
 )
 {
-    val currentDate = LocalDate.now()
     var selectedYear by remember { mutableStateOf(initialDate.year) }
     val currentMonth = initialDate.monthValue
     val currentYear = initialDate.year
 
     val fontSizeTitle = when (windowSize) {
         WindowWidthSizeClass.Compact -> 30.sp
-        else -> 30.sp
+        else -> 35.sp
     }
 
     val fontSizeButton = when (windowSize) {
         WindowWidthSizeClass.Compact -> 17.sp
-        else -> 17.sp
+        else -> 22.sp
+    }
+
+    val spacer = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 10.dp
+        else -> 15.dp
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         text = {
             Column(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             )
             {
                 Text(
                     text = stringResource(R.string.select_year_text),
-                    modifier = Modifier.weight(1f),
                     fontSize = fontSizeTitle,
                     fontFamily = BebasNeue,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                Spacer(Modifier.padding(bottom = 10.dp))
+                Spacer(Modifier.padding(bottom = spacer))
 
                 InputYearSelection(
                     currentYear = selectedYear,
                     modifier = Modifier,
-                    windowSize = windowSize,
                     futureYearLimit = currentYear,
-                    pastYearLimit = datePastLimit,
                     onValueChange = { selectedYear = it }
                 )
             }
@@ -654,20 +658,13 @@ fun InputYearSelection(
     modifier: Modifier = Modifier,
     currentYear: Int,
     futureYearLimit: Int,
-    pastYearLimit: Int,
     onValueChange: (Int) -> Unit,
-    windowSize: WindowWidthSizeClass,
 )
 {
     var yearValue by remember(currentYear) { mutableStateOf(currentYear.toString()) }
 
-    val fontSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 15.sp
-        else -> 15.sp
-    }
-
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     )
@@ -676,18 +673,28 @@ fun InputYearSelection(
             modifier = Modifier,
             value = yearValue,
             onValueChange =  { currentYear ->
-                var yearInt = currentYear.toIntOrNull()
-                yearInt?.let {
-                    if (yearInt > futureYearLimit) {
-                        yearInt = futureYearLimit
+                if (currentYear.isEmpty()) {
+                    yearValue = ""
+                }
+                else {
+                    val yearInt = currentYear.toIntOrNull()
+                    yearInt?.let {
+                        if (yearInt > futureYearLimit) {
+                            yearValue = futureYearLimit.toString()
+                            onValueChange(futureYearLimit)
+                        }
+                        else {
+                            yearValue = currentYear
+                            onValueChange(yearInt)
+                        }
                     }
-                    onValueChange(if (yearInt > pastYearLimit) yearInt else pastYearLimit)
                 }
             },
             placeholder = { stringResource(R.string.introduce_year) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        )
+            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp) //Si lo importo da error con otro
+            )
     }
 }
 

@@ -6,15 +6,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.example.calenderyfront.Model.DataObjects.MessageResponseDto
 import com.example.calenderyfront.Model.DataObjects.Selection
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.Model.DataObjects.UserInfoNavType
 import com.example.calenderyfront.R
 import com.example.calenderyfront.clients.RetrofitClient
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.errorMessages
 import com.example.calenderyfront.getUserKeyPairFromAndroidStore
 import com.example.calenderyfront.pageSize
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,6 +52,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
 
     init {
         loadNextPage()
+        if (chatOption) {
+            observerMessages()
+        }
     }
 
     fun onSearchChange(searchName: String) {
@@ -58,6 +65,53 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
             lastPage = false
         )}
         currentPageSelection = 0
+    }
+
+    fun observerMessages() {
+        viewModelScope.launch {
+            WebSocketClient.messageFlow.collect { messageJSON ->
+                val messageResponseDtoReceived = Gson().fromJson(messageJSON, MessageResponseDto::class.java)
+
+                if (myPrivateKey == null) {
+                    return@collect
+                }
+
+                val desencryptMessage = decryptMessage(messageResponseDtoReceived.contenido, myPrivateKey!!)
+                orderContactsList(idChat = messageResponseDtoReceived.idChat, decryptMessage = desencryptMessage)
+                markNewMessageAsSended(idMensaje = messageResponseDtoReceived.idMensaje)
+            }
+        }
+    }
+
+    fun orderContactsList(idChat: Int, decryptMessage: String) {
+        val currentState = _uiState.value
+        val sortedContacts = currentState.selectionContactsList
+            .map { contact ->
+                if (contact.idChat == idChat) contact.copy(
+                    ultimoMensaje = decryptMessage,
+                    mensajeNuevo = true
+                )
+                else contact
+            }
+            .sortedByDescending { it.idChat == idChat }
+        _uiState.update { it.copy(selectionContactsList = sortedContacts) }
+    }
+
+    fun markNewMessageAsSended(idMensaje: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.chatApi.marcarNuevoMensajeComoPendiente(idMensaje = idMensaje)
+
+                if (!respuesta.isSuccessful) {
+                    delay(1000)
+                    markNewMessageAsSended(idMensaje = idMensaje)
+                }
+            }
+            catch (e: Exception) {
+                delay(1000)
+                markNewMessageAsSended(idMensaje = idMensaje)
+            }
+        }
     }
 
     fun loadMyPrivateKey() {
@@ -154,7 +208,7 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
                             }
                             contact.copy(
                                 ultimoMensaje = realMessage ?: "Error"
-                        )}
+                        )}.sortedByDescending { it.mensajeNuevo == true }
 
                         _uiState.update { it.copy(
                             selectionContactsList = it.selectionContactsList + mensajesDesencriptados,
@@ -175,7 +229,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     }
 
     fun loadNextPage() {
-        loadMyPrivateKey()
+        if (myPrivateKey == null) {
+            loadMyPrivateKey()
+        }
         if (chatOption) {
             searchContactByName()
         }

@@ -20,6 +20,8 @@ val BotonDejarSeguirClaro = Color(0xAF911E1E)
 
 val ColorNotificacionClaro = Color(0xAFFF5300)
 
+val FondoIconosPublicacionesClaro = Color(0xC8FFFFFF)
+
 
 
 val PrincipalOscuro = Color(0xFF000000)
@@ -41,3 +43,5 @@ val BotonCargandoDejarSeguirOscuro = Color(0xAF591717)
 val BotonDejarSeguirOscuro = Color(0xAF911E1E)
 
 val ColorNotificacionOscuro = Color(0xAFFF5300)
+
+val FondoIconosPublicacionesOscuro = Color(0xFF2F2E2E)
