@@ -330,25 +330,25 @@ fun HomeScreen(
         )
         {
             items(items = uiState.posts, key = { it.idPost }) { postClick ->
-                val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
-                val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
-                val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+                val favouriteIcon = if (postClick.like) R.drawable.favourite_filled else R.drawable.favourite
 
                 PostHomeCreation(
                     userInfo = uiState.userInfo,
-                    photoUser = postToShow.fotoUsuario,
-                    post = postToShow,
+                    photoUser = postClick.fotoUsuario,
+                    post = postClick,
                     windowSize = windowSize,
                     likeIcon = favouriteIcon,
                     onClickPostProfile = { user, id -> onNavigateToOtherProfile(user, id) },
-                    onClickPostPhoto = {selectedPost = postToShow},
+                    onClickPostPhoto = { selectedPost = postClick },
                     onClickLikeIcon = {
-                        if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
+                        if (!postClick.like) viewModel.likePost(postClick) else viewModel.unLikePost(
+                            postClick
+                        )
                     },
                     onClickCommentIcon = {
-                        commentsPostId = postToShow.idPost
+                        commentsPostId = postClick.idPost
                         viewModel.deleteCommentsLoaded()
-                        viewModel.getCommentsPost(idPost = postToShow.idPost)
+                        viewModel.getCommentsPost(idPost = postClick.idPost)
                         showComments = true
                     },
                 )

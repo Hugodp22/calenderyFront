@@ -1,5 +1,6 @@
 package com.example.calenderyfront.home
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,7 +42,6 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
     init {
         loadUserData()
-        loadPosts() //Y esto estaba abajo al acabar loadUserData con succesful
     }
 
     fun onCommentChange(comment: String) {
@@ -49,13 +49,16 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
     }
 
     fun loadUserData() {
-//        _state.value = HomeState.Cargando
+      _state.value = HomeState.Cargando
         viewModelScope.launch(Dispatchers.IO) {
+            val startTime = System.currentTimeMillis()
             try {
                 val respuesta = RetrofitClient.usuarioApi.obtenerMisVisuales()
 
                 if (respuesta.isSuccessful) {
                     val data = respuesta.body()
+                    val totalTime = System.currentTimeMillis() - startTime
+                    Log.d("Performance", "Posts cargados en: ${totalTime}ms")
 
                     if (data != null) {
                         _uiState.update {
@@ -64,7 +67,8 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
                                 photoUser = data.fotoPerfil
                             )
                         }
-//                        _state.value = HomeState.Iniciado
+                       _state.value = HomeState.Iniciado
+                        loadPosts()
                     }
                 }
                 else {
@@ -101,6 +105,8 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
         _state.value = HomeState.Cargando
 
         viewModelScope.launch(Dispatchers.IO) {
+            val startTime = System.currentTimeMillis() // 1. Empezamos aquí
+
             try {
                 val respuesta = RetrofitClient.publicacionApi.obtenerPublicacionesHome(
                     page = currentPagePosts,
@@ -109,6 +115,8 @@ class HomeViewModel(path: SavedStateHandle): ViewModel(){
 
                 if (respuesta.isSuccessful) {
                     val listaDtoObtenida = respuesta.body()
+                    val totalTime = System.currentTimeMillis() - startTime
+                    Log.d("Performance", "Carga completa de la pantalla en: ${totalTime}ms")
 
                     if (listaDtoObtenida != null) {
                         val nuevasPublicacionesHome = listaDtoObtenida.content.map { postDto -> dtoPostToHomePost(publicacionHomeDto = postDto) }

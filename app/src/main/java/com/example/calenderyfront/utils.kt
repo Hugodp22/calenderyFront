@@ -106,7 +106,7 @@ const val rowProfilePostSize = 3
  */
 @Composable
 fun InputCreation(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     @StringRes title: Int,
     value: String,
     onValueChange: (String) -> Unit,
@@ -114,8 +114,7 @@ fun InputCreation(
     isPassword: Boolean = false,
     error: Boolean = false, //El error que va a gestionar el view model
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     var passwordVisible by remember { mutableStateOf(false) } //Variable para saber si se muestra o no la contrasñea
 
     val fontSize = when (windowSize) {
@@ -142,11 +141,11 @@ fun InputCreation(
             isError = error,
             placeholder = {
                 Text(
-                text = stringResource(placeholderRes),
+                    text = stringResource(placeholderRes),
                     fontSize = fontSize,
-                color = Color.Gray,
-                maxLines = 1,
-                softWrap = false,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    softWrap = false,
                 )
             },
             //Si es un input de contraseña y la contraseña no esta visible, salen puntos
@@ -156,10 +155,14 @@ fun InputCreation(
             trailingIcon = {
                 if (isPassword) {
                     //Si la contraseña es visible mostrar ojo sin tachar y viceversa
-                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    val image =
+                        if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
 
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = image, contentDescription = stringResource(R.string.alter_visibility))
+                        Icon(
+                            imageVector = image,
+                            contentDescription = stringResource(R.string.alter_visibility)
+                        )
                     }
                 }
             },
@@ -184,12 +187,11 @@ fun MessageLimitContent(
     @StringRes placeHolder: Int,
     description: String?,
     onValueChange: (String) -> Unit,
-    wordsLimit : Int = 150,
+    wordsLimit: Int = 150,
     postMessage: Boolean = false
-)
-{
+) {
 
-    OutlinedTextField (
+    OutlinedTextField(
         value = description ?: "",
         onValueChange = {
             //Le ponemos limite a la descripcion
@@ -198,7 +200,7 @@ fun MessageLimitContent(
             }
         },
         modifier = modifier.height(120.dp),
-        placeholder = { Text(stringResource(placeHolder))},
+        placeholder = { Text(stringResource(placeHolder)) },
         maxLines = 3,
         singleLine = false,
         shape = RoundedCornerShape(if (!postMessage) 16.dp else 0.dp),
@@ -220,7 +222,12 @@ fun MessageLimitContent(
  * de que quieras verla claro.
  */
 @Composable
-fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: () -> Unit,@StringRes contentDescription: Int) {
+fun PhotoUserContainer(
+    modifier: Modifier = Modifier,
+    photoPath: Any?,
+    onClick: () -> Unit,
+    @StringRes contentDescription: Int
+) {
     //Usamos AsyncImage para poder cargar las imagenes
     //mediante su URL
 
@@ -248,8 +255,7 @@ fun ZoomImage(
     photoPath: Any?,
     modifier: Modifier = Modifier,
     onZoomChange: (Float) -> Unit = {}
-)
-{
+) {
     var scale by remember { mutableStateOf(1f) }
 
     AsyncImage(
@@ -281,8 +287,7 @@ fun ZoomImage(
 fun ExpandedPhotoProfile(
     photoPath: Any?,
     onDismiss: () -> Unit
-)
-{
+) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -313,12 +318,20 @@ fun ExpandedPhotoPost(
     onDismiss: () -> Unit,
     onClickLikes: () -> Unit,
     onClickComments: () -> Unit,
+    onClickOptions: () -> Unit = {},
+    otherProfile: Boolean = false,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     var currentZoom by remember { mutableStateOf(1f) }
 
     val maxZoomIcons = 1.1F
+
+    val iconSizeWithOutText = when(windowSize) {
+        WindowWidthSizeClass.Compact -> 50.dp
+        WindowWidthSizeClass.Medium -> 55.dp
+        WindowWidthSizeClass.Expanded -> 60.dp
+        else -> 50.dp
+    }
 
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 64.dp
@@ -355,6 +368,7 @@ fun ExpandedPhotoPost(
                 onZoomChange = { currentZoom = it }
             )
 
+
             Column(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -362,8 +376,33 @@ fun ExpandedPhotoPost(
             )
             {
                 if (currentZoom < maxZoomIcons) {
-                    IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
-                    IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
+                    if (!otherProfile){
+                        IconPostDialog(
+                            Modifier
+                                .size(iconSize).padding(bottom = 0.dp),
+                            R.drawable.settings,
+                            R.string.menu_publicacion,
+                            onClickOptions,
+                            quantity = -1,
+                            windowSize
+                        )
+                    }
+                    IconPostDialog(
+                        Modifier.size(iconSize),
+                        likeIcon,
+                        R.string.like_Message,
+                        onClickLikes,
+                        post.cantidadLikes,
+                        windowSize
+                    )
+                    IconPostDialog(
+                        Modifier.size(iconSize),
+                        R.drawable.comment,
+                        R.string.comment_Message,
+                        onClickComments,
+                        post.cantidadComentarios,
+                        windowSize
+                    )
                 }
             }
 
@@ -385,7 +424,9 @@ fun ExpandedPhotoPost(
                             text = it,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.fillMaxWidth().padding(10.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
                         )
                     }
                 }
@@ -402,8 +443,7 @@ fun IconPostDialog(
     onClick: () -> Unit,
     quantity: Int,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 20.sp
         WindowWidthSizeClass.Medium -> 20.sp
@@ -427,12 +467,14 @@ fun IconPostDialog(
                 tint = Color.Unspecified
             )
         }
+        if (quantity >= 0) {
+            Text(
+                text = quantity.toString(),
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
 
-        Text(
-            text = quantity.toString(),
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
-        )
     }
 }
 
@@ -441,8 +483,7 @@ fun CommentCreation(
     comment: Comment,
     onClickPhoto: (Int) -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 24.dp
         WindowWidthSizeClass.Medium -> 24.dp
@@ -462,7 +503,7 @@ fun CommentCreation(
         else -> 17.sp
     }
 
-    val fontSizeComment =  when (windowSize) {
+    val fontSizeComment = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
         else -> 15.sp
     }
@@ -481,8 +522,8 @@ fun CommentCreation(
             PhotoUserContainer(
                 modifier = Modifier.size(photoUserSize),
                 photoPath = comment.fotoUsuario,
-                onClick =  {onClickPhoto(comment.idUsuario)},
-                contentDescription =  R.string.post_description
+                onClick = { onClickPhoto(comment.idUsuario) },
+                contentDescription = R.string.post_description
             )
 
             Text(
@@ -507,12 +548,11 @@ fun CommentCreation(
 @Composable
 fun InputComment(
     modifier: Modifier,
-    value : String,
+    value: String,
     onValueChange: (String) -> Unit,
     onSendComment: () -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.sp
         WindowWidthSizeClass.Medium -> 18.sp
@@ -573,8 +613,7 @@ fun CommentsPostWindow(
     onCommentChange: (String) -> Unit,
     onSendComment: () -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -641,7 +680,7 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
     {
         //Esto se ejecuta cuando el usuario ha dejado de interactuar con la galeria
         //en caso de tener algo se sustitulle
-        uri ->
+            uri ->
         onImageSelected(uri)
     }
     return {
@@ -683,7 +722,7 @@ fun sendImageToBucket(context: Context, uriImage: Uri, urlBucket: String): Boole
     val keypass = SessionManager.getKeypass(context)
 
     if (!email.isNullOrBlank() && !keypass.isNullOrBlank()) {
-        val head = Credentials.basic(email,keypass,Charsets.UTF_8)
+        val head = Credentials.basic(email, keypass, Charsets.UTF_8)
         request.header("Authorization", head)
 
     }
@@ -757,8 +796,7 @@ fun TextLink(
     @StringRes texto: Int,
     onClick: () -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.sp
         WindowWidthSizeClass.Medium -> 18.sp
@@ -828,13 +866,11 @@ fun getUserKeyPairFromAndroidStore(userId: Int): KeyPair? {
 
         return if (entry != null) {
             KeyPair(entry.certificate.publicKey, entry.privateKey)
-        }
-        else {
+        } else {
             Log.e("KeyStore", "Error recuperando claves")
             null
         }
-    }
-    catch (e: Exception) {
+    } catch (e: Exception) {
         return null
     }
 }
@@ -901,7 +937,7 @@ fun deleteAllKeys() {
  * para asi evitar duplicacion de codigo
  */
 fun errorMessages(erroCode: Int): Int {
-    val errorMessage = when(erroCode) {
+    val errorMessage = when (erroCode) {
         400 -> R.string.Error_400_Message
         401 -> R.string.Error_401_Message
         403 -> R.string.Error_403_Message

@@ -299,6 +299,31 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    fun deletePost(idPost: Int){
+        val currentState = _uiState.value
+
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPaginaComments) {
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.eliminarPublicacion(idPost)
+
+                if(respuesta.isSuccessful){
+                    _uiState.update { it.copy(
+                        publicaciones = it.publicaciones.filterNot { post -> post.id == idPost }
+                    ) }
+                } else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+
+            }catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
     fun sendCommentToPost(idPost: Int) {
         val currentState = _uiState.value
 

@@ -800,6 +800,10 @@ fun ProfileScreen(
                 viewModel.getCommentsPost(idPost = postToShow.id)
                 showComments = true
             },
+            onClickOptions = {
+                viewModel.deletePost(idPost = postToShow.id)
+            },
+            otherProfile = otherUser,
             windowSize = windowSize
         )
     }

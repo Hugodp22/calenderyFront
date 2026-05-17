@@ -91,6 +91,7 @@
     <string name="send_chat">Enviar</string>
     <string name="Error_Keys_Android">Error al obtener tu claves de android</string>
     <string name="Error_PublicKey_Local">Error al obtener la otra clave publica</string>
+    <string name="menu_publicacion">Menú de opciones de la publicación</string>
 
 
 </resources>

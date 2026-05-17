@@ -28,9 +28,9 @@ object RetrofitClient {
      val okHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(BasicInterceptor()) //Usamos el interceptor que hara la cabecera con los datos con cada peticion
-            .connectTimeout(30, TimeUnit.SECONDS) //Ponemos un tiempo de espera de 30 segundos
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS) //Ponemos un tiempo de espera de 30 segundos
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .build()
     }
 
