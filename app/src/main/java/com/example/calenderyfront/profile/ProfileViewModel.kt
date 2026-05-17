@@ -554,4 +554,8 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    fun restartState() {
+        _state.value = ProfileState.Iniciado
+    }
+
 }

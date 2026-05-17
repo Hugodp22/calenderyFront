@@ -789,6 +789,7 @@ fun ProfileScreen(
                     uiState.fotoUsuario
                 )
             }
+            viewModel.restartState()
         }
     }
 
