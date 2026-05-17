@@ -323,8 +323,9 @@ fun SelectionScreen(
                     userSelectionUserData = user,
                     windowSize = windowSize,
                     onClickContact = {
-                            onNavigateToChat(uiState.userInfo, user.idUsuario,user.idChat, user.nombre, user.fotoPerfil)
-                        },
+                        viewModel.markContactAsRead(idChat = user.idChat)
+                        onNavigateToChat(uiState.userInfo, user.idUsuario,user.idChat, user.nombre, user.fotoPerfil)
+                                     },
                 )
             }
         }
