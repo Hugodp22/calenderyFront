@@ -114,6 +114,17 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    fun markContactAsRead(idChat: Int) {
+        val currentState = _uiState.value
+        val contacts = currentState.selectionContactsList.map { contact ->
+                if (contact.idChat == idChat) contact.copy(
+                    mensajeNuevo = false
+                )
+                else contact
+            }
+        _uiState.update { it.copy(selectionContactsList = contacts) }
+    }
+
     fun loadMyPrivateKey() {
         val myKeys = getUserKeyPairFromAndroidStore(userId = userInfo.idUsuario)
 

@@ -1,11 +1,12 @@
 package com.example.calenderyfront.Screens
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,18 +16,16 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,14 +35,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.calenderyfront.Model.DataObjects.MessageResponseDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
@@ -51,41 +49,53 @@ import com.example.calenderyfront.R
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatTopBar(
     userName: String,
     userPhoto: String,
-    onNavigateToOtherProfile: () -> Unit
+    onNavigateToOtherProfile: () -> Unit,
+    windowSize: WindowWidthSizeClass
 )
 {
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.inversePrimary
-        ),
+    val height = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.09F
+        else -> 0.09F
+    }
 
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            )
-            {
-                PhotoUserContainer(
-                    modifier = Modifier.size(40.dp),
-                    photoPath = userPhoto,
-                    onClick = onNavigateToOtherProfile,
-                    contentDescription = R.string.go_other_profile
-                )
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 20.sp
+        else -> 20.sp
+    }
 
-                Spacer(modifier = Modifier.width(8.dp))
+    val photoSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 45.dp
+        else -> 45.dp
+    }
 
-                Text(
-                    text = userName,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-            }
-        }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(height)
+            .background(color = MaterialTheme.colorScheme.inversePrimary),
+        verticalAlignment = Alignment.CenterVertically
     )
+    {
+        PhotoUserContainer(
+            modifier = Modifier.size(photoSize).padding(end = 5.dp),
+            photoPath = userPhoto,
+            onClick = onNavigateToOtherProfile,
+            contentDescription = R.string.go_other_profile
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = userName,
+            fontSize = fontSize,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+    }
+
 }
 
 @Composable
@@ -97,6 +107,7 @@ fun MessageItem(
 {
     val widthFraction = when (windowSize) {
         WindowWidthSizeClass.Compact -> 280.dp
+        WindowWidthSizeClass.Expanded -> 400.dp
         WindowWidthSizeClass.Medium -> 400.dp
         else -> 280.dp
     }
@@ -129,24 +140,36 @@ fun MessageItem(
 }
 
 @Composable
-fun ChatSendButton(
-    onClick: () -> Unit,
+fun ChatInput(
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    value: String,
+    onValueChange: (String) -> Unit,
+    onClick: () -> Unit,
 )
 {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+            cursorColor = MaterialTheme.colorScheme.tertiary,
+        ),
+        trailingIcon = {
+            IconButton(
+                onClick = onClick,
+                enabled = value.isNotBlank()
+            )
+            {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send_comment),
+                    tint = if (value.isNotBlank()) Color(0xFF4285F4) else Color.Gray
+                )
+            }
+        },
+        modifier = modifier
     )
-    {
-        Image(
-            painter = painterResource(R.drawable.enviar),
-            contentDescription = stringResource(R.string.send_chat),
-            modifier = Modifier.size(28.dp)
-        )
-    }
 }
 
 @Composable
@@ -176,51 +199,33 @@ fun ChatScreen(
         }
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0.dp),
-        topBar = {
-            ChatTopBar(
-                userName = uiState.otherUserName,
-                userPhoto = uiState.otherUserPhoto,
-                onNavigateToOtherProfile = {onNavigateToOtherProfile(uiState.userInfo,uiState.otherUserId)}
-            )
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
-            {
-                TextField(
-                    value = uiState.currentMessage,
-                    onValueChange = { viewModel.onMessageChange(it) },
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.tertiary,
-                        unfocusedTextColor = MaterialTheme.colorScheme.tertiary
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-
-                ChatSendButton(
-                    enabled = uiState.currentMessage.isNotBlank(),
-                    onClick = { viewModel.sendMessage() }
-                )
-            }
-        }
-
+    Column(
+        modifier = Modifier.fillMaxSize()
     )
-    { paddingValues ->
+    {
+        ChatTopBar(
+            userName = uiState.otherUserName,
+            userPhoto = uiState.otherUserPhoto,
+            onNavigateToOtherProfile = { onNavigateToOtherProfile(uiState.userInfo, uiState.otherUserId) },
+            windowSize = windowSize
+        )
+
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             reverseLayout = true
         )
         {
             items(uiState.messages) { message ->
                 val isMine = message.idUsuario == uiState.userInfo.idUsuario
-                MessageItem(message, isMine = isMine,windowSize)
+                MessageItem(message = message, isMine = isMine, windowSize = windowSize)
             }
         }
+        ChatInput(
+            modifier = Modifier.fillMaxWidth(),
+            value = uiState.currentMessage,
+            onValueChange = { viewModel.onMessageChange(it) },
+            onClick = { viewModel.sendMessage() }
+        )
     }
 }
