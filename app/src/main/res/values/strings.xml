@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">calenderyFront</string>
+    <string name="app_name">Calendery</string>
     <string name="alter_visibility">Ver u ocultar contraseña</string>
     <string name="btn_save">Guardar</string>
     <string name="register">Registro</string>
