@@ -2,14 +2,17 @@ package com.example.calenderyfront.clients
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.MessageToSend
 import com.example.calenderyfront.userAuth.SessionManager
 import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import okhttp3.Credentials
 import ua.naiksoftware.stomp.Stomp
 import ua.naiksoftware.stomp.StompClient
@@ -107,6 +110,17 @@ object WebSocketClient {
          connect(context)
     }
 
+    suspend fun checkPendingMessages(): Boolean {
+        val respuesta = RetrofitClient.chatApi.comprobarMensajesPendientes()
+        return if (respuesta.isSuccessful) {
+            val pendientes = respuesta.body()
+            pendientes ?: false
+        }
+        else {
+            false
+        }
+    }
+
     private fun cleanClient() {
         compositeDisposable.clear()
         stompClient?.disconnect()
@@ -144,10 +158,4 @@ object WebSocketClient {
             )
         compositeDisposable.add(disposable)
     }
-
-//    fun updateListMessages(message: String) : List<Message> {
-//
-//    }
-
-
 }

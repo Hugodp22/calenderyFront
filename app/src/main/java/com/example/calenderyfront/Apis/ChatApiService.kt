@@ -32,6 +32,9 @@ interface ChatApiService {
     @PUT("api/messages/app/changeMessageToReadedState")
     suspend fun marcarNuevoMensajeComoLeido(@Query("idMensaje") idMensaje: Int): Response<Unit>
 
+    @GET("api/messages/app/checkForPendingMessages")
+    suspend fun comprobarMensajesPendientes(): Response<Boolean>
+
     @PUT("api/messages/app/changeAllChatMessagesToReadedState")
     suspend fun marcarMensajesComoLeidos(@Query("idUsuario") idUsuario: Int, @Query("idChat")idChat: Int): Response<Unit>
 

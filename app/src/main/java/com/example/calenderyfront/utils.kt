@@ -329,11 +329,27 @@ fun ExpandedPhotoPost(
         else -> 64.dp
     }
 
-    val width = when (windowSize) {
+    val widthMessage = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.7F
         WindowWidthSizeClass.Medium -> 0.4F
         WindowWidthSizeClass.Expanded -> 0.4F
         else -> 0.4F
+    }
+
+    val paddingIcons = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.dp
+        else -> 20.dp
+    }
+
+    val colors = when (windowSize) {
+        WindowWidthSizeClass.Compact -> CardDefaults.cardColors(
+            containerColor = Color.Transparent,
+            contentColor = Color.Unspecified
+        )
+        else -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.onSecondaryFixed,
+            contentColor = MaterialTheme.colorScheme.tertiary
+        )
     }
 
     val fontSize = when (windowSize) {
@@ -370,11 +386,9 @@ fun ExpandedPhotoPost(
             {
                 if (currentZoom < maxZoomIcons) {
                     Card(
+                        modifier = Modifier.padding(end = paddingIcons),
                         shape = RoundedCornerShape(32.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSecondaryFixed,
-                            contentColor = MaterialTheme.colorScheme.tertiary
-                        )
+                        colors = colors
                     )
                     {
                         IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
@@ -389,7 +403,7 @@ fun ExpandedPhotoPost(
                     Card(
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .fillMaxWidth(width)
+                            .fillMaxWidth(widthMessage)
                             .padding(bottom = 30.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
