@@ -61,4 +61,7 @@ interface PublicacionApiService {
                                          @Query("size") size : Int = pageSize
     ): Response<PageHomePosts<PublicacionHomeDto>>
 
+    @DELETE("api/publication/app/deletePublication")
+    suspend fun eliminarPublicacion(@Query("idPublicacion") idPublicacion: Int): Response<Unit>
+
 }

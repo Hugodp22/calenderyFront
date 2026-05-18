@@ -33,8 +33,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -81,8 +83,10 @@ import coil.request.ImageRequest
 import coil.size.Precision
 import com.example.calenderyfront.Model.DataObjects.Comment
 import com.example.calenderyfront.Model.DataObjects.PostUIData
+import com.example.calenderyfront.Screens.ButtonDialog
 import com.example.calenderyfront.clients.PhotoClient
 import com.example.calenderyfront.clients.WebSocketClient
+import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.userAuth.SessionManager
 import okhttp3.Credentials
 import okhttp3.MediaType
@@ -109,7 +113,7 @@ const val datePastLimit = 1900
  */
 @Composable
 fun InputCreation(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     @StringRes title: Int,
     value: String,
     onValueChange: (String) -> Unit,
@@ -117,8 +121,7 @@ fun InputCreation(
     isPassword: Boolean = false,
     error: Boolean = false, //El error que va a gestionar el view model
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     var passwordVisible by remember { mutableStateOf(false) } //Variable para saber si se muestra o no la contrasñea
 
     val fontSize = when (windowSize) {
@@ -145,11 +148,11 @@ fun InputCreation(
             isError = error,
             placeholder = {
                 Text(
-                text = stringResource(placeholderRes),
+                    text = stringResource(placeholderRes),
                     fontSize = fontSize,
-                color = Color.Gray,
-                maxLines = 1,
-                softWrap = false,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    softWrap = false,
                 )
             },
             //Si es un input de contraseña y la contraseña no esta visible, salen puntos
@@ -159,10 +162,14 @@ fun InputCreation(
             trailingIcon = {
                 if (isPassword) {
                     //Si la contraseña es visible mostrar ojo sin tachar y viceversa
-                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    val image =
+                        if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
 
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = image, contentDescription = stringResource(R.string.alter_visibility))
+                        Icon(
+                            imageVector = image,
+                            contentDescription = stringResource(R.string.alter_visibility)
+                        )
                     }
                 }
             },
@@ -187,10 +194,9 @@ fun MessageLimitContent(
     @StringRes placeHolder: Int,
     description: String?,
     onValueChange: (String) -> Unit,
-    wordsLimit : Int = 150,
+    wordsLimit: Int = 150,
     postMessage: Boolean = false
-)
-{
+) {
     OutlinedTextField(
         value = description ?: "",
         onValueChange = {
@@ -200,7 +206,7 @@ fun MessageLimitContent(
             }
         },
         modifier = modifier.height(120.dp),
-        placeholder = { Text(stringResource(placeHolder))},
+        placeholder = { Text(stringResource(placeHolder)) },
         maxLines = 3,
         singleLine = false,
         shape = RoundedCornerShape(if (!postMessage) 16.dp else 0.dp),
@@ -222,7 +228,12 @@ fun MessageLimitContent(
  * de que quieras verla claro.
  */
 @Composable
-fun PhotoUserContainer(modifier : Modifier = Modifier,photoPath: Any?, onClick: () -> Unit,@StringRes contentDescription: Int) {
+fun PhotoUserContainer(
+    modifier: Modifier = Modifier,
+    photoPath: Any?,
+    onClick: () -> Unit,
+    @StringRes contentDescription: Int
+) {
     //Usamos AsyncImage para poder cargar las imagenes
     //mediante su URL
 
@@ -250,8 +261,7 @@ fun ZoomImage(
     photoPath: Any?,
     modifier: Modifier = Modifier,
     onZoomChange: (Float) -> Unit = {}
-)
-{
+) {
     var scale by remember { mutableStateOf(1f) }
 
     AsyncImage(
@@ -283,8 +293,7 @@ fun ZoomImage(
 fun ExpandedPhotoProfile(
     photoPath: Any?,
     onDismiss: () -> Unit
-)
-{
+) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -315,9 +324,10 @@ fun ExpandedPhotoPost(
     onDismiss: () -> Unit,
     onClickLikes: () -> Unit,
     onClickComments: () -> Unit,
+    onClickOption: () -> Unit = {},
+    otherProfile: Boolean = true,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     var currentZoom by remember { mutableStateOf(1f) }
 
     val maxZoomIcons = 1.01F
@@ -377,8 +387,33 @@ fun ExpandedPhotoPost(
                         )
                     )
                     {
-                        IconPostDialog(Modifier.size(iconSize), likeIcon, R.string.like_Message, onClickLikes,post.cantidadLikes,windowSize)
-                        IconPostDialog(Modifier.size(iconSize), R.drawable.comment, R.string.comment_Message, onClickComments,post.cantidadComentarios,windowSize)
+                        if (!otherProfile) {
+                            IconPostDialog(
+                                Modifier.size(iconSize),
+                                R.drawable.settings,
+                                R.string.option_menu,
+                                onClickOption,
+                                quantity = -1,
+                                windowSize
+                            )
+                        }
+
+                        IconPostDialog(
+                            Modifier.size(iconSize),
+                            likeIcon,
+                            R.string.like_Message,
+                            onClickLikes,
+                            post.cantidadLikes,
+                            windowSize
+                        )
+                        IconPostDialog(
+                            Modifier.size(iconSize),
+                            R.drawable.comment,
+                            R.string.comment_Message,
+                            onClickComments,
+                            post.cantidadComentarios,
+                            windowSize
+                        )
                         Spacer(Modifier.padding(bottom = 20.dp))
                     }
                 }
@@ -403,7 +438,9 @@ fun ExpandedPhotoPost(
                             fontSize = fontSize,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.fillMaxWidth().padding(10.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
                         )
                     }
                 }
@@ -420,8 +457,7 @@ fun IconPostDialog(
     onClick: () -> Unit,
     quantity: Int,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 20.sp
         WindowWidthSizeClass.Medium -> 20.sp
@@ -446,11 +482,14 @@ fun IconPostDialog(
             )
         }
 
-        Text(
-            text = quantity.toString(),
-            fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
-        )
+        if (quantity >=0){
+            Text(
+                text = quantity.toString(),
+                fontSize = fontSize,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
+
     }
 }
 
@@ -459,8 +498,7 @@ fun CommentCreation(
     comment: Comment,
     onClickPhoto: (Int) -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 24.dp
         WindowWidthSizeClass.Medium -> 24.dp
@@ -480,7 +518,7 @@ fun CommentCreation(
         else -> 17.sp
     }
 
-    val fontSizeComment =  when (windowSize) {
+    val fontSizeComment = when (windowSize) {
         WindowWidthSizeClass.Compact -> 15.sp
         else -> 15.sp
     }
@@ -499,8 +537,8 @@ fun CommentCreation(
             PhotoUserContainer(
                 modifier = Modifier.size(photoUserSize),
                 photoPath = comment.fotoUsuario,
-                onClick =  {onClickPhoto(comment.idUsuario)},
-                contentDescription =  R.string.post_description
+                onClick = { onClickPhoto(comment.idUsuario) },
+                contentDescription = R.string.post_description
             )
 
             Text(
@@ -525,12 +563,11 @@ fun CommentCreation(
 @Composable
 fun InputComment(
     modifier: Modifier,
-    value : String,
+    value: String,
     onValueChange: (String) -> Unit,
     onSendComment: () -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.sp
         WindowWidthSizeClass.Medium -> 18.sp
@@ -591,8 +628,7 @@ fun CommentsPostWindow(
     onCommentChange: (String) -> Unit,
     onSendComment: () -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -659,7 +695,7 @@ fun galleryLauncher(onImageSelected: (Uri?) -> Unit): () -> Unit {
     {
         //Esto se ejecuta cuando el usuario ha dejado de interactuar con la galeria
         //en caso de tener algo se sustitulle
-        uri ->
+            uri ->
         onImageSelected(uri)
     }
     return {
@@ -701,7 +737,7 @@ fun sendImageToBucket(context: Context, uriImage: Uri, urlBucket: String): Boole
     val keypass = SessionManager.getKeypass(context)
 
     if (!email.isNullOrBlank() && !keypass.isNullOrBlank()) {
-        val head = Credentials.basic(email,keypass,Charsets.UTF_8)
+        val head = Credentials.basic(email, keypass, Charsets.UTF_8)
         request.header("Authorization", head)
 
     }
@@ -775,8 +811,7 @@ fun TextLink(
     @StringRes texto: Int,
     onClick: () -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.sp
         WindowWidthSizeClass.Medium -> 18.sp
@@ -846,13 +881,11 @@ fun getUserKeyPairFromAndroidStore(userId: Int): KeyPair? {
 
         return if (entry != null) {
             KeyPair(entry.certificate.publicKey, entry.privateKey)
-        }
-        else {
+        } else {
             Log.e("KeyStore", "Error recuperando claves")
             null
         }
-    }
-    catch (e: Exception) {
+    } catch (e: Exception) {
         return null
     }
 }
@@ -908,8 +941,7 @@ fun deleteAllAndroidKeys() {
             val alias = aliases.nextElement()
             keyStore.deleteEntry(alias)
         }
-    }
-    catch (e: Exception) {
+    } catch (e: Exception) {
 
     }
 }
@@ -924,7 +956,7 @@ fun connectWebSocket(context: Context) {
  * para asi evitar duplicacion de codigo
  */
 fun errorMessages(erroCode: Int): Int {
-    val errorMessage = when(erroCode) {
+    val errorMessage = when (erroCode) {
         400 -> R.string.Error_400_Message
         401 -> R.string.Error_401_Message
         403 -> R.string.Error_403_Message
@@ -933,5 +965,76 @@ fun errorMessages(erroCode: Int): Int {
         else -> R.string.Error_Unknow_Message
     }
     return errorMessage
+}
+
+@Composable
+fun AlertDialog(
+    windowSize: WindowWidthSizeClass,
+    @StringRes title: Int,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+)
+{
+    val fontSizeTitle = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 25.sp
+        else -> 25.sp
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 0.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            )
+            {
+                Text(
+                    text = stringResource(title),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    fontSize = fontSizeTitle,
+                    fontFamily = BebasNeue
+                )
+            }
+        },
+
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                Box(modifier = Modifier.weight(1f)) {
+                    ButtonDialog(
+                        onClick = onConfirm,
+                        windowSize = windowSize,
+                        textButton = R.string.accept,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.onSecondary,
+                            contentColor = MaterialTheme.colorScheme.tertiary,
+                            disabledContentColor = Color.Red,
+                            disabledContainerColor = Color.Gray
+                        )
+                    )
+                }
+
+                Spacer(Modifier.padding(end = 10.dp))
+
+                Box(modifier = Modifier.weight(1f)) {
+                    ButtonDialog(
+                        onClick = onDismiss,
+                        windowSize = windowSize,
+                        textButton = R.string.cancel_text,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            contentColor = MaterialTheme.colorScheme.tertiary,
+                            disabledContentColor = Color.Red,
+                            disabledContainerColor = Color.Gray
+                        )
+                    )
+                }
+            }
+        },
+    )
 }
 

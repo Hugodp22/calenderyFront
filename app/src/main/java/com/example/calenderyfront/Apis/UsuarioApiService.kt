@@ -51,23 +51,35 @@ interface UsuarioApiService {
      * Y que nos devuelvan sus datos updateados para volver al perfil
      */
     @PUT("api/users/app/updateUserSetting")
-    suspend fun cambiarConfiguracionUsuario(@Query ("idUsuario") idUsuario: Int, @Body datosUsuario: UserSettings): Response<Unit>
+    suspend fun cambiarConfiguracionUsuario(
+        @Query("idUsuario") idUsuario: Int,
+        @Body datosUsuario: UserSettings
+    ): Response<Unit>
 
     @GET("api/users/app/getUserProfile")
-    suspend fun buscarDatosPerfil(@Query ("idUsuario") idUsuario: Int): Response<UserProfile>
+    suspend fun buscarDatosPerfil(@Query("idUsuario") idUsuario: Int): Response<UserProfile>
 
     @PUT("api/follower/app/follow")
-    suspend fun seguirUsuario(@Query("idUsuario") idUsuario: Int, @Query("userToFollowId") userToFollowId: Int): Response<Unit>
+    suspend fun seguirUsuario(
+        @Query("idUsuario") idUsuario: Int,
+        @Query("userToFollowId") userToFollowId: Int
+    ): Response<Unit>
 
     @DELETE("api/follower/app/unfollow")
-    suspend fun dejarDeSeguirUsuario(@Query("idUsuario") idUsuario: Int, @Query("userToUnFollowId") userToUnFollowId: Int): Response<Unit>
+    suspend fun dejarDeSeguirUsuario(
+        @Query("idUsuario") idUsuario: Int,
+        @Query("userToUnFollowId") userToUnFollowId: Int
+    ): Response<Unit>
 
     /**
      * Funcion para mandar la clave publica generada junto al usuario cuya clave publica se ha generado
      * para asignarsela
      */
     @PUT("api/users/app/publicKey")
-    suspend fun mandarClavePublica(@Query("userId") userId: Int, @Body publicKeyDto: PublicKeyDto): Response<Unit>
+    suspend fun mandarClavePublica(
+        @Query("userId") userId: Int,
+        @Body publicKeyDto: PublicKeyDto
+    ): Response<Unit>
 
     /**
      * Funcion para buscar por cabecera si existe el usuario
@@ -76,10 +88,18 @@ interface UsuarioApiService {
     suspend fun buscarPerfilUsuarioPorCabecera(): Response<UserInfo>
 
     @GET("api/users/app/checkPublicKey")
-    suspend fun comprobarClavePublica(@Query("idUsuario")idUsuario: Int, @Query("clavePublica") clavePublica: String): Response<Unit>
+    suspend fun comprobarClavePublica(
+        @Query("idUsuario") idUsuario: Int,
+        @Query("clavePublica") clavePublica: String
+    ): Response<Unit>
 
     @GET("api/users/auth/validateUser")
-    suspend fun validarUsuarioPorCorreo(@Query("email",encoded = true) email: String): Response<UserValidation>
+    suspend fun validarUsuarioPorCorreo(
+        @Query(
+            "email",
+            encoded = true
+        ) email: String
+    ): Response<UserValidation>
 
     @GET("api/users/app/getUploadProfileSignedUrl")
     suspend fun obtenerUrlSubidaImagenAvatares(): Response<UrlPhotos>
@@ -91,14 +111,14 @@ interface UsuarioApiService {
     suspend fun obtenerPerfilUsuariosBuscados(
         @Query("nombre") nombre: String,
         @Query("page") page: Int,
-        @Query("size") size : Int = pageSize,
+        @Query("size") size: Int = pageSize,
     ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>
 
     @GET("api/users/app/getUserContacts")
     suspend fun obtenerContactosBuscados(
         @Query("nombre") nombre: String,
         @Query("page") page: Int,
-        @Query("size") size : Int = pageSize,
+        @Query("size") size: Int = pageSize,
     ): Response<PageSelectionChatUsers<SelectionUserChatData>>
 
     @GET("api/users/app/getPublicKey")
@@ -111,4 +131,19 @@ interface UsuarioApiService {
     @POST("")
     suspend fun validarUsuarioPorCabecera(): Response<UserInfo>
 
+    @GET("api/follower/app/getUserFollowers")
+    suspend fun getUserFollowers(
+        @Query("idUsuario") idUsuario: Int,
+        @Query("nombre") nombre: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int = pageSize
+    ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>
+
+    @GET("api/follower/app/getUserFollowing")
+    suspend fun getUserFollowing(
+        @Query("idUsuario") idUsuario: Int,
+        @Query("nombre") nombre: String,
+        @Query("page") page: Int,
+        @Query("size") size: Int = pageSize
+    ): Response<PageSelectionProfileUsers<SelectionUserProfileData>>
 }

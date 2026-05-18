@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
-class ProfileViewModel(path: SavedStateHandle): ViewModel() {
+class ProfileViewModel(path: SavedStateHandle) : ViewModel() {
 
     private val userInfo = path.toRoute<Profile>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
@@ -37,9 +37,20 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).otherUserID
 
-    private val mainId: Int = otherUserId ?: userInfo.idUsuario  //Seleccionamos el Id con el que se van a cargar los datos
+    private val mainId: Int = otherUserId
+        ?: userInfo.idUsuario  //Seleccionamos el Id con el que se van a cargar los datos
 
-    private val _uiState = MutableStateFlow(ProfileUiState(userInfo, otherUserId, mainId,null,"", "Perfil_defecto.png", ""))
+    private val _uiState = MutableStateFlow(
+        ProfileUiState(
+            userInfo,
+            otherUserId,
+            mainId,
+            null,
+            "",
+            "Perfil_defecto.png",
+            ""
+        )
+    )
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Iniciado)
@@ -93,16 +104,13 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                         if (mainId != userInfo.idUsuario) {
                             loadMyData()
                         }
-                    }
-                    else {
+                    } else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     }
-                }
-                else {
+                } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
@@ -123,16 +131,13 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                                 miFoto = userData.fotoPerfil
                             )
                         }
-                    }
-                    else {
+                    } else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     }
-                }
-                else {
+                } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
@@ -176,35 +181,35 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
                         if (publicacionesCargadas.content.isEmpty()) {
                             _state.value = ProfileState.NoPublicaciones
-                        }
-                        else {
-                            _uiState.update { it.copy(
-                                publicaciones = it.publicaciones + publicacionesCargadas.content,
-                                ultimaPaginaPosts = publicacionesCargadas.content.size < currentPageSize
-                            )}
+                        } else {
+                            _uiState.update {
+                                it.copy(
+                                    publicaciones = it.publicaciones + publicacionesCargadas.content,
+                                    ultimaPaginaPosts = publicacionesCargadas.content.size < currentPageSize
+                                )
+                            }
                             _state.value = ProfileState.PaginaCargada
                             currentPagePosts++
                         }
-                    }
-                    else {
+                    } else {
                         _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     }
-                }
-                else {
+                } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
     }
 
     fun updateFollowVisuals(follow: Boolean) {
-        _uiState.update { it.copy(
-            cantidadSeguidores = if (follow) it.cantidadSeguidores + 1 else it.cantidadSeguidores - 1,
-            seguidor = follow
-        )}
+        _uiState.update {
+            it.copy(
+                cantidadSeguidores = if (follow) it.cantidadSeguidores + 1 else it.cantidadSeguidores - 1,
+                seguidor = follow
+            )
+        }
     }
 
     fun followUser() {
@@ -220,18 +225,15 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.usuarioApi.seguirUsuario(userInfo.idUsuario,mainId)
+                val respuesta = RetrofitClient.usuarioApi.seguirUsuario(userInfo.idUsuario, mainId)
 
                 if (respuesta.isSuccessful) {
                     _state.value = ProfileState.Iniciado
-                }
-
-                else {
+                } else {
                     updateFollowVisuals(follow = false)
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 updateFollowVisuals(follow = false)
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
@@ -251,18 +253,16 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.usuarioApi.dejarDeSeguirUsuario(userInfo.idUsuario,mainId)
+                val respuesta =
+                    RetrofitClient.usuarioApi.dejarDeSeguirUsuario(userInfo.idUsuario, mainId)
 
                 if (respuesta.isSuccessful) {
                     _state.value = ProfileState.Iniciado
-                }
-
-                else {
+                } else {
                     updateFollowVisuals(follow = true)
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 updateFollowVisuals(follow = true)
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
@@ -286,29 +286,60 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                     page = currentPageComments,
                     size = currentPageSize
                 )
-                    if (respuesta.isSuccessful) {
-                        val comentariosCargados = respuesta.body()
+                if (respuesta.isSuccessful) {
+                    val comentariosCargados = respuesta.body()
 
-                        if (comentariosCargados != null) {
-                            _uiState.update { it.copy(
+                    if (comentariosCargados != null) {
+                        _uiState.update {
+                            it.copy(
                                 comentarios = it.comentarios + comentariosCargados.content,
                                 ultimaPaginaComments = comentariosCargados.content.size < currentPageSize
-                            )}
-                            _state.value = ProfileState.PaginaCargada
-                            currentPageComments++
+                            )
                         }
+                        _state.value = ProfileState.PaginaCargada
+                        currentPageComments++
                     }
-                    else {
-                        _state.value = ProfileState.Error(errorMessages(respuesta.code()))
-                    }
-            }
-            catch (e: Exception) {
+                } else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
     }
 
-    fun newCommentLocal(currentState: ProfileUiState,idPost: Int,idComentario: Int) {
+    fun deletePublication(idPost: Int) {
+
+        val currentState = _uiState.value
+
+        if (_state.value is ProfileState.Cargando || currentState.ultimaPaginaComments) {
+            return
+        }
+
+        _state.value = ProfileState.Cargando
+
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val respuesta = RetrofitClient.publicacionApi.eliminarPublicacion(idPost)
+                if (respuesta.isSuccessful) {
+                    _uiState.update {
+                        it.copy(
+                            publicaciones = it.publicaciones.filterNot { post -> post.id == idPost }
+                        )
+                    }
+                    _state.value = ProfileState.PaginaCargada
+
+                } else {
+                    _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                }
+            } catch (e: Exception) {
+                _state.value = ProfileState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+    fun newCommentLocal(currentState: ProfileUiState, idPost: Int, idComentario: Int) {
 
         val newComment = Comment(
             idUsuario = userInfo.idUsuario,
@@ -323,8 +354,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
                 if (postInList.id == idPost) {
                     postInList.copy(cantidadComentarios = postInList.cantidadComentarios + 1)
-                }
-                else {
+                } else {
                     postInList
                 }
             }
@@ -347,9 +377,11 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         _state.value = ProfileState.Cargando
 
-        _uiState.update { it.copy(
-            comment = ""
-        )}
+        _uiState.update {
+            it.copy(
+                comment = ""
+            )
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -365,15 +397,17 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                     val idComentario = respuesta.body()
 
                     if (idComentario != null) {
-                        newCommentLocal(currentState = currentState, idPost = idPost, idComentario = idComentario)
+                        newCommentLocal(
+                            currentState = currentState,
+                            idPost = idPost,
+                            idComentario = idComentario
+                        )
                         _state.value = ProfileState.Iniciado
                     }
-                }
-                else {
+                } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
@@ -381,14 +415,16 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
     fun deleteCommentsLoaded() {
         currentPageComments = 0
-        _uiState.update { it.copy(
-            ultimaPaginaComments = false,
-            comentarios = emptyList(),
-            comment = ""
-        )}
+        _uiState.update {
+            it.copy(
+                ultimaPaginaComments = false,
+                comentarios = emptyList(),
+                comment = ""
+            )
+        }
     }
 
-    fun changeLikesVisuals(post: PublicacionProfile,like: Boolean) {
+    fun changeLikesVisuals(post: PublicacionProfile, like: Boolean) {
         val currentState = _uiState.value
 
         _uiState.update {
@@ -399,8 +435,7 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                         like = like,
                         cantidadLikes = if (like) postInList.cantidadLikes + 1 else postInList.cantidadLikes - 1
                     )
-                }
-                else {
+                } else {
                     postInList
                 }
             }
@@ -422,20 +457,19 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.publicacionApi.darLikePublicacion(idPublicacion = post.id)
+                val respuesta =
+                    RetrofitClient.publicacionApi.darLikePublicacion(idPublicacion = post.id)
 
                 if (respuesta.isSuccessful) {
                     _state.value = ProfileState.Iniciado
-                }
-                else {
+                } else {
                     changeLikesVisuals(
                         post = post,
                         like = false
                     )
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 changeLikesVisuals(
                     post = post,
                     like = false
@@ -459,21 +493,19 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.publicacionApi.quitarLikePublicacion(idPublicacion = post.id)
+                val respuesta =
+                    RetrofitClient.publicacionApi.quitarLikePublicacion(idPublicacion = post.id)
 
                 if (respuesta.isSuccessful) {
                     _state.value = ProfileState.Iniciado
-                }
-
-                else {
+                } else {
                     changeLikesVisuals(
                         post = post,
                         like = true
                     )
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 changeLikesVisuals(
                     post = post,
                     like = true
@@ -494,27 +526,29 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.chatApi.crearChatUsuario(ChatDto(
-                    user2 = if (userInfo.idUsuario > otherUserId) userInfo.idUsuario else otherUserId,
-                    user1 = if (userInfo.idUsuario > otherUserId) otherUserId else userInfo.idUsuario,
-                    id = null
-                ))
+                val respuesta = RetrofitClient.chatApi.crearChatUsuario(
+                    ChatDto(
+                        user2 = if (userInfo.idUsuario > otherUserId) userInfo.idUsuario else otherUserId,
+                        user1 = if (userInfo.idUsuario > otherUserId) otherUserId else userInfo.idUsuario,
+                        id = null
+                    )
+                )
 
                 if (respuesta.isSuccessful) {
                     val idChat = respuesta.body()
                     if (idChat != null) {
-                        _uiState.update { it.copy(
-                            existeChat = true,
-                            chatId = idChat.idChat
-                        )}
+                        _uiState.update {
+                            it.copy(
+                                existeChat = true,
+                                chatId = idChat.idChat
+                            )
+                        }
                         _state.value = ProfileState.ChatExito
                     }
-                }
-                else {
+                } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }
@@ -536,19 +570,17 @@ class ProfileViewModel(path: SavedStateHandle): ViewModel() {
                 if (respuesta.isSuccessful) {
                     val idChat = respuesta.body()
                     if (idChat != null) {
-                        _uiState.update { it.copy(
-                            chatId = idChat.idChat
-                        )}
+                        _uiState.update {
+                            it.copy(
+                                chatId = idChat.idChat
+                            )
+                        }
                         _state.value = ProfileState.ChatExito
                     }
-                }
-                else {
+                } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                 }
-            }
-
-
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
             }
         }

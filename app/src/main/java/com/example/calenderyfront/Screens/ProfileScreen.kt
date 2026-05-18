@@ -58,10 +58,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.size.Precision
+import com.example.calenderyfront.AlertDialog
 import com.example.calenderyfront.CommentsPostWindow
 import com.example.calenderyfront.ExpandedPhotoPost
 import com.example.calenderyfront.ExpandedPhotoProfile
@@ -77,6 +79,7 @@ import com.example.calenderyfront.profile.ProfileViewModel
 import com.example.calenderyfront.rowProfilePostSize
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.FjalaOne
+import com.example.calenderyfront.userAuth.SessionManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
@@ -88,6 +91,8 @@ fun ProfileHeader(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     stateProcess: ProfileState,
+    user: UserInfo,
+    onNavigateToFollow: (UserInfo, Boolean) -> Unit,
     userName: String,
     photoUser: String,
     onClickPhoto: () -> Unit,
@@ -97,9 +102,8 @@ fun ProfileHeader(
     numberOfFollowers: Int = 0,
     numberOfFollowed: Int = 0,
     otherUser: Boolean,
-    follow : Boolean
-)
-{
+    follow: Boolean
+) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.dp
         WindowWidthSizeClass.Medium -> 20.dp
@@ -136,15 +140,30 @@ fun ProfileHeader(
                 horizontalArrangement = Arrangement.SpaceBetween
             )
             {
-                PhotoUserContainer(Modifier.size(photoSize), photoUser, { onClickPhoto() }, R.string.User_profile_foto)
+                PhotoUserContainer(
+                    Modifier.size(photoSize),
+                    photoUser,
+                    { onClickPhoto() },
+                    R.string.User_profile_foto
+                )
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 )
                 {
-                    ProfileStat(windowSize, numberOfFollowers, R.string.followers_text)
-                    ProfileStat(windowSize, numberOfFollowed, R.string.followed_text)
+                    ProfileStat(
+                        windowSize,
+                        onClick = { onNavigateToFollow(user, true) },
+                        numberOfFollowers,
+                        R.string.followers_text
+                    )
+                    ProfileStat(
+                        windowSize,
+                        onClick = { onNavigateToFollow(user, false) },
+                        numberOfFollowed,
+                        R.string.followed_text
+                    )
                 }
             }
 
@@ -204,7 +223,7 @@ fun ProfileHeader(
                 descriptionLeft = R.string.upload_message,
                 rightIcon = R.drawable.settings,
                 descriptionRight = R.string.settings_profile,
-                onClickLeft =  onClickLeft,
+                onClickLeft = onClickLeft,
                 onClickRight = onClickRight,
             )
         }
@@ -213,7 +232,7 @@ fun ProfileHeader(
 
 @Composable
 fun ButtonsBox(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     stateProcess: ProfileState,
     @StringRes buttonLeft: Int,
@@ -221,8 +240,7 @@ fun ButtonsBox(
     onClickLeft: () -> Unit,
     onClickRight: () -> Unit,
     follow: Boolean
-)
-{
+) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 150.dp
         WindowWidthSizeClass.Medium -> 210.dp
@@ -256,6 +274,7 @@ fun ButtonsBox(
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             contentColor = MaterialTheme.colorScheme.tertiary,
         )
+
         else -> buttonColors(
             containerColor = MaterialTheme.colorScheme.onSecondary,
             contentColor = MaterialTheme.colorScheme.tertiary,
@@ -267,6 +286,7 @@ fun ButtonsBox(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = Color.Gray
         )
+
         else -> buttonColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = Color.Gray
@@ -278,6 +298,7 @@ fun ButtonsBox(
             contentColor = MaterialTheme.colorScheme.tertiary,
             containerColor = MaterialTheme.colorScheme.primaryContainer
         )
+
         else -> buttonColors(
             contentColor = MaterialTheme.colorScheme.tertiary,
             containerColor = MaterialTheme.colorScheme.onSecondary
@@ -319,7 +340,7 @@ fun ButtonsBox(
 
 @Composable
 fun IconsBox(
-    modifier : Modifier = Modifier,
+    modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     @DrawableRes leftIcon: Int,
     @StringRes descriptionLeft: Int,
@@ -327,8 +348,7 @@ fun IconsBox(
     @StringRes descriptionRight: Int,
     onClickLeft: () -> Unit,
     onClickRight: () -> Unit,
-)
-{
+) {
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 30.dp
         WindowWidthSizeClass.Medium -> 50.dp
@@ -372,10 +392,10 @@ fun IconsBox(
 @Composable
 fun ProfileStat(
     windowSize: WindowWidthSizeClass,
+    onClick: () -> Unit,
     number: Int,
     @StringRes label: Int
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.sp
         WindowWidthSizeClass.Medium -> 20.sp
@@ -383,7 +403,9 @@ fun ProfileStat(
         else -> 16.sp
     }
 
-    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }) {
         Text(
             text = number.toString(),
             fontSize = fontSize,
@@ -402,8 +424,7 @@ fun ProfileStat(
 fun WeekTitle(
     timeData: TimeData,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 24.sp
         WindowWidthSizeClass.Medium -> 50.sp
@@ -434,9 +455,8 @@ fun PostProfile(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     post: PublicacionProfile,
-    onClick : () -> Unit
-)
-{
+    onClick: () -> Unit
+) {
     val photoSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 1F
         WindowWidthSizeClass.Medium -> 0.9F
@@ -469,14 +489,13 @@ fun PostProfile(
 @Composable
 fun MonthTitle(
     localDate: LocalDate,
-    onClickTitle : () -> Unit,
+    onClickTitle: () -> Unit,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
-    canGoNext : Boolean,
-    canGoPrevious : Boolean,
+    canGoNext: Boolean,
+    canGoPrevious: Boolean,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.7F
         WindowWidthSizeClass.Medium -> 0.5F
@@ -505,7 +524,8 @@ fun MonthTitle(
         else -> 35.sp
     }
 
-    val monthTitle = localDate.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
+    val monthTitle =
+        localDate.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
 
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -535,7 +555,7 @@ fun MonthTitle(
                 )
 
                 Column(
-                    modifier = Modifier.clickable {onClickTitle()},
+                    modifier = Modifier.clickable { onClickTitle() },
                     horizontalAlignment = Alignment.CenterHorizontally
                 )
                 {
@@ -569,8 +589,7 @@ fun DatePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (LocalDate) -> Unit,
     windowSize: WindowWidthSizeClass
-)
-{
+) {
     var selectedYear by remember { mutableStateOf(initialDate.year) }
     val currentMonth = initialDate.monthValue
     val realCurrentYear = LocalDate.now().year
@@ -627,8 +646,7 @@ fun DatePickerDialog(
                     onClick = {
                         if (selectedYear < datePastLimit) {
                             selectedYear = datePastLimit
-                        }
-                        else if (selectedYear > realCurrentYear) {
+                        } else if (selectedYear > realCurrentYear) {
                             selectedYear = realCurrentYear
                         }
                         onConfirm(LocalDate.of(selectedYear, currentMonth, 1))
@@ -658,8 +676,7 @@ fun InputYearSelection(
     currentYear: Int,
     futureYearLimit: Int,
     onValueChange: (Int) -> Unit,
-)
-{
+) {
     var yearValue by remember(currentYear) { mutableStateOf(currentYear.toString()) }
 
     Row(
@@ -671,18 +688,16 @@ fun InputYearSelection(
         TextField(
             modifier = Modifier,
             value = yearValue,
-            onValueChange =  { currentYear ->
+            onValueChange = { currentYear ->
                 if (currentYear.isEmpty()) {
                     yearValue = ""
-                }
-                else {
+                } else {
                     val yearInt = currentYear.toIntOrNull()
                     yearInt?.let {
                         if (yearInt > futureYearLimit) {
                             yearValue = futureYearLimit.toString()
                             onValueChange(futureYearLimit)
-                        }
-                        else {
+                        } else {
                             yearValue = currentYear
                             onValueChange(yearInt)
                         }
@@ -693,7 +708,7 @@ fun InputYearSelection(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp) //Si lo importo da error con otro
-            )
+        )
     }
 }
 
@@ -737,11 +752,11 @@ fun ProfileScreen(
     windowSize: WindowWidthSizeClass,
     onNavigateToSettings: (UserInfo) -> Unit,
     onNavigateToUpload: (UserInfo) -> Unit,
-    onNavigateToChat: (UserInfo,Int,Int,String,String) -> Unit,
+    onNavigateToFollow: (UserInfo, Boolean) -> Unit,
+    onNavigateToChat: (UserInfo, Int, Int, String, String) -> Unit,
     onNavigateToOtherProfile: (UserInfo, Int) -> Unit,
     viewModel: ProfileViewModel = viewModel(),
-)
-{
+) {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
 
@@ -754,20 +769,29 @@ fun ProfileScreen(
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
-    var selectedDate by remember { mutableStateOf(LocalDate.now().withDayOfMonth(1)) } //Mes que puede variar
-    val realCurrentMonth = remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
+    var selectedDate by remember {
+        mutableStateOf(
+            LocalDate.now().withDayOfMonth(1)
+        )
+    } //Mes que puede variar
+    val realCurrentMonth =
+        remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
 
-    val canGoNext = selectedDate.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
-    val canGoPrevious = selectedDate.isAfter(LocalDate.ofYearDay(1826,1))
+    val canGoNext =
+        selectedDate.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
+    val canGoPrevious = selectedDate.isAfter(LocalDate.ofYearDay(1826, 1))
 
-    val otherUser = uiState.otherUserId != null //Para saber si hemos entrado en el perfil nuestro o de otro usuario
+    val otherUser =
+        uiState.otherUserId != null //Para saber si hemos entrado en el perfil nuestro o de otro usuario
 
     //Para detectar cuando el scroll esta en el final
     val scrollEnElFinal by remember {
         derivedStateOf {
-            val totalItems = gridState.layoutInfo.totalItemsCount //Obtenemos del lazy la cantidad total de elementos
+            val totalItems =
+                gridState.layoutInfo.totalItemsCount //Obtenemos del lazy la cantidad total de elementos
 
-            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 //Obtenemos el indice del ultimo item cargado
+            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                ?: 0 //Obtenemos el indice del ultimo item cargado
 
             //Si el ultimo elemento visible esta a 1 fila del final, da true
             //lo que activa la peticion al back
@@ -775,11 +799,12 @@ fun ProfileScreen(
         }
     }
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(stateProcess) {
         if (stateProcess is ProfileState.Exito) {
             onNavigateToSettings((stateProcess as ProfileState.Exito).userInfo)
-        }
-        else if (stateProcess is ProfileState.ChatExito) {
+        } else if (stateProcess is ProfileState.ChatExito) {
             uiState.chatId?.let { safeChatId ->
                 onNavigateToChat(
                     uiState.usuario,
@@ -829,24 +854,26 @@ fun ProfileScreen(
                 onClickLeft = {
                     if (otherUser) {
                         if (uiState.seguidor) viewModel.unFollowUser() else viewModel.followUser()
-                    }
-                    else {
+                    } else {
                         onNavigateToUpload(uiState.usuario)
                     }
-                              },
+                },
                 onClickRight = {
                     if (otherUser) {
-                        if (uiState.existeChat) viewModel.getChatId() else viewModel.createChat(otherUserId = uiState.mainId)
-                    }
-                    else {
+                        if (uiState.existeChat) viewModel.getChatId() else viewModel.createChat(
+                            otherUserId = uiState.mainId
+                        )
+                    } else {
                         onNavigateToSettings(uiState.usuario)
                     }
-                                   },
+                },
                 description = uiState.descripcion,
                 numberOfFollowers = uiState.cantidadSeguidores,
                 numberOfFollowed = uiState.cantidadSeguidos,
                 otherUser = otherUser,
-                follow = uiState.seguidor
+                onNavigateToFollow = onNavigateToFollow,
+                follow = uiState.seguidor,
+                user = uiState.usuario
             )
         }
 
@@ -858,13 +885,13 @@ fun ProfileScreen(
                 onPreviousMonth = {
                     selectedDate = selectedDate.minusMonths(1)
                     if (canGoPrevious) {
-                        viewModel.loadPublicationsByDate(selectedDate.year,selectedDate.monthValue)
+                        viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
                     }
-                                  },
+                },
                 onNextMonth = {
                     if (canGoNext) {
                         selectedDate = selectedDate.plusMonths(1)
-                        viewModel.loadPublicationsByDate(selectedDate.year,selectedDate.monthValue)
+                        viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
                     }
                 },
                 canGoNext = canGoNext,
@@ -874,46 +901,44 @@ fun ProfileScreen(
 
         val currentMonthData = groupedPost[selectedDate]
 
-            if (currentMonthData != null) {
-                currentMonthData.forEach { (weekOfMonth, postsOfWeek) ->
+        if (currentMonthData != null) {
+            currentMonthData.forEach { (weekOfMonth, postsOfWeek) ->
 
-                    item(span = { GridItemSpan(maxLineSpan) }) {
-                        WeekTitle(timeData = weekOfMonth, windowSize = windowSize)
-                    }
-
-                    items(postsOfWeek, key = { it.id }) { post ->
-                        PostProfile(
-                            post = post,
-                            windowSize = windowSize,
-                            onClick = { selectedPost = post })
-                    }
-                }
-            }
-            else {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(40.dp),
-                        contentAlignment = Alignment.Center
-                    )
-                    {
-                        if (stateProcess is ProfileState.Cargando) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(250.dp),
-                                color = MaterialTheme.colorScheme.onTertiary,
-                                strokeWidth = 12.dp
-                            )
-                        }
-                        else if (stateProcess is ProfileState.NoPublicaciones) {
-                            Text(
-                                text = stringResource(R.string.no_post_month_message),
-                                color = MaterialTheme.colorScheme.tertiary
-                            )
-                        }
+                    WeekTitle(timeData = weekOfMonth, windowSize = windowSize)
+                }
+
+                items(postsOfWeek, key = { it.id }) { post ->
+                    PostProfile(
+                        post = post,
+                        windowSize = windowSize,
+                        onClick = { selectedPost = post })
+                }
+            }
+        } else {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(40.dp),
+                    contentAlignment = Alignment.Center
+                )
+                {
+                    if (stateProcess is ProfileState.Cargando) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(250.dp),
+                            color = MaterialTheme.colorScheme.onTertiary,
+                            strokeWidth = 12.dp
+                        )
+                    } else if (stateProcess is ProfileState.NoPublicaciones) {
+                        Text(
+                            text = stringResource(R.string.no_post_month_message),
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
                     }
                 }
             }
+        }
     }
 
     //Si le has dado click a la foto de perfil, se amplia
@@ -926,10 +951,13 @@ fun ProfileScreen(
 
     //Si le has dado click a una publicacion
     selectedPost?.let { postClick ->
-        val currentPostData = uiState.publicaciones.find { it.id == postClick.id } //Buscamos el post al que le hemos dado click
-        val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
+        val currentPostData =
+            uiState.publicaciones.find { it.id == postClick.id } //Buscamos el post al que le hemos dado click
+        val postToShow = currentPostData
+            ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
 
-        val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+        val favouriteIcon =
+            if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
         ExpandedPhotoPost(
             post = PostUIData(
                 postId = postToShow.id,
@@ -944,16 +972,36 @@ fun ProfileScreen(
                 viewModel.deleteCommentsLoaded()
             },
             onClickLikes = {
-                if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
+                if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(
+                    postToShow
+                )
             },
             onClickComments = {
                 commentsPostId = postToShow.id
                 viewModel.getCommentsPost(idPost = postToShow.id)
                 showComments = true
             },
+            onClickOption = { showDeleteDialog = true },
+            otherProfile = otherUser,
             windowSize = windowSize
         )
+
+        if (showDeleteDialog) {
+            AlertDialog(
+                windowSize = windowSize,
+                title = R.string.delete_post,
+                onConfirm = {
+                    viewModel.deletePublication(idPost = postToShow.id)
+                    showDeleteDialog = false
+                },
+                onDismiss = {
+                    showDeleteDialog = false
+                }
+            )
+        }
     }
+
+
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -976,7 +1024,7 @@ fun ProfileScreen(
             onClose = {
                 showComments = false
             },
-            onLoadMoreComments = {  viewModel.getCommentsPost(commentsPostId)  },
+            onLoadMoreComments = { viewModel.getCommentsPost(commentsPostId) },
             onClickPhoto = { idUserComment ->
                 onNavigateToOtherProfile(uiState.usuario, idUserComment)
             },
