@@ -34,6 +34,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -505,7 +507,8 @@ fun MonthTitle(
         else -> 35.sp
     }
 
-    val monthTitle = localDate.month.getDisplayName(TextStyle.FULL, getDefault()).uppercase(getDefault())
+    val monthTitle = localDate.month.getDisplayName(
+        TextStyle.FULL, getDefault()).uppercase(getDefault())
 
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -693,6 +696,11 @@ fun InputYearSelection(
             placeholder = { stringResource(R.string.introduce_year) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = TextFieldDefaults.colors(
+                cursorColor = MaterialTheme.colorScheme.tertiary,
+                focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+            ),
             textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp) //Si lo importo da error con otro
             )
     }
