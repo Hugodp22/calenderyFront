@@ -172,7 +172,9 @@ fun InputCreation(
                 errorBorderColor = Color.Red,
                 cursorColor = MaterialTheme.colorScheme.tertiary
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 1,
+            singleLine = true
         )
     }
 }
