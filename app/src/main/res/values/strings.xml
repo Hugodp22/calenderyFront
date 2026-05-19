@@ -95,9 +95,10 @@
     <string name="accept">Aceptar</string>
     <string name="exit_app">Salir de la app</string>
     <string name="exit_session">Cerrar Sesión</string>
+    <string name="delete_post">Eliminar publicación</string>
     <string name="select_year_text">Selecciona un año</string>
     <string name="introduce_year">Introduce una fecha</string>
     <string name="go_other_profile">Yendo a otro perfil</string>
     <string name="calendary_app">Calendery</string>
-
+    <string name="option_menu">Menú de opciones de la publicación</string>
 </resources>

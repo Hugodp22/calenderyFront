@@ -7,6 +7,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 data class SelectionUiState (
     val userInfo: UserInfo,
     val chatOption: Boolean,
+    val follower: Boolean,
     val searchName : String = "",
     val selectionContactsList: List<SelectionUserChatData> = emptyList(),
     val selectionProfilesList: List<SelectionUserProfileData> = emptyList(),

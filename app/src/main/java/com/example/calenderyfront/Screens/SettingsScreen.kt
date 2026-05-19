@@ -4,15 +4,12 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.calenderyfront.AlertDialog
 import com.example.calenderyfront.InputCreation
 import com.example.calenderyfront.MessageLimitContent
 import com.example.calenderyfront.Model.DataObjects.UserInfo
@@ -120,75 +118,6 @@ fun ButtonDialog(
     }
 }
 
-@Composable
-fun ExitDialog(
-    windowSize: WindowWidthSizeClass,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-)
-{
-    val fontSizeTitle = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 25.sp
-        else -> 25.sp
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 0.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            )
-            {
-                Text(
-                    text = stringResource(R.string.exit_session),
-                    color = MaterialTheme.colorScheme.tertiary,
-                    fontSize = fontSizeTitle,
-                    fontFamily = BebasNeue
-                )
-            }
-        },
-        
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            )
-            {
-                Box(modifier = Modifier.weight(1f)) {
-                    ButtonDialog(
-                        onClick = onConfirm,
-                        windowSize = windowSize,
-                        textButton = R.string.accept,
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.onSecondary,
-                            contentColor = MaterialTheme.colorScheme.tertiary,
-                            disabledContentColor = Color.Red,
-                            disabledContainerColor = Color.Gray
-                        )
-                    )
-                }
-
-                Spacer(Modifier.padding(end = 10.dp))
-
-                Box(modifier = Modifier.weight(1f)) {
-                    ButtonDialog(
-                        onClick = onDismiss,
-                        windowSize = windowSize,
-                        textButton = R.string.cancel_text,
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.tertiary,
-                            disabledContentColor = Color.Red,
-                            disabledContainerColor = Color.Gray
-                        )
-                    )
-                }
-            }
-        },
-    )
-}
 
 @Composable
 fun SettingScreen(
@@ -296,8 +225,9 @@ fun SettingScreen(
         )
 
         if (showExit) {
-            ExitDialog(
+            AlertDialog(
                 windowSize = windowSize,
+                title = R.string.exit_session,
                 onConfirm = {
                     onNavigateToLogin()
                     SessionManager.clearSession(context)

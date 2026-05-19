@@ -38,9 +38,17 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).chatOption
 
+    private val follower = path.toRoute<Selection>(
+        typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+    ).follower
+
+    private val isFollowerMode = path.toRoute<Selection>(
+        typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+    ).isFollowerMode
+
     private var myPrivateKey : PrivateKey? = null
 
-    private val _uiState = MutableStateFlow(SelectionUiState(userInfo, chatOption))
+    private val _uiState = MutableStateFlow(SelectionUiState(userInfo, chatOption, follower))
     val uiState: StateFlow<SelectionUiState> = _uiState.asStateFlow()
 
     private val _state = MutableStateFlow<SelectionState>(SelectionState.Iniciado)
@@ -193,6 +201,47 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
         }
     }
 
+    fun searchFollowerByName(follower: Boolean) {
+        val currentState = _uiState.value
+
+        if (_state.value is SelectionState.Cargando || currentState.lastPage) {
+            return
+        }
+
+        _state.value = SelectionState.Cargando
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+
+                val respuesta =  if (follower)
+                    RetrofitClient.usuarioApi.getUserFollowers(userInfo.idUsuario, currentState.searchName, currentPageSelection  )
+                else RetrofitClient.usuarioApi.getUserFollowing(userInfo.idUsuario, currentState.searchName, currentPageSelection  )
+
+                if (respuesta.isSuccessful) {
+                    val usuariosCargados = respuesta.body()
+
+                    if (usuariosCargados != null) {
+                        _uiState.update { it.copy(
+                            selectionProfilesList = it.selectionProfilesList + usuariosCargados.content,
+                            lastPage = usuariosCargados.content.size < currentPageSize
+                        )}
+
+                        _state.value = SelectionState.PaginaCargada
+                        currentPageSelection++
+                    }
+                }
+                else {
+                    _state.value = SelectionState.Error(errorMessages(respuesta.code()))
+                }
+
+            }
+            catch (e: Exception) {
+                _state.value = SelectionState.Error(R.string.Error_Network)
+            }
+        }
+    }
+
+
     fun searchContactByName() {
         val currentState = _uiState.value
 
@@ -240,14 +289,11 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     }
 
     fun loadNextPage() {
-        if (myPrivateKey == null) {
-            loadMyPrivateKey()
-        }
-        if (chatOption) {
-            searchContactByName()
-        }
-        else {
-            searchProfileByName()
+        if (myPrivateKey == null) { loadMyPrivateKey() }
+        when {
+            isFollowerMode -> searchFollowerByName(follower)
+            chatOption -> searchContactByName()
+            else -> searchProfileByName()
         }
     }
 }

@@ -35,7 +35,10 @@ data class Upload(val userInfo: UserInfo)
 data class PostDataUpload(val userInfo: UserInfo, val postId: Int, val photoPath: String, val photoUrl: String)
 
 @Serializable
-data class Selection(val userInfo: UserInfo, val chatOption : Boolean)
+data class Selection(val userInfo: UserInfo,
+                     val chatOption: Boolean = false,
+                     val isFollowerMode: Boolean = false,
+                     val follower: Boolean = false)
 
 @Serializable
 data class Chat(val userInfo: UserInfo, val otherUserId: Int, val idChat: Int, val otherUserName: String, val otherUserPhoto: String)
