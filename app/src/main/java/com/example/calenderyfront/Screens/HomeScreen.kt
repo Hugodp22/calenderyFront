@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -76,8 +77,7 @@ fun PostHomeCreation(
     onClickPostProfile: (UserInfo, Int) -> Unit,
     onClickLikeIcon: () -> Unit,
     onClickCommentIcon: () -> Unit
-)
-{
+) {
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 40.dp
         WindowWidthSizeClass.Medium -> 30.dp
@@ -104,7 +104,7 @@ fun PostHomeCreation(
             .fillMaxWidth()
             .fillMaxHeight()
             .widthIn(max = 600.dp),
-        shape =RoundedCornerShape(0.dp),
+        shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
         )
@@ -116,7 +116,9 @@ fun PostHomeCreation(
         )
         {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 5.dp, start = 5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp, start = 5.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             )
@@ -124,8 +126,8 @@ fun PostHomeCreation(
                 PhotoUserContainer(
                     modifier = Modifier.size(photoUserSize),
                     photoPath = photoUser,
-                    onClick =  {onClickPostProfile(userInfo, post.idUsuario)},
-                    contentDescription =  R.string.post_description
+                    onClick = { onClickPostProfile(userInfo, post.idUsuario) },
+                    contentDescription = R.string.post_description
                 )
 
                 Text(
@@ -136,7 +138,7 @@ fun PostHomeCreation(
             }
 
             if (post.fotoPublicacion != null) {
-                PostHome(Modifier,post.fotoPublicacion,windowSize,{onClickPostPhoto()})
+                PostHome(Modifier, post.fotoPublicacion, windowSize, { onClickPostPhoto() })
             }
 
             if (post.mensaje != null) {
@@ -153,8 +155,8 @@ fun PostHomeCreation(
                 modifier = Modifier.fillMaxWidth(0.7F),
                 windowSize = windowSize,
                 likeIcon = likeIcon,
-                onClickLikeIcon ={onClickLikeIcon()},
-                onClickCommentIcon = {onClickCommentIcon()},
+                onClickLikeIcon = { onClickLikeIcon() },
+                onClickCommentIcon = { onClickCommentIcon() },
                 currentLikes = post.cantidadLikes,
                 currentComments = post.cantidadComentarios
             )
@@ -169,8 +171,7 @@ fun PostHome(
     photoPath: String?,
     windowSize: WindowWidthSizeClass,
     onClickPostPhoto: () -> Unit
-)
-{
+) {
     val aspect = when (windowSize) {
         WindowWidthSizeClass.Compact -> 1F
         else -> 1.5F
@@ -205,8 +206,7 @@ fun RowIcons(
     onClickCommentIcon: () -> Unit,
     currentLikes: Int,
     currentComments: Int
-)
-{
+) {
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 25.dp
         WindowWidthSizeClass.Medium -> 25.dp
@@ -249,13 +249,12 @@ fun RowIcons(
 @Composable
 fun IconRow(
     modifier: Modifier = Modifier,
-    onClick : () -> Unit,
+    onClick: () -> Unit,
     @DrawableRes icon: Int,
     @StringRes contentDescription: Int,
     quantity: Int,
     fontSize: TextUnit
-)
-{
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -287,22 +286,22 @@ fun HomeScreen(
     windowSize: WindowWidthSizeClass,
     onNavigateToOtherProfile: (UserInfo, Int) -> Unit,
     viewModel: HomeViewModel = viewModel(),
-    )
-{
+    gridState: LazyGridState = rememberLazyGridState()
+) {
     val uiState by viewModel.uiState.collectAsState()
     val stateProcess by viewModel.state.collectAsState()
     var selectedPost by remember { mutableStateOf<PublicacionHome?>(null) } //Para saber que publicacion mostrar al hacer click
-
-    val gridState = rememberLazyGridState() //State para obtener informacion del lazy
 
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
     val scrollEnElFinal by remember {
         derivedStateOf {
-            val totalItems = gridState.layoutInfo.totalItemsCount //Obtenemos del lazy la cantidad total de elementos
+            val totalItems =
+                gridState.layoutInfo.totalItemsCount //Obtenemos del lazy la cantidad total de elementos
 
-            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 //Obtenemos el indice del ultimo item cargado
+            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index
+                ?: 0 //Obtenemos el indice del ultimo item cargado
 
             //Si el ultimo elemento visible esta a 1 fila del final, da true
             //lo que activa la peticion al back
@@ -323,16 +322,21 @@ fun HomeScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
-            columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(2),
+            columns = if (windowSize == WindowWidthSizeClass.Compact) GridCells.Fixed(1) else GridCells.Fixed(
+                2
+            ),
             state = gridState,
             horizontalArrangement = Arrangement.spacedBy(horizontalSpaced),
             modifier = Modifier.fillMaxSize(),
         )
         {
             items(items = uiState.posts, key = { it.idPost }) { postClick ->
-                val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
-                val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
-                val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+                val currentPostData =
+                    uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
+                val postToShow = currentPostData
+                    ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
+                val favouriteIcon =
+                    if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
 
                 PostHomeCreation(
                     userInfo = uiState.userInfo,
@@ -341,9 +345,11 @@ fun HomeScreen(
                     windowSize = windowSize,
                     likeIcon = favouriteIcon,
                     onClickPostProfile = { user, id -> onNavigateToOtherProfile(user, id) },
-                    onClickPostPhoto = {selectedPost = postToShow},
+                    onClickPostPhoto = { selectedPost = postToShow },
                     onClickLikeIcon = {
-                        if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
+                        if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(
+                            postToShow
+                        )
                     },
                     onClickCommentIcon = {
                         commentsPostId = postToShow.idPost
@@ -376,10 +382,13 @@ fun HomeScreen(
         }
 
         selectedPost?.let { postClick ->
-            val currentPostData = uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
-            val postToShow = currentPostData ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
+            val currentPostData =
+                uiState.posts.find { it.idPost == postClick.idPost } //Buscamos el post al que le hemos dado click
+            val postToShow = currentPostData
+                ?: postClick //Si por alguna razon no lo encontramos, usamos la copia estatica
 
-            val favouriteIcon = if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+            val favouriteIcon =
+                if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
             ExpandedPhotoPost(
                 post = PostUIData(
                     postId = postToShow.idPost,
@@ -394,7 +403,9 @@ fun HomeScreen(
                     viewModel.deleteCommentsLoaded()
                 },
                 onClickLikes = {
-                    if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(postToShow)
+                    if (!postToShow.like) viewModel.likePost(postToShow) else viewModel.unLikePost(
+                        postToShow
+                    )
                 },
                 onClickComments = {
                     commentsPostId = postToShow.idPost
@@ -413,7 +424,7 @@ fun HomeScreen(
                 onClose = {
                     showComments = false
                 },
-                onLoadMoreComments = {  viewModel.getCommentsPost(commentsPostId)  },
+                onLoadMoreComments = { viewModel.getCommentsPost(commentsPostId) },
                 onClickPhoto = { idUserComment ->
                     onNavigateToOtherProfile(uiState.userInfo, idUserComment)
                 },

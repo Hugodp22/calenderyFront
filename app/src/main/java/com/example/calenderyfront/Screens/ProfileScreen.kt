@@ -34,6 +34,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -591,8 +593,9 @@ fun DatePickerDialog(
     windowSize: WindowWidthSizeClass
 ) {
     var selectedYear by remember { mutableStateOf(initialDate.year) }
-    val currentMonth = initialDate.monthValue
+    var currentMonth by remember { mutableStateOf(initialDate.monthValue) }
     val realCurrentYear = LocalDate.now().year
+    val realCurrentMonth = LocalDate.now().monthValue
 
     val fontSizeTitle = when (windowSize) {
         WindowWidthSizeClass.Compact -> 30.sp
@@ -646,8 +649,9 @@ fun DatePickerDialog(
                     onClick = {
                         if (selectedYear < datePastLimit) {
                             selectedYear = datePastLimit
-                        } else if (selectedYear > realCurrentYear) {
-                            selectedYear = realCurrentYear
+                        }
+                        else if (selectedYear == realCurrentYear && currentMonth > realCurrentMonth) {
+                            currentMonth = realCurrentMonth
                         }
                         onConfirm(LocalDate.of(selectedYear, currentMonth, 1))
                     },
@@ -707,6 +711,11 @@ fun InputYearSelection(
             placeholder = { stringResource(R.string.introduce_year) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = TextFieldDefaults.colors(
+                cursorColor = MaterialTheme.colorScheme.tertiary,
+                focusedTextColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+            ),
             textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp) //Si lo importo da error con otro
         )
     }
@@ -777,9 +786,8 @@ fun ProfileScreen(
     val realCurrentMonth =
         remember { LocalDate.now().withDayOfMonth(1) } //Mes actual de la vida real
 
-    val canGoNext =
-        selectedDate.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
-    val canGoPrevious = selectedDate.isAfter(LocalDate.ofYearDay(1826, 1))
+    val canGoNext = selectedDate.isBefore(realCurrentMonth) //Comprobamos siempre, si el mes siguiente va antes del actual
+    val canGoPrevious = selectedDate.isAfter(LocalDate.ofYearDay(datePastLimit,1))
 
     val otherUser =
         uiState.otherUserId != null //Para saber si hemos entrado en el perfil nuestro o de otro usuario
@@ -824,7 +832,7 @@ fun ProfileScreen(
     }
 
     //Si estamos en el final, no esta cargando, y aun no es la ultima pagina de ese mes, cargamos publicaciones
-    LaunchedEffect(scrollEnElFinal) {
+    LaunchedEffect(scrollEnElFinal, stateProcess) {
         if (scrollEnElFinal && stateProcess != ProfileState.Cargando && !uiState.ultimaPaginaPosts && uiState.publicaciones.isNotEmpty()) {
             viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
         }
@@ -883,15 +891,21 @@ fun ProfileScreen(
                 windowSize = windowSize,
                 onClickTitle = { showDatePicker = true },
                 onPreviousMonth = {
-                    selectedDate = selectedDate.minusMonths(1)
                     if (canGoPrevious) {
-                        viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
+                        selectedDate = selectedDate.minusMonths(1)
+                        if (selectedDate.year >= realCurrentMonth.year)
+                            viewModel.loadPublicationsByDate(selectedDate.year,selectedDate.monthValue)
+                        else
+                            viewModel.loadPublicationsByDate(realCurrentMonth.year,selectedDate.monthValue)
                     }
                 },
                 onNextMonth = {
                     if (canGoNext) {
                         selectedDate = selectedDate.plusMonths(1)
-                        viewModel.loadPublicationsByDate(selectedDate.year, selectedDate.monthValue)
+                        if (selectedDate.year <= realCurrentMonth.year)
+                            viewModel.loadPublicationsByDate(selectedDate.year,selectedDate.monthValue)
+                        else
+                            viewModel.loadPublicationsByDate(realCurrentMonth.year,selectedDate.monthValue)
                     }
                 },
                 canGoNext = canGoNext,

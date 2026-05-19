@@ -8,17 +8,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,8 +32,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -86,6 +83,7 @@ import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.userAuth.SessionManager
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
@@ -124,10 +122,14 @@ fun CalenderyApp(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    var bottomBarState by remember { mutableStateOf(BottomBarState(currentScreen = currentDestination)) }
+    var bottomBarState by remember { mutableStateOf(BottomBarState(currentScreen = currentDestination))}
     val userInChatSelection = bottomBarState.currentScreen?.hasRoute<Selection>() ?: false
 
+    val homeGridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
+        bottomBarState = bottomBarState.copy(newMessage = WebSocketClient.checkPendingMessages())
         WebSocketClient.messageFlow.collect { messageJSON ->
             if (!userInChatSelection) {
                 bottomBarState = bottomBarState.copy(newMessage = true)
@@ -169,6 +171,15 @@ fun CalenderyApp(
             if (showTopBar) {
                 CalenderyTopBar(
                     windowSize = windowSize,
+                    onNavigateToHome = { userInfo ->
+                        navController.navigate(Home(userInfo))
+                    },
+                    onScrollToTop = {
+                        coroutineScope.launch {
+                            homeGridState.animateScrollToItem(0)
+                        }
+                    },
+                    navBackStackEntry = navBackStackEntry
                 )
             }
         }
@@ -340,7 +351,8 @@ fun CalenderyApp(
                     windowSize = windowSize,
                     onNavigateToOtherProfile = { userInfo, otherUserId ->
                         navController.navigate(Profile(userInfo, otherUserId))
-                    }
+                    },
+                    gridState = homeGridState
                 )
             }
 
@@ -362,48 +374,49 @@ fun CalenderyApp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalenderyTopBar(
-    windowSize: WindowWidthSizeClass
+    windowSize: WindowWidthSizeClass,
+    onNavigateToHome: (UserInfo) -> Unit,
+    onScrollToTop: () -> Unit,
+    navBackStackEntry: NavBackStackEntry?
 )
 {
-    val logoSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 72.dp
-        WindowWidthSizeClass.Medium -> 86.dp
-        WindowWidthSizeClass.Expanded -> 96.dp
-        else -> 72.dp
-    }
+    val currentUserInfo = navBackStackEntry?.toRoute<Home>()?.userInfo
 
-    val titleSize = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 28.sp
-        WindowWidthSizeClass.Medium -> 34.sp
-        WindowWidthSizeClass.Expanded -> 38.sp
-        else -> 28.sp
-    }
+    if (currentUserInfo != null) {
 
-    val spacerWidth = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 8.dp
-        WindowWidthSizeClass.Medium -> 10.dp
-        WindowWidthSizeClass.Expanded -> 12.dp
-        else -> 8.dp
-    }
+        val currentDestination = navBackStackEntry.destination
 
-    CenterAlignedTopAppBar(
-        title = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            )
-            {
+        val logoSize = when (windowSize) {
+            WindowWidthSizeClass.Compact -> 72.dp
+            WindowWidthSizeClass.Medium -> 86.dp
+            WindowWidthSizeClass.Expanded -> 96.dp
+            else -> 72.dp
+        }
+
+        val titleSize = when (windowSize) {
+            WindowWidthSizeClass.Compact -> 28.sp
+            WindowWidthSizeClass.Medium -> 34.sp
+            WindowWidthSizeClass.Expanded -> 38.sp
+            else -> 28.sp
+        }
+
+        CenterAlignedTopAppBar(
+            navigationIcon = {
                 Image(
                     painter = painterResource(R.drawable.logo),
                     contentDescription = stringResource(R.string.calendary_app),
-                    modifier = Modifier.size(logoSize)
+                    modifier = Modifier
+                        .size(logoSize)
+                        .clickable{ if (!currentDestination.hasRoute<Home>()) {
+                            onNavigateToHome(currentUserInfo)
+                        }
+                        else {
+                            onScrollToTop()
+                        }}
+                        .padding(start = 10.dp)
                 )
-
-                Spacer(
-                    modifier = Modifier.width(spacerWidth)
-                )
-
+            },
+            title = {
                 Text(
                     text = stringResource(R.string.calendary_app),
                     fontFamily = BebasNeue,
@@ -411,8 +424,8 @@ fun CalenderyTopBar(
                     color = MaterialTheme.colorScheme.tertiary
                 )
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable
@@ -460,7 +473,7 @@ fun CalenderyBottomBar(
 
             NavigationBarItemCalendery(
                 selected = currentDestination == Selection,
-                onClick = {navController.navigate(Selection(
+                onClick = { navController.navigate(Selection(
                     userInfo = currentUserInfo,
                     chatOption = false)
                 )},
@@ -473,8 +486,10 @@ fun CalenderyBottomBar(
                 selected = currentDestination == Selection,
                 onClick = {navController.navigate(Selection(
                     userInfo = currentUserInfo,
-                    chatOption = true)
-                )},
+                    chatOption = true),
+                )
+                    bottomBarState.newMessage = false
+                },
                 icon = R.drawable.chat,
                 contentDescription = R.string.Chat_bottom_bar,
                 iconSize = iconSize,
