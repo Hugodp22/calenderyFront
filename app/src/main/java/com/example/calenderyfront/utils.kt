@@ -403,33 +403,36 @@ fun ExpandedPhotoPost(
                         colors = colors
                     )
                     {
+
+                        IconPostDialog(
+                            modifier = Modifier.size(iconSize),
+                            icon = likeIcon,
+                            contentDescription = R.string.like_Message,
+                            onClick = onClickLikes,
+                            quantity = post.cantidadLikes,
+                            windowSize = windowSize
+                        )
+
+                        IconPostDialog(
+                            modifier = Modifier.size(iconSize),
+                            icon = R.drawable.comment,
+                            contentDescription = R.string.comment_Message,
+                            onClick = onClickComments,
+                            quantity = post.cantidadComentarios,
+                            windowSize = windowSize
+                        )
+
                         if (!otherProfile) {
                             IconPostDialog(
-                                Modifier.size(iconSize),
-                                R.drawable.settings,
-                                R.string.option_menu,
-                                onClickOption,
+                                modifier = Modifier.size(iconSize),
+                                icon = R.drawable.delete,
+                                contentDescription = R.string.option_menu,
+                                onClick = onClickOption,
                                 quantity = -1,
-                                windowSize
+                                windowSize = windowSize
                             )
                         }
 
-                        IconPostDialog(
-                            Modifier.size(iconSize),
-                            likeIcon,
-                            R.string.like_Message,
-                            onClickLikes,
-                            post.cantidadLikes,
-                            windowSize
-                        )
-                        IconPostDialog(
-                            Modifier.size(iconSize),
-                            R.drawable.comment,
-                            R.string.comment_Message,
-                            onClickComments,
-                            post.cantidadComentarios,
-                            windowSize
-                        )
                         Spacer(Modifier.padding(bottom = 20.dp))
                     }
                 }
@@ -498,7 +501,7 @@ fun IconPostDialog(
             )
         }
 
-        if (quantity >=0){
+        if (quantity >= 0){
             Text(
                 text = quantity.toString(),
                 fontSize = fontSize,
@@ -993,7 +996,7 @@ fun AlertDialog(
 {
     val fontSizeTitle = when (windowSize) {
         WindowWidthSizeClass.Compact -> 25.sp
-        else -> 25.sp
+        else -> 35.sp
     }
 
     AlertDialog(

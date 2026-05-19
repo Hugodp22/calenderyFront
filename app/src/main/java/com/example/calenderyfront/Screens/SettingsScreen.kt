@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +59,7 @@ fun ExitButton(
 {
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 30.dp
-        else -> 30.dp
+        else -> 40.dp
     }
 
     Box(
@@ -91,7 +92,7 @@ fun ButtonDialog(
 {
     val height = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.05F
-        else -> 0.05F
+        else -> 0.1F
     }
 
     val fontSizeButton = when (windowSize) {
@@ -196,24 +197,31 @@ fun SettingScreen(
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                PhotoUserContainer(Modifier.size(containerSize),uiState.fotoPerfil, openGallery,R.string.image_description)
+                PhotoUserContainer(
+                    modifier = Modifier.size(containerSize),
+                    photoPath = uiState.fotoPerfil,
+                    onClick = openGallery,
+                    contentDescription = R.string.image_description
+                )
                 InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
                 MessageLimitContent(Modifier.fillMaxWidth(width),R.string.share_description_Mesagge,uiState.descripcion,{viewModel.onDescriptionChange(it)})
                 SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings(context)},enableButton)
-
-                if (stateProcess is SettingsState.Error) {
-                    Text(
-                        text = stringResource((stateProcess as SettingsState.Error).mensaje),
-                        color = Color.Red,
-                        fontSize = 14.sp
-                    )
-                }
-                else if (stateProcess is SettingsState.Cargando) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onTertiary
-                    )
-                }
             }
+        }
+
+        if (stateProcess is SettingsState.Error) {
+            Text(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                text = stringResource((stateProcess as SettingsState.Error).mensaje),
+                color = Color.Red,
+                fontSize = 14.sp
+            )
+        }
+        else if (stateProcess is SettingsState.Cargando) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                color = MaterialTheme.colorScheme.onTertiary
+            )
         }
 
         ExitButton(

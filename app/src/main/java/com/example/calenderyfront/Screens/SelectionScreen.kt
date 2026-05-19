@@ -117,12 +117,12 @@ fun UserSelectionProfileInfo(
 
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 40.dp
-        else -> 40.dp
+        else -> 45.dp
     }
 
     val fontSizeName  = when (windowSize) {
         WindowWidthSizeClass.Compact -> 20.sp
-        else -> 20.sp
+        else -> 25.sp
     }
 
     Row(
@@ -134,7 +134,7 @@ fun UserSelectionProfileInfo(
     )
     {
         PhotoUserContainer(
-            modifier = Modifier.size(photoUserSize),
+            modifier = Modifier.size(photoUserSize).padding(start = 5.dp),
             photoPath = userSelectionUserData.fotoPerfil,
             onClick = onClickProfile,
             contentDescription = R.string.profile_search
@@ -170,12 +170,12 @@ fun UserSelectionChatInfo(
 
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 40.dp
-        else -> 40.dp
+        else -> 45.dp
     }
 
     val iconSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 20.dp
-        else -> 20.dp
+        else -> 25.dp
     }
 
     val fontSizeName  = when (windowSize) {
@@ -203,7 +203,7 @@ fun UserSelectionChatInfo(
     )
     {
         PhotoUserContainer(
-            modifier = Modifier.size(photoUserSize),
+            modifier = Modifier.size(photoUserSize).padding(start = 5.dp),
             photoPath = userSelectionUserData.fotoPerfil,
             onClick = onClickContact,
             contentDescription = R.string.profile_search
@@ -271,64 +271,6 @@ fun ChatExtraData(
 }
 
 @Composable
-fun SelectionProfileScreen(
-    modifier: Modifier = Modifier,
-    windowSize: WindowWidthSizeClass,
-    onNavigateToOtherProfile: (UserInfo,Int) -> Unit,
-    viewModel: SelectionViewModel = viewModel()
-)
-{
-    val uiState by viewModel.uiState.collectAsState()
-    val stateProcess by viewModel.state.collectAsState()
-
-    val gridState = rememberLazyGridState() //State para obtener informacion del lazy
-
-    val scrollEnElFinal by remember {
-        derivedStateOf {
-            val totalItems = gridState.layoutInfo.totalItemsCount
-            val ultimoItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            totalItems > 0 && ultimoItem >= (totalItems - 2)
-        }
-    }
-
-    val follower = uiState.follower
-
-    LaunchedEffect(scrollEnElFinal) {
-        if (scrollEnElFinal && stateProcess != SelectionState.Cargando && !uiState.lastPage) {
-            viewModel.loadNextPage()
-        }
-    }
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(1),
-        state = gridState,
-        horizontalArrangement = Arrangement.Center,
-        verticalArrangement = Arrangement.spacedBy(25.dp),
-        modifier = modifier.fillMaxSize(),
-    )
-    {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            SearchInput(
-                value = uiState.searchName,
-                onValueChange = { viewModel.onSearchChange(it) },
-                onSearch = { viewModel.searchFollowerByName(follower) },
-                windowSize = windowSize
-            )
-        }
-        items(items = uiState.selectionProfilesList) { user ->
-            UserSelectionProfileInfo(
-                userSelectionUserData = user,
-                windowSize = windowSize,
-                onClickProfile = {
-                    onNavigateToOtherProfile(uiState.userInfo, user.idUsuario)
-                }
-            )
-        }
-    }
-
-}
-
-@Composable
 fun SelectionScreen(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
@@ -370,7 +312,7 @@ fun SelectionScreen(
             SearchInput(
                 value = uiState.searchName,
                 onValueChange = { viewModel.onSearchChange(it) },
-                onSearch = { if (chatOption) viewModel.searchContactByName() else viewModel.searchProfileByName() },
+                onSearch = { viewModel.loadNextPage() },
                 windowSize = windowSize
             )
         }
@@ -388,7 +330,6 @@ fun SelectionScreen(
             }
         }
         else {
-            //uiState.selectionUsersProfileList
             items(items = uiState.selectionProfilesList) { user ->
                 UserSelectionProfileInfo(
                     userSelectionUserData = user,

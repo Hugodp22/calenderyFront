@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -63,18 +63,16 @@ fun UploadScreen(
         else -> 45.sp
     }
 
-    val width = when (windowSize) {
-        WindowWidthSizeClass.Compact -> 0.8F
-        WindowWidthSizeClass.Medium -> 0.6F
-        WindowWidthSizeClass.Expanded -> 0.7F
-        else -> 0.8F
-    }
-
-    val height = when (windowSize) {
+    val size = when (windowSize) {
         WindowWidthSizeClass.Compact -> 400.dp
-        WindowWidthSizeClass.Medium -> 450.dp
+        WindowWidthSizeClass.Medium -> 500.dp
         WindowWidthSizeClass.Expanded -> 350.dp
         else -> 400.dp
+    }
+
+    val topPadding = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 0.dp
+        else -> 60.dp
     }
 
     val openGallery = galleryLauncher { uri ->
@@ -103,7 +101,7 @@ fun UploadScreen(
             color = MaterialTheme.colorScheme.tertiary,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 60.dp, bottom = 20.dp)
+                .padding(top = 50.dp, bottom = 20.dp)
         )
 
         Column(
@@ -111,10 +109,12 @@ fun UploadScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
+            Spacer(Modifier.padding(top = topPadding))
+
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(width)
-                    .height(height)
+                    .width(size)
+                    .height(size)
                     .clickable { openGallery() },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primary,
