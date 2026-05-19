@@ -109,7 +109,7 @@ fun RegisterScreen(
 
                 when (stateProcess) {
                     is RegisterState.Iniciado, is RegisterState.Error -> {
-                        TextLink(R.string.redirect_login, onNavigateToLogin, windowSize)
+                        TextLink(texto = R.string.redirect_login, onClick =  onNavigateToLogin, windowSize = windowSize)
                     }
                     else -> {
                         //No aparece para evitar que le den click

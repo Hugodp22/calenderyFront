@@ -81,14 +81,14 @@ fun PostHomeCreation(
     val photoUserSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 40.dp
         WindowWidthSizeClass.Medium -> 30.dp
-        WindowWidthSizeClass.Expanded -> 33.dp
+        WindowWidthSizeClass.Expanded -> 37.dp
         else -> 20.dp
     }
 
     val fontSizeUser = when (windowSize) {
         WindowWidthSizeClass.Compact -> 17.sp
         WindowWidthSizeClass.Medium -> 40.sp
-        WindowWidthSizeClass.Expanded -> 15.sp
+        WindowWidthSizeClass.Expanded -> 20.sp
         else -> 15.sp
     }
 

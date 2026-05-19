@@ -143,10 +143,10 @@ fun ProfileHeader(
             )
             {
                 PhotoUserContainer(
-                    Modifier.size(photoSize),
-                    photoUser,
-                    { onClickPhoto() },
-                    R.string.User_profile_foto
+                    modifier = Modifier.size(photoSize),
+                    photoPath = photoUser,
+                    onClick = { onClickPhoto() },
+                    contentDescription = R.string.User_profile_foto
                 )
                 Row(
                     modifier = Modifier.weight(1f),
@@ -155,16 +155,16 @@ fun ProfileHeader(
                 )
                 {
                     ProfileStat(
-                        windowSize,
+                        windowSize = windowSize,
                         onClick = { onNavigateToFollow(user, true) },
-                        numberOfFollowers,
-                        R.string.followers_text
+                        number = numberOfFollowers,
+                        label = R.string.followers_text
                     )
                     ProfileStat(
-                        windowSize,
+                        windowSize = windowSize,
                         onClick = { onNavigateToFollow(user, false) },
-                        numberOfFollowed,
-                        R.string.followed_text
+                        number = numberOfFollowed,
+                        label = R.string.followed_text
                     )
                 }
             }
@@ -778,6 +778,11 @@ fun ProfileScreen(
     var showComments by remember { mutableStateOf(false) }
     var commentsPostId by remember { mutableIntStateOf(-1) }
 
+    val fontSize = when (windowSize) {
+        WindowWidthSizeClass.Compact -> 18.sp
+        else -> 25.sp
+    }
+
     var selectedDate by remember {
         mutableStateOf(
             LocalDate.now().withDayOfMonth(1)
@@ -947,6 +952,7 @@ fun ProfileScreen(
                     } else if (stateProcess is ProfileState.NoPublicaciones) {
                         Text(
                             text = stringResource(R.string.no_post_month_message),
+                            fontSize = fontSize,
                             color = MaterialTheme.colorScheme.tertiary
                         )
                     }
@@ -972,6 +978,7 @@ fun ProfileScreen(
 
         val favouriteIcon =
             if (postToShow.like) R.drawable.favourite_filled else R.drawable.favourite
+
         ExpandedPhotoPost(
             post = PostUIData(
                 postId = postToShow.id,
@@ -1005,8 +1012,9 @@ fun ProfileScreen(
                 windowSize = windowSize,
                 title = R.string.delete_post,
                 onConfirm = {
-                    viewModel.deletePublication(idPost = postToShow.id)
                     showDeleteDialog = false
+                    selectedPost = null
+                    viewModel.deletePublication(idPost = postToShow.id)
                 },
                 onDismiss = {
                     showDeleteDialog = false
@@ -1014,8 +1022,6 @@ fun ProfileScreen(
             )
         }
     }
-
-
 
     if (showDatePicker) {
         DatePickerDialog(

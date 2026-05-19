@@ -92,13 +92,40 @@ fun LoginScreen(
                     color = MaterialTheme.colorScheme.tertiary
                 )
 
-                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_email, uiState.email, { viewModel.onEmailChange(it)}, R.string.input_placeholder_empty_email,false,errorEmail,windowSize)
-                InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_keypass, uiState.keypass, { viewModel.onKeypassChange(it) }, R.string.input_placeholder_empty_keypass,true, errorKeypass,windowSize)
-                SaveButton(R.string.Login_button,windowSize,onClick = { viewModel.tryLogin()},enableButton)
+                InputCreation(
+                    modifier = Modifier.fillMaxWidth(0.9F),
+                    title = R.string.input_label_email,
+                    value =  uiState.email,
+                    onValueChange = { viewModel.onEmailChange(it)},
+                    placeholderRes = R.string.input_placeholder_empty_email,
+                    isPassword = false,
+                    error = errorEmail,
+                    windowSize = windowSize
+                )
+                InputCreation(
+                    modifier = Modifier.fillMaxWidth(0.9F),
+                    title = R.string.input_label_keypass,
+                    value =  uiState.keypass,
+                    onValueChange = { viewModel.onKeypassChange(it) },
+                    placeholderRes = R.string.input_placeholder_empty_keypass,
+                    isPassword = true,
+                    error = errorKeypass,
+                    windowSize = windowSize
+                )
+                SaveButton(
+                    textButton = R.string.Login_button,
+                    windowSize = windowSize,
+                    onClick = { viewModel.tryLogin()},
+                    enable = enableButton
+                )
 
                 when (stateProcess) {
                     is LoginState.Iniciado, is LoginState.Error -> {
-                        TextLink(R.string.redirect_register,onNavigateToRegister,windowSize)
+                        TextLink(
+                            texto = R.string.redirect_register,
+                            onClick = onNavigateToRegister,
+                            windowSize = windowSize
+                        )
                 }
                     else -> {
                         //No carga para evitar que le den durante la peticion

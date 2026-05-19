@@ -57,7 +57,6 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
     private var currentPageSelection = 0
     private val currentPageSize = pageSize
 
-
     init {
         loadNextPage()
         if (chatOption) {
@@ -84,9 +83,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
                     return@collect
                 }
 
-                val desencryptMessage = decryptMessage(messageResponseDtoReceived.contenido, myPrivateKey!!)
+                val desencryptMessage = decryptMessage(encryptedMessage = messageResponseDtoReceived.contenido, myPrivateKey = myPrivateKey!!)
                 orderContactsList(idChat = messageResponseDtoReceived.idChat, decryptMessage = desencryptMessage)
-                markNewMessageAsSended(idMensaje = messageResponseDtoReceived.idMensaje)
+                markNewMessageAsSent(idMensaje = messageResponseDtoReceived.idMensaje)
             }
         }
     }
@@ -105,19 +104,19 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
         _uiState.update { it.copy(selectionContactsList = sortedContacts) }
     }
 
-    fun markNewMessageAsSended(idMensaje: Int) {
+    fun markNewMessageAsSent(idMensaje: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.chatApi.marcarNuevoMensajeComoPendiente(idMensaje = idMensaje)
 
                 if (!respuesta.isSuccessful) {
                     delay(1000)
-                    markNewMessageAsSended(idMensaje = idMensaje)
+                    markNewMessageAsSent(idMensaje = idMensaje)
                 }
             }
             catch (e: Exception) {
                 delay(1000)
-                markNewMessageAsSended(idMensaje = idMensaje)
+                markNewMessageAsSent(idMensaje = idMensaje)
             }
         }
     }
@@ -214,8 +213,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
             try {
 
                 val respuesta =  if (follower)
-                    RetrofitClient.usuarioApi.getUserFollowers(userInfo.idUsuario, currentState.searchName, currentPageSelection  )
-                else RetrofitClient.usuarioApi.getUserFollowing(userInfo.idUsuario, currentState.searchName, currentPageSelection  )
+                    RetrofitClient.usuarioApi.getUserFollowers(userInfo.idUsuario, currentState.searchName, currentPageSelection)
+                else
+                    RetrofitClient.usuarioApi.getUserFollowing(userInfo.idUsuario, currentState.searchName, currentPageSelection)
 
                 if (respuesta.isSuccessful) {
                     val usuariosCargados = respuesta.body()
@@ -233,14 +233,12 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
                 else {
                     _state.value = SelectionState.Error(errorMessages(respuesta.code()))
                 }
-
             }
             catch (e: Exception) {
                 _state.value = SelectionState.Error(R.string.Error_Network)
             }
         }
     }
-
 
     fun searchContactByName() {
         val currentState = _uiState.value

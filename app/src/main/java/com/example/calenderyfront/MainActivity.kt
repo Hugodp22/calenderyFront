@@ -71,7 +71,6 @@ import com.example.calenderyfront.Screens.PostDataUploadScreen
 import com.example.calenderyfront.Screens.ProfileScreen
 import com.example.calenderyfront.Screens.RedirectScreen
 import com.example.calenderyfront.Screens.RegisterScreen
-import com.example.calenderyfront.Screens.SelectionProfileScreen
 import com.example.calenderyfront.Screens.SelectionScreen
 import com.example.calenderyfront.Screens.SettingScreen
 import com.example.calenderyfront.Screens.UploadScreen
@@ -83,7 +82,6 @@ import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
-import com.example.calenderyfront.userAuth.SessionManager
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf

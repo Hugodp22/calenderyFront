@@ -155,7 +155,7 @@ class ProfileViewModel(path: SavedStateHandle) : ViewModel() {
         }
 
         // Si ya esta cargando la peticion o si ya no hay mas que cargar, paramos
-        if (_state.value is ProfileState.Cargando || currentState.ultimaPaginaPosts) {
+        if (_state.value is ProfileState.Cargando || _state.value is ProfileState.CargandoBorrado || currentState.ultimaPaginaPosts) {
             return
         }
 
@@ -309,26 +309,23 @@ class ProfileViewModel(path: SavedStateHandle) : ViewModel() {
     }
 
     fun deletePublication(idPost: Int) {
-
-        val currentState = _uiState.value
-
-        if (_state.value is ProfileState.Cargando || currentState.ultimaPaginaComments) {
+        if (_state.value is ProfileState.CargandoBorrado) {
             return
         }
 
-        _state.value = ProfileState.Cargando
-
+        _state.value = ProfileState.CargandoBorrado
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val respuesta = RetrofitClient.publicacionApi.eliminarPublicacion(idPost)
+                val respuesta = RetrofitClient.publicacionApi.eliminarPublicacion(idPublicacion = idPost)
+
                 if (respuesta.isSuccessful) {
                     _uiState.update {
                         it.copy(
                             publicaciones = it.publicaciones.filterNot { post -> post.id == idPost }
                         )
                     }
-                    _state.value = ProfileState.PaginaCargada
+                    _state.value = ProfileState.Iniciado
 
                 } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))

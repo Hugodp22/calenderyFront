@@ -28,6 +28,7 @@ import com.example.calenderyfront.waitingForLink.WaitingForLinkState
 import com.example.calenderyfront.waitingForLink.WaitingForLinkViewModel
 import com.example.calenderyfront.R
 import com.example.calenderyfront.TextLink
+import com.example.calenderyfront.ui.theme.BebasNeue
 
 @Composable
 fun WaitingForLinkScreen(
@@ -80,6 +81,7 @@ fun WaitingForLinkScreen(
                     fontSize = 32.sp,
                     lineHeight = 30.sp,
                     softWrap = true,
+                    fontFamily = BebasNeue,
                     color = MaterialTheme.colorScheme.tertiary
                 )
                 Text(
