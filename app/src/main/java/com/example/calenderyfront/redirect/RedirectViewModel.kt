@@ -1,11 +1,11 @@
 package com.example.calenderyfront.redirect
 
 import android.app.Application
-import android.util.Base64
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.calenderyfront.Model.DataObjects.PublicKeyDto
 import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.UserValidation
 import com.example.calenderyfront.clients.RetrofitClient
 import com.example.calenderyfront.connectWebSocket
 import com.example.calenderyfront.getUserKeyPairFromAndroidStore
@@ -30,10 +30,7 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
         if (SessionManager.isUserLoggedIn(getApplication())) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    //Si esta aqui, es que tiene cabecera, entonces la cuenta existe, pero no sabemos
-                    //si esta validada o no, asi que la validamos.
-                    val email = SessionManager.getEmail(getApplication())?.trim()
-
+                    val email = SessionManager.getEmail(getApplication())
                     if (email != null) {
                         val respuesta = RetrofitClient.usuarioApi.validarUsuarioPorCorreo(email)
 
@@ -41,27 +38,11 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
                             val userValidation = respuesta.body()
 
                             if (userValidation != null) {
-
-                                if (userValidation.enable) {
-                                    val keyPair = getUserKeyPairFromAndroidStore(userId = userValidation.userInfo.idUsuario)
-
-                                    if (keyPair != null) {
-                                        val publicKeyString = Base64.encodeToString(keyPair.public.encoded, Base64.NO_WRAP)
-                                        checkPublicKey(userInfo = userValidation.userInfo, publicKey = publicKeyString)
-                                    }
-
-                                    else {
-                                        sendPublicKey(userInfo = userValidation.userInfo)
-                                    }
-                                }
-                                else {
-                                    _state.value = RedirectState.NoValidate(userValidation.userInfo)
-                                }
+                                isValidate(userValidate = userValidation)
                             }
-                        }
-                        else {
-                            SessionManager.clearSession(getApplication())
-                            _state.value = RedirectState.NoLogin
+                            else {
+                                _state.value = RedirectState.NoLogin
+                            }
                         }
                     }
                     else {
@@ -73,29 +54,24 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
                 }
             }
         }
-
         else {
             _state.value = RedirectState.NoLogin
         }
     }
 
-    fun checkPublicKey(userInfo: UserInfo, publicKey: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val respuesta = RetrofitClient.usuarioApi.comprobarClavePublica(idUsuario = userInfo.idUsuario, clavePublica = publicKey)
+    fun isValidate(userValidate: UserValidation) {
+        if (userValidate.enable) {
 
-                if (respuesta.isSuccessful) {
-                    connectWebSocket(context = getApplication())
-                    _state.value = RedirectState.Exito(userInfo)
-                }
-
-                else {
-                    sendPublicKey(userInfo)
-                }
+            if (getUserKeyPairFromAndroidStore(userId = userValidate.userInfo.idUsuario) != null) {
+                connectWebSocket(context = getApplication())
+                _state.value = RedirectState.Exito(userValidate.userInfo)
             }
-            catch (e: Exception) {
-                _state.value = RedirectState.NoLogin
+            else {
+                sendPublicKey(userValidate.userInfo)
             }
+        }
+        else {
+            _state.value = RedirectState.NoValidate(userValidate.userInfo)
         }
     }
 
@@ -120,5 +96,4 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
-
 }

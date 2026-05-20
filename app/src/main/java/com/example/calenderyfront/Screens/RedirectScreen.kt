@@ -15,32 +15,38 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.calenderyfront.Model.DataObjects.Home
+import com.example.calenderyfront.Model.DataObjects.Login
+import com.example.calenderyfront.Model.DataObjects.Redirect
 import com.example.calenderyfront.Model.DataObjects.UserInfo
+import com.example.calenderyfront.Model.DataObjects.VerifyLink
 import com.example.calenderyfront.redirect.RedirectState
 import com.example.calenderyfront.redirect.RedirectViewModel
 
 @Composable
 fun RedirectScreen(
     modifier: Modifier = Modifier,
-    onNavigateToLogin: () -> Unit,
-    onNavigateToWaitingForLink: (UserInfo) -> Unit,
-    onNavigateToHome: (UserInfo) -> Unit,
+    navController: NavController,
     viewModel: RedirectViewModel = viewModel()
     )
 {
     val stateProcess by viewModel.state.collectAsState()
 
     LaunchedEffect(stateProcess) {
-        if (stateProcess is RedirectState.Exito) {
-            onNavigateToHome((stateProcess as RedirectState.Exito).userInfo) //En un futuro, ponerlo a la screen home
-        }
+        when (stateProcess) {
+            is RedirectState.Exito -> {
+                navController.navigate(Home((stateProcess as RedirectState.Exito).userInfo)) //En un futuro, ponerlo a la screen home
+            }
 
-        else if (stateProcess is RedirectState.NoLogin) {
-            onNavigateToLogin()
-        }
+            is RedirectState.NoLogin -> {
+                navController.navigate(Login)
+            }
 
-        else if (stateProcess is RedirectState.NoValidate) {
-            onNavigateToWaitingForLink((stateProcess as RedirectState.NoValidate).userInfo)
+            is RedirectState.NoValidate -> {
+                navController.navigate(VerifyLink((stateProcess as RedirectState.NoValidate).userInfo))
+            }
+            else -> {}
         }
     }
 

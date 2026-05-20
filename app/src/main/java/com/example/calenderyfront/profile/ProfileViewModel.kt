@@ -42,13 +42,13 @@ class ProfileViewModel(path: SavedStateHandle) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         ProfileUiState(
-            userInfo,
-            otherUserId,
-            mainId,
-            null,
-            "",
-            "Perfil_defecto.png",
-            ""
+            usuario = userInfo,
+            otherUserId = otherUserId,
+            mainId = mainId,
+            chatId = null,
+            nombreUsuario = "",
+            fotoUsuario = "Perfil_defecto.png",
+            descripcion = ""
         )
     )
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -332,8 +332,12 @@ class ProfileViewModel(path: SavedStateHandle) : ViewModel() {
                 val respuesta = RetrofitClient.publicacionApi.eliminarPublicacion(idPublicacion = idPost)
 
                 if (respuesta.isSuccessful) {
-                    _state.value = ProfileState.Iniciado
-
+                    if (_uiState.value.publicaciones.isEmpty()) {
+                        _state.value = ProfileState.NoPublicaciones
+                    }
+                    else {
+                        _state.value = ProfileState.Iniciado
+                    }
                 } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
                     _uiState.update {

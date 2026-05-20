@@ -39,7 +39,8 @@ data class Selection(val userInfo: UserInfo,
                      val userId: Int? = 0,
                      val chatOption: Boolean = false,
                      val isFollowerMode: Boolean = false,
-                     val follower: Boolean = false)
+                     val follower: Boolean = false
+)
 
 @Serializable
 data class Chat(val userInfo: UserInfo, val otherUserId: Int, val idChat: Int, val otherUserName: String, val otherUserPhoto: String)

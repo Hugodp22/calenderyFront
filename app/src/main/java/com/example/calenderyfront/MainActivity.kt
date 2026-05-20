@@ -192,15 +192,7 @@ fun CalenderyApp(
             composable<Redirect> {
                 RedirectScreen(
                     modifier = Modifier,
-                    onNavigateToLogin = {
-                        navController.navigate(Login)
-                    },
-                    onNavigateToWaitingForLink = { userInfo ->
-                        navController.navigate(VerifyLink(userInfo))
-                    },
-                    onNavigateToHome = { userInfo ->
-                        navController.navigate(Home(userInfo))
-                    }
+                    navController = navController,
                 )
             }
 

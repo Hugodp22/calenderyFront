@@ -95,10 +95,7 @@ interface UsuarioApiService {
 
     @GET("api/users/auth/validateUser")
     suspend fun validarUsuarioPorCorreo(
-        @Query(
-            "email",
-            encoded = true
-        ) email: String
+        @Query("email", encoded = true) email: String
     ): Response<UserValidation>
 
     @GET("api/users/app/getUploadProfileSignedUrl")
