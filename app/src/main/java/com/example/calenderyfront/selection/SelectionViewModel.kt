@@ -38,6 +38,10 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).chatOption
 
+    private val userId = path.toRoute<Selection>(
+        typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
+    ).userId
+
     private val follower = path.toRoute<Selection>(
         typeMap = mapOf(typeOf<UserInfo>() to UserInfoNavType)
     ).follower
@@ -213,9 +217,9 @@ class SelectionViewModel(path: SavedStateHandle): ViewModel() {
             try {
 
                 val respuesta =  if (follower)
-                    RetrofitClient.usuarioApi.getUserFollowers(userInfo.idUsuario, currentState.searchName, currentPageSelection)
+                    RetrofitClient.usuarioApi.getUserFollowers(userId ,currentState.searchName, currentPageSelection)
                 else
-                    RetrofitClient.usuarioApi.getUserFollowing(userInfo.idUsuario, currentState.searchName, currentPageSelection)
+                    RetrofitClient.usuarioApi.getUserFollowing(userId, currentState.searchName, currentPageSelection)
 
                 if (respuesta.isSuccessful) {
                     val usuariosCargados = respuesta.body()

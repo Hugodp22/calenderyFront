@@ -133,7 +133,7 @@ interface UsuarioApiService {
 
     @GET("api/follower/app/getUserFollowers")
     suspend fun getUserFollowers(
-        @Query("idUsuario") idUsuario: Int,
+        @Query("idUsuario") idUsuario: Int?,
         @Query("nombre") nombre: String,
         @Query("page") page: Int,
         @Query("size") size: Int = pageSize
@@ -141,7 +141,7 @@ interface UsuarioApiService {
 
     @GET("api/follower/app/getUserFollowing")
     suspend fun getUserFollowing(
-        @Query("idUsuario") idUsuario: Int,
+        @Query("idUsuario") idUsuario: Int?,
         @Query("nombre") nombre: String,
         @Query("page") page: Int,
         @Query("size") size: Int = pageSize

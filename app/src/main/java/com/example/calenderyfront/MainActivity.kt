@@ -300,9 +300,9 @@ fun CalenderyApp(
                     onNavigateToOtherProfile = { userInfo, otherUserId ->
                         navController.navigate(Profile(userInfo, otherUserId))
                     },
-                    onNavigateToFollow = {userInfo, follow ->
-                        navController.navigate(Selection(userInfo, follower = follow, isFollowerMode = true))
-                    }
+                    onNavigateToFollow = {userInfo, userId,follow ->
+                        navController.navigate(Selection(userInfo, userId,follower = follow, isFollowerMode = true))
+                    },
 
                 )
             }

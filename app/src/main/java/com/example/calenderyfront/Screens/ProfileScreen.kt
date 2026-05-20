@@ -77,6 +77,7 @@ import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.datePastLimit
 import com.example.calenderyfront.profile.ProfileState
+import com.example.calenderyfront.profile.ProfileUiState
 import com.example.calenderyfront.profile.ProfileViewModel
 import com.example.calenderyfront.rowProfilePostSize
 import com.example.calenderyfront.ui.theme.BebasNeue
@@ -93,8 +94,9 @@ fun ProfileHeader(
     modifier: Modifier = Modifier,
     windowSize: WindowWidthSizeClass,
     stateProcess: ProfileState,
+    uiState: ProfileUiState,
     user: UserInfo,
-    onNavigateToFollow: (UserInfo, Boolean) -> Unit,
+    onNavigateToFollow: (UserInfo, Int?,Boolean) -> Unit,
     userName: String,
     photoUser: String,
     onClickPhoto: () -> Unit,
@@ -156,13 +158,13 @@ fun ProfileHeader(
                 {
                     ProfileStat(
                         windowSize = windowSize,
-                        onClick = { onNavigateToFollow(user, true) },
+                        onClick = { if (otherUser) onNavigateToFollow(user, uiState.otherUserId, true) else onNavigateToFollow(user, user.idUsuario, true) },
                         number = numberOfFollowers,
                         label = R.string.followers_text
                     )
                     ProfileStat(
                         windowSize = windowSize,
-                        onClick = { onNavigateToFollow(user, false) },
+                        onClick = { if (otherUser) onNavigateToFollow(user, uiState.otherUserId, false) else onNavigateToFollow(user, user.idUsuario, false)},
                         number = numberOfFollowed,
                         label = R.string.followed_text
                     )
@@ -761,7 +763,7 @@ fun ProfileScreen(
     windowSize: WindowWidthSizeClass,
     onNavigateToSettings: (UserInfo) -> Unit,
     onNavigateToUpload: (UserInfo) -> Unit,
-    onNavigateToFollow: (UserInfo, Boolean) -> Unit,
+    onNavigateToFollow: (UserInfo, Int?,Boolean) -> Unit,
     onNavigateToChat: (UserInfo, Int, Int, String, String) -> Unit,
     onNavigateToOtherProfile: (UserInfo, Int) -> Unit,
     viewModel: ProfileViewModel = viewModel(),
@@ -886,7 +888,8 @@ fun ProfileScreen(
                 otherUser = otherUser,
                 onNavigateToFollow = onNavigateToFollow,
                 follow = uiState.seguidor,
-                user = uiState.usuario
+                user = uiState.usuario,
+                uiState = uiState,
             )
         }
 
