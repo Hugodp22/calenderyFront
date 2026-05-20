@@ -308,27 +308,37 @@ class ProfileViewModel(path: SavedStateHandle) : ViewModel() {
         }
     }
 
+    fun changeDeleteVisual(idPost: Int, currentState: ProfileUiState){
+        _uiState.update {
+            val listaActualizada = currentState.publicaciones.filterNot { post -> post.id == idPost  }
+            currentState.copy(publicaciones =  listaActualizada)
+        }
+
+    }
+
     fun deletePublication(idPost: Int) {
+        val currentState = _uiState.value
         if (_state.value is ProfileState.CargandoBorrado) {
             return
         }
 
         _state.value = ProfileState.CargandoBorrado
+        val listaOriginal = currentState.publicaciones
+        changeDeleteVisual(idPost, currentState)
+
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val respuesta = RetrofitClient.publicacionApi.eliminarPublicacion(idPublicacion = idPost)
 
                 if (respuesta.isSuccessful) {
-                    _uiState.update {
-                        it.copy(
-                            publicaciones = it.publicaciones.filterNot { post -> post.id == idPost }
-                        )
-                    }
                     _state.value = ProfileState.Iniciado
 
                 } else {
                     _state.value = ProfileState.Error(errorMessages(respuesta.code()))
+                    _uiState.update {
+                        currentState.copy(publicaciones =  listaOriginal)
+                    }
                 }
             } catch (e: Exception) {
                 _state.value = ProfileState.Error(R.string.Error_Network)
