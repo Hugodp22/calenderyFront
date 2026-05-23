@@ -4,7 +4,10 @@ import android.util.Log
 import com.example.calenderyfront.clients.RetrofitClient
 import okhttp3.Credentials
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Protocol
 import okhttp3.Response
+import okhttp3.ResponseBody.Companion.toResponseBody
 
 /**
  * Interceptor para cada peticion al back
@@ -44,6 +47,17 @@ class BasicInterceptor: Interceptor {
         //Se crea la peticion con la cabecera y se manda al back
         val peticionFinal = peticionBuilder.build()
 
-        return chain.proceed(peticionFinal)
+        return try {
+            chain.proceed(peticionFinal)
+        }
+        catch (e: Exception) {
+            Response.Builder()
+                .request(peticion)
+                .protocol(Protocol.HTTP_1_1)
+                .code(504)
+                .message("El servidor está dormido o inaccesible: ${e.message}")
+                .body("{\"error\":\"Timeout del servidor\"}".toResponseBody("application/json".toMediaType()))
+                .build()
+        }
     }
 }

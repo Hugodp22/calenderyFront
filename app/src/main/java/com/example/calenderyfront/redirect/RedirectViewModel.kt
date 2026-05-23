@@ -44,6 +44,9 @@ class RedirectViewModel(application: Application) : AndroidViewModel(application
                                 _state.value = RedirectState.NoLogin
                             }
                         }
+                        else {
+                            _state.value = RedirectState.NoLogin
+                        }
                     }
                     else {
                         _state.value = RedirectState.NoLogin

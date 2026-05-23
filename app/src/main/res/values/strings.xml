@@ -24,7 +24,8 @@
     <string name="Error_401_Message">Error, usuario no logueado (401)</string>
     <string name="Error_403_Message">Error, no tienes acceso (403)</string>
     <string name="Error_404_Message">Servidor no encontrado (404)</string>
-    <string name="Error_500_message">Error interno del servidor (500)</string>
+    <string name="Error_500_Message">Error interno del servidor (500)</string>
+    <string name="Error_504_Message">Servidor dormido (504)</string>
     <string name="Error_Unknow_Message">Error desconocido</string>
     <string name="Error_Profile_Message">Perfil no encontrado</string>
     <string name="Error_no_photo">Foto no seleccionada</string>

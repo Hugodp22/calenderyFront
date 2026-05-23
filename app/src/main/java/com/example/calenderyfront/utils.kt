@@ -970,22 +970,6 @@ fun connectWebSocket(context: Context) {
     WebSocketClient.userValidation()
 }
 
-/**
- * Funcion para obtener un mensaje de error segun el codigo obtenido del back
- * para asi evitar duplicacion de codigo
- */
-fun errorMessages(erroCode: Int): Int {
-    val errorMessage = when (erroCode) {
-        400 -> R.string.Error_400_Message
-        401 -> R.string.Error_401_Message
-        403 -> R.string.Error_403_Message
-        404 -> R.string.Error_404_Message
-        500 -> R.string.Error_500_message
-        else -> R.string.Error_Unknow_Message
-    }
-    return errorMessage
-}
-
 @Composable
 fun AlertDialog(
     windowSize: WindowWidthSizeClass,
@@ -1055,5 +1039,22 @@ fun AlertDialog(
             }
         },
     )
+}
+
+/**
+ * Funcion para obtener un mensaje de error segun el codigo obtenido del back
+ * para asi evitar duplicacion de codigo
+ */
+fun errorMessages(erroCode: Int): Int {
+    val errorMessage = when (erroCode) {
+        400 -> R.string.Error_400_Message
+        401 -> R.string.Error_401_Message
+        403 -> R.string.Error_403_Message
+        404 -> R.string.Error_404_Message
+        500 -> R.string.Error_500_Message
+        504 -> R.string.Error_504_Message
+        else -> R.string.Error_Unknow_Message
+    }
+    return errorMessage
 }
 
