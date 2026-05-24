@@ -32,6 +32,7 @@ import com.example.calenderyfront.TextLink
 import com.example.calenderyfront.register.RegisterState
 import com.example.calenderyfront.register.RegisterViewModel
 import com.example.calenderyfront.ui.theme.BebasNeue
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 
 @Composable
 fun RegisterScreen(
@@ -74,6 +75,8 @@ fun RegisterScreen(
         }
     }
 
+    val colors = LocalCustomColors.current
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -98,7 +101,7 @@ fun RegisterScreen(
                     text = stringResource(R.string.register),
                     fontSize = titleSize,
                     fontFamily = BebasNeue,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 InputCreation(Modifier.fillMaxWidth(0.9F),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
@@ -109,7 +112,7 @@ fun RegisterScreen(
 
                 when (stateProcess) {
                     is RegisterState.Iniciado, is RegisterState.Error -> {
-                        TextLink(texto = R.string.redirect_login, onClick =  onNavigateToLogin, windowSize = windowSize)
+                        TextLink(texto = R.string.redirect_login, onClick =  onNavigateToLogin, windowSize = windowSize, color = MaterialTheme.colorScheme.onSurface)
                     }
                     else -> {
                         //No aparece para evitar que le den click
@@ -120,14 +123,14 @@ fun RegisterScreen(
                 if (stateProcess is RegisterState.Error) {
                     Text(
                         text = stringResource((stateProcess as RegisterState.Error).mensaje),
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.error,
                         fontSize = 14.sp
                     )
                 }
                 //Si esta cargando, mostramos una barra de carga por defecto
                 else if (stateProcess is RegisterState.Cargando) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = colors.spinner
                     )
                 }
             }

@@ -51,7 +51,7 @@ fun RedirectScreen(
     {
         if (stateProcess is RedirectState.Cargando) {
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.onTertiary
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
@@ -59,7 +59,7 @@ fun RedirectScreen(
             Text(
                 text = stringResource((stateProcess as RedirectState.Error).mensaje),
                 fontSize = 14.sp,
-                color = Color.Red
+                color = MaterialTheme.colorScheme.error
             )
         }
     }

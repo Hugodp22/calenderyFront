@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -65,6 +66,7 @@ import com.example.calenderyfront.R
 import com.example.calenderyfront.home.HomeState
 import com.example.calenderyfront.home.HomeViewModel
 import com.example.calenderyfront.rowProfilePostSize
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 
 @Composable
 fun PostHomeCreation(
@@ -99,6 +101,8 @@ fun PostHomeCreation(
         else -> 15.sp
     }
 
+    val colors = LocalCustomColors.current
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -106,7 +110,7 @@ fun PostHomeCreation(
             .widthIn(max = 600.dp),
         shape = RoundedCornerShape(0.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = colors.postCard
         )
     )
     {
@@ -133,7 +137,7 @@ fun PostHomeCreation(
                 Text(
                     text = post.nombreUsuario,
                     fontSize = fontSizeUser,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -146,7 +150,7 @@ fun PostHomeCreation(
                     modifier = Modifier.padding(4.dp),
                     text = post.mensaje,
                     fontSize = fontSizeMessage,
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     softWrap = true
                 )
             }
@@ -159,6 +163,10 @@ fun PostHomeCreation(
                 onClickCommentIcon = { onClickCommentIcon() },
                 currentLikes = post.cantidadLikes,
                 currentComments = post.cantidadComentarios
+            )
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = colors.postDivider
             )
             Spacer(Modifier.padding(bottom = 5.dp))
         }
@@ -177,6 +185,8 @@ fun PostHome(
         else -> 1.5F
     }
 
+    val colors = LocalCustomColors.current
+
     AsyncImage(
         model = ImageRequest
             .Builder(LocalContext.current)
@@ -190,7 +200,7 @@ fun PostHome(
             .fillMaxWidth()
             .aspectRatio(aspect)
             .clickable { onClickPostPhoto() }
-            .background(MaterialTheme.colorScheme.primary),
+            .background(colors.postImagePlaceholder),
         placeholder = painterResource(R.drawable.ic_launcher_background),
         contentScale = ContentScale.Crop,
         error = painterResource(R.drawable.errorimage)
@@ -269,13 +279,13 @@ fun IconRow(
             Icon(
                 painter = painterResource(icon),
                 contentDescription = stringResource(contentDescription),
-                tint = Color.Unspecified //Para que se pinte bien
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Text(
             text = quantity.toString(),
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -365,19 +375,20 @@ fun HomeScreen(
                     Text(
                         text = stringResource((stateProcess as HomeState.Error).mensaje),
                         fontSize = 14.sp,
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
         }
 
         if (uiState.posts.isEmpty() && stateProcess is HomeState.Cargando) {
+            val colors = LocalCustomColors.current
             CircularProgressIndicator(
                 modifier = Modifier
                     .size(300.dp)
                     .align(Alignment.Center),
                 strokeWidth = 12.dp,
-                color = MaterialTheme.colorScheme.onTertiary
+                color = colors.spinner
             )
         }
 

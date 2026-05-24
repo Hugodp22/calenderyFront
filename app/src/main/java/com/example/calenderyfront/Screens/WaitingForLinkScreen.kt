@@ -82,11 +82,11 @@ fun WaitingForLinkScreen(
                     lineHeight = 30.sp,
                     softWrap = true,
                     fontFamily = BebasNeue,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = stringResource(R.string.link_waiting_message),
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 if (stateProcess is WaitingForLinkState.Iniciado || stateProcess is WaitingForLinkState.Error) {
@@ -95,7 +95,7 @@ fun WaitingForLinkScreen(
 
                 if (stateProcess is WaitingForLinkState.Cargando) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }

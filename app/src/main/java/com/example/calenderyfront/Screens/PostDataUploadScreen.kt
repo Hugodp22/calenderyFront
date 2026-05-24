@@ -39,6 +39,7 @@ import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.postDataUpload.PostDataUploadState
 import com.example.calenderyfront.postDataUpload.PostDataUploadViewModel
 import com.example.calenderyfront.ui.theme.BebasNeue
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 import java.time.Instant
 import java.time.ZoneId
 
@@ -113,7 +114,7 @@ fun PostDataUploadScreen(
             text = stringResource(R.string.date_selection),
             fontSize = fontSize,
             fontFamily = BebasNeue,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -127,12 +128,12 @@ fun PostDataUploadScreen(
                 state = datePickerState,
                 showModeToggle = false,
                 colors = DatePickerDefaults.colors(
-                    selectedDayContainerColor = Color(0xFF2D4D96),
-                    selectedDayContentColor = Color.White,
-                    todayDateBorderColor = Color(0xFF1A2F5E),
-                    todayContentColor = MaterialTheme.colorScheme.tertiary,
-                    titleContentColor = MaterialTheme.colorScheme.tertiary,
-                    headlineContentColor = MaterialTheme.colorScheme.tertiary
+                    selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedDayContentColor = MaterialTheme.colorScheme.onPrimary,
+                    todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                    todayContentColor = MaterialTheme.colorScheme.onSurface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    headlineContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -152,8 +153,9 @@ fun PostDataUploadScreen(
         Spacer(modifier = Modifier.height(5.dp))
 
         if (stateProcess is PostDataUploadState.Cargando) {
+            val colors = LocalCustomColors.current
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.onTertiary
+                color = colors.spinner
             )
         }
 
@@ -161,7 +163,7 @@ fun PostDataUploadScreen(
             Text(
                 text = stringResource((stateProcess as PostDataUploadState.Error).mensaje),
                 fontSize = 14.sp,
-                color = Color.Red
+                color = MaterialTheme.colorScheme.error
             )
         }
 

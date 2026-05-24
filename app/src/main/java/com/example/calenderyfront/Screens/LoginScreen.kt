@@ -32,6 +32,7 @@ import com.example.calenderyfront.TextLink
 import com.example.calenderyfront.login.LoginState
 import com.example.calenderyfront.login.LoginViewModel
 import com.example.calenderyfront.ui.theme.BebasNeue
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 
 /**
  * Funcion para cargar la pantalla de login
@@ -65,6 +66,8 @@ fun LoginScreen(
         }
     }
 
+    val colors = LocalCustomColors.current
+
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -89,7 +92,7 @@ fun LoginScreen(
                     text = stringResource(R.string.Login_title),
                     fontSize = 32.sp,
                     fontFamily = BebasNeue,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 InputCreation(
@@ -124,7 +127,8 @@ fun LoginScreen(
                         TextLink(
                             texto = R.string.redirect_register,
                             onClick = onNavigateToRegister,
-                            windowSize = windowSize
+                            windowSize = windowSize,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                 }
                     else -> {
@@ -135,13 +139,13 @@ fun LoginScreen(
                 if (stateProcess is LoginState.Error) {
                     Text(
                         text = stringResource((stateProcess as LoginState.Error).mensaje),
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.error,
                         fontSize = 14.sp
                     )
                 }
                 else if (stateProcess is LoginState.Cargando) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = colors.spinner
                     )
                 }
             }

@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,9 +35,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.R
-import com.example.calenderyfront.SaveButton
 import com.example.calenderyfront.galleryLauncher
 import com.example.calenderyfront.ui.theme.BebasNeue
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 import com.example.calenderyfront.upload.UploadState
 import com.example.calenderyfront.upload.UploadViewModel
 
@@ -98,7 +101,7 @@ fun UploadScreen(
             text = stringResource(R.string.select_image_upload),
             fontFamily = BebasNeue,
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 50.dp, bottom = 20.dp)
@@ -118,7 +121,7 @@ fun UploadScreen(
                     .clickable { openGallery() },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.tertiary
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             )
@@ -148,25 +151,39 @@ fun UploadScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            SaveButton(
-                textButton = R.string.next,
-                windowSize = windowSize,
+            Button(
                 onClick = { viewModel.uploadPhoto() },
-                enable = enableButton
-            )
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.38f),
+                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.38f)
+                ),
+                enabled = enableButton,
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .height(40.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.next),
+                    fontSize = 13.sp,
+                    softWrap = false
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             if (stateProcess is UploadState.Cargando) {
+                val colors = LocalCustomColors.current
                 CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onTertiary
+                    color = colors.spinner
                 )
             }
 
             else if (stateProcess is UploadState.Error) {
                 Text(
                     text = stringResource((stateProcess as UploadState.Error).mensaje),
-                    color = Color.Red,
+                    color = MaterialTheme.colorScheme.error,
                     fontSize = 14.sp
                 )
             }

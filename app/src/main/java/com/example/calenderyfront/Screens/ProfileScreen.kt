@@ -82,6 +82,7 @@ import com.example.calenderyfront.profile.ProfileViewModel
 import com.example.calenderyfront.rowProfilePostSize
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.FjalaOne
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 import com.example.calenderyfront.userAuth.SessionManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -129,11 +130,13 @@ fun ProfileHeader(
         else -> 22.sp
     }
 
+    val colors = LocalCustomColors.current
+
     Box(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.primary)
+                .background(color = colors.profileHeader)
                 .padding(horizontal = width)
                 .padding(top = 32.dp)
         )
@@ -186,7 +189,7 @@ fun ProfileHeader(
                         text = userName,
                         fontWeight = FontWeight.Bold,
                         fontSize = fontSizeName,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     if (!description.isNullOrEmpty()) {
@@ -194,7 +197,7 @@ fun ProfileHeader(
                             modifier = Modifier.padding(top = 7.dp),
                             text = description,
                             fontSize = fontSizeName,
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -275,37 +278,37 @@ fun ButtonsBox(
 
     val colorsLeftButton = when (follow) {
         true -> buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            contentColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
         )
 
         else -> buttonColors(
-            containerColor = MaterialTheme.colorScheme.onSecondary,
-            contentColor = MaterialTheme.colorScheme.tertiary,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         )
     }
 
     val loadingFollowColors = when (follow) {
         false -> buttonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = Color.Gray
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            contentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
         )
 
         else -> buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = Color.Gray
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
+            contentColor = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.5f)
         )
     }
 
     val loadingChatColors = when (stateProcess) {
         ProfileState.ChatCargando -> buttonColors(
-            contentColor = MaterialTheme.colorScheme.tertiary,
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            contentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )
 
         else -> buttonColors(
-            contentColor = MaterialTheme.colorScheme.tertiary,
-            containerColor = MaterialTheme.colorScheme.onSecondary
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            containerColor = MaterialTheme.colorScheme.primary
         )
     }
 
@@ -413,13 +416,13 @@ fun ProfileStat(
         Text(
             text = number.toString(),
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Text(
             text = stringResource(label),
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -449,7 +452,7 @@ fun WeekTitle(
             fontFamily = BebasNeue,
             fontWeight = FontWeight.Bold,
             textDecoration = TextDecoration.Underline,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -555,7 +558,7 @@ fun MonthTitle(
                     text = stringResource(R.string.left_arrow),
                     modifier = Modifier.then(if (canGoPrevious) Modifier.clickable { onPreviousMonth() } else Modifier),
                     fontSize = fontSizeArrows,
-                    color = if (canGoPrevious) MaterialTheme.colorScheme.tertiary else Color.Gray,
+                    color = if (canGoPrevious) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 Column(
@@ -567,18 +570,18 @@ fun MonthTitle(
                         text = monthTitle,
                         fontFamily = FjalaOne,
                         fontSize = fontSizeTitle,
-                        color = MaterialTheme.colorScheme.tertiary,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
                         text = localDate.year.toString(),
                         fontSize = fontSizeYear,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
                 Text(
                     modifier = Modifier.then(if (canGoNext) Modifier.clickable { onNextMonth() } else Modifier),
-                    color = if (canGoNext) MaterialTheme.colorScheme.tertiary else Color.Gray,
+                    color = if (canGoNext) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
                     text = stringResource(R.string.right_arrow),
                     fontSize = fontSizeArrows,
                 )
@@ -628,7 +631,7 @@ fun DatePickerDialog(
                     fontSize = fontSizeTitle,
                     fontFamily = BebasNeue,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(Modifier.padding(bottom = spacer))
@@ -658,10 +661,10 @@ fun DatePickerDialog(
                         onConfirm(LocalDate.of(selectedYear, currentMonth, 1))
                     },
                     colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onSecondary,
-                        contentColor = MaterialTheme.colorScheme.tertiary,
-                        disabledContentColor = Color.Red,
-                        disabledContainerColor = Color.Gray
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContentColor = MaterialTheme.colorScheme.error,
+                        disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
                 {
@@ -714,9 +717,9 @@ fun InputYearSelection(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             colors = TextFieldDefaults.colors(
-                cursorColor = MaterialTheme.colorScheme.tertiary,
-                focusedTextColor = MaterialTheme.colorScheme.tertiary,
-                unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
             textStyle = androidx.compose.ui.text.TextStyle(fontSize = 20.sp) //Si lo importo da error con otro
         )
@@ -939,6 +942,7 @@ fun ProfileScreen(
             }
         } else {
             item(span = { GridItemSpan(maxLineSpan) }) {
+                val colors = LocalCustomColors.current
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -949,14 +953,14 @@ fun ProfileScreen(
                     if (stateProcess is ProfileState.Cargando) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(250.dp),
-                            color = MaterialTheme.colorScheme.onTertiary,
+                            color = colors.spinner,
                             strokeWidth = 12.dp
                         )
                     } else if (stateProcess is ProfileState.NoPublicaciones) {
                         Text(
                             text = stringResource(R.string.no_post_month_message),
                             fontSize = fontSize,
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
