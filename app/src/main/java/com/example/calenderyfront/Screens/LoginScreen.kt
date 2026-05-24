@@ -73,7 +73,7 @@ fun LoginScreen(
         Card(
             modifier = Modifier.padding(24.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onTertiaryFixed),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         )
         {
@@ -141,7 +141,7 @@ fun LoginScreen(
                 }
                 else if (stateProcess is LoginState.Cargando) {
                     CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 }
             }

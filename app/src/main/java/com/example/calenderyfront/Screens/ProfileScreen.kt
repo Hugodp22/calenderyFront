@@ -280,7 +280,7 @@ fun ButtonsBox(
         )
 
         else -> buttonColors(
-            containerColor = MaterialTheme.colorScheme.onSecondary,
+            containerColor = MaterialTheme.colorScheme.onTertiary,
             contentColor = MaterialTheme.colorScheme.tertiary,
         )
     }
@@ -305,7 +305,7 @@ fun ButtonsBox(
 
         else -> buttonColors(
             contentColor = MaterialTheme.colorScheme.tertiary,
-            containerColor = MaterialTheme.colorScheme.onSecondary
+            containerColor = MaterialTheme.colorScheme.onTertiary
         )
     }
 

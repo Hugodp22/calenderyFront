@@ -153,7 +153,9 @@ fun UploadScreen(
                 textButton = R.string.next,
                 windowSize = windowSize,
                 onClick = { viewModel.uploadPhoto() },
-                enable = enableButton
+                enable = enableButton,
+                color = MaterialTheme.colorScheme.primaryFixed,
+                disabledColor = MaterialTheme.colorScheme.primaryContainer
             )
 
             Spacer(modifier = Modifier.height(16.dp))

@@ -76,7 +76,7 @@ fun ChatTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(height)
-            .background(color = MaterialTheme.colorScheme.inversePrimary),
+            .background(color = MaterialTheme.colorScheme.onTertiaryFixed),
         verticalAlignment = Alignment.CenterVertically
     )
     {
@@ -113,7 +113,7 @@ fun MessageItem(
     }
 
     val color = when (isMine) {
-        true -> CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inversePrimary)
+        true -> CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onTertiaryFixed)
         else -> CardDefaults.cardColors()
     }
 

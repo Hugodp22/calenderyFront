@@ -138,7 +138,7 @@ fun InputCreation(
     {
         Text(
             text = stringResource(title),
-            color = if (error) Color.Red else Color.Gray,
+            color = if (error) Color.Red else MaterialTheme.colorScheme.tertiary,
             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
 
@@ -175,9 +175,11 @@ fun InputCreation(
             },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF4285F4),
-                unfocusedBorderColor = Color.Gray,
+                unfocusedBorderColor = MaterialTheme.colorScheme.onTertiaryFixed,
                 errorBorderColor = Color.Red,
-                cursorColor = MaterialTheme.colorScheme.tertiary
+                cursorColor = MaterialTheme.colorScheme.tertiary,
+                focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
             ),
             modifier = Modifier.fillMaxWidth(),
             maxLines = 1,
@@ -213,10 +215,10 @@ fun MessageLimitContent(
         singleLine = false,
         shape = RoundedCornerShape(if (!postMessage) 16.dp else 0.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
             focusedBorderColor = if (!postMessage) Color(0xFF4285F4) else MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = if (!postMessage) Color.Gray else MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = if (!postMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary,
             cursorColor = MaterialTheme.colorScheme.tertiary,
             unfocusedTextColor = Color.Gray,
             focusedTextColor = MaterialTheme.colorScheme.tertiary
@@ -776,7 +778,9 @@ fun SaveButton(
     @StringRes textButton: Int,
     windowSize: WindowWidthSizeClass,
     onClick: () -> Unit,
-    enable: Boolean = true
+    enable: Boolean = true,
+    color: Color? = null,
+    disabledColor: Color? = null
 ) {
     val width = when (windowSize) {
         WindowWidthSizeClass.Compact -> 0.5F
@@ -802,10 +806,10 @@ fun SaveButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF4285F4),
-            contentColor = Color.White,
+            containerColor = color ?: MaterialTheme.colorScheme.onTertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.tertiary,
             disabledContentColor = Color.Gray,
-            disabledContainerColor = Color(0xFF153870)
+            disabledContainerColor = disabledColor ?: MaterialTheme.colorScheme.onPrimary
         ),
         enabled = enable,
         modifier = Modifier
@@ -840,7 +844,7 @@ fun TextLink(
 
     Text(
         text = stringResource(texto),
-        color = Color(0xFF4285F4),
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
         fontSize = fontSize,
         fontWeight = FontWeight.Bold,
         textDecoration = TextDecoration.Underline,
