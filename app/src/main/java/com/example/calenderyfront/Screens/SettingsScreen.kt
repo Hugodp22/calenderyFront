@@ -178,7 +178,7 @@ fun SettingScreen(
         Card(
             modifier = Modifier.padding(24.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onTertiaryFixed),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         )
         {
@@ -220,7 +220,7 @@ fun SettingScreen(
         else if (stateProcess is SettingsState.Cargando) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                color = MaterialTheme.colorScheme.onTertiary
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
 

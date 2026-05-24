@@ -127,9 +127,9 @@ fun PostDataUploadScreen(
                 state = datePickerState,
                 showModeToggle = false,
                 colors = DatePickerDefaults.colors(
-                    selectedDayContainerColor = Color(0xFF2D4D96),
-                    selectedDayContentColor = Color.White,
-                    todayDateBorderColor = Color(0xFF1A2F5E),
+                    selectedDayContainerColor = MaterialTheme.colorScheme.primaryFixed,
+                    selectedDayContentColor = MaterialTheme.colorScheme.tertiary,
+                    todayDateBorderColor = MaterialTheme.colorScheme.primaryContainer,
                     todayContentColor = MaterialTheme.colorScheme.tertiary,
                     titleContentColor = MaterialTheme.colorScheme.tertiary,
                     headlineContentColor = MaterialTheme.colorScheme.tertiary
@@ -147,7 +147,14 @@ fun PostDataUploadScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        SaveButton(R.string.upload, windowSize, { viewModel.uploadPost(context) }, enableButton)
+        SaveButton(
+            textButton = R.string.upload,
+            windowSize =  windowSize,
+            onClick =  { viewModel.uploadPost(context) },
+            enable = enableButton,
+            color = MaterialTheme.colorScheme.primaryFixed,
+            disabledColor = MaterialTheme.colorScheme.primaryContainer
+        )
 
         Spacer(modifier = Modifier.height(5.dp))
 
