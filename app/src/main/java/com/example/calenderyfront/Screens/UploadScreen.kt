@@ -87,6 +87,7 @@ fun UploadScreen(
                 uiState.fotoSubir,
                 (stateProcess as UploadState.Exito).photoUrl
             )
+            viewModel.restartState()
         }
     }
 
