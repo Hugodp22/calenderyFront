@@ -138,7 +138,7 @@ fun InputCreation(
     {
         Text(
             text = stringResource(title),
-            color = if (error) Color.Red else Color.Gray,
+            color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
         )
 
@@ -150,7 +150,7 @@ fun InputCreation(
                 Text(
                     text = stringResource(placeholderRes),
                     fontSize = fontSize,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     softWrap = false,
                 )
@@ -174,10 +174,12 @@ fun InputCreation(
                 }
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF4285F4),
-                unfocusedBorderColor = Color.Gray,
-                errorBorderColor = Color.Red,
-                cursorColor = MaterialTheme.colorScheme.tertiary
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             ),
             modifier = Modifier.fillMaxWidth(),
             maxLines = 1,
@@ -208,18 +210,18 @@ fun MessageLimitContent(
             }
         },
         modifier = modifier.height(120.dp),
-        placeholder = { Text(stringResource(placeHolder)) },
+        placeholder = { Text(stringResource(placeHolder), color = MaterialTheme.colorScheme.onSurface) },
         maxLines = 3,
         singleLine = false,
         shape = RoundedCornerShape(if (!postMessage) 16.dp else 0.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.primary,
-            focusedBorderColor = if (!postMessage) Color(0xFF4285F4) else MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = if (!postMessage) Color.Gray else MaterialTheme.colorScheme.primary,
-            cursorColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTextColor = Color.Gray,
-            focusedTextColor = MaterialTheme.colorScheme.tertiary
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor = if (!postMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = if (!postMessage) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface
         )
     )
 }
@@ -251,7 +253,7 @@ fun PhotoUserContainer(
         modifier = modifier
             .clip(CircleShape)
             .clickable { onClick() }
-            .background(MaterialTheme.colorScheme.primary),
+            .background(MaterialTheme.colorScheme.surfaceVariant),
         placeholder = painterResource(R.drawable.ic_launcher_background),
         contentScale = ContentScale.Crop, //O .Crop
         error = painterResource(R.drawable.errorimage) //Cambiar imagenes, que estas son de prueba
@@ -359,8 +361,8 @@ fun ExpandedPhotoPost(
             contentColor = Color.Unspecified
         )
         else -> CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onSecondaryFixed,
-            contentColor = MaterialTheme.colorScheme.tertiary
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
     }
 
@@ -447,8 +449,8 @@ fun ExpandedPhotoPost(
                             .padding(bottom = 30.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.onSecondaryFixed,
-                            contentColor = MaterialTheme.colorScheme.tertiary
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ),
                     )
                     {
@@ -456,7 +458,7 @@ fun ExpandedPhotoPost(
                             text = it,
                             fontSize = fontSize,
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.tertiary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
@@ -497,7 +499,7 @@ fun IconPostDialog(
             Icon(
                 painter = painterResource(icon),
                 contentDescription = stringResource(contentDescription),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -505,7 +507,7 @@ fun IconPostDialog(
             Text(
                 text = quantity.toString(),
                 fontSize = fontSize,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -563,7 +565,7 @@ fun CommentCreation(
             Text(
                 text = comment.nombreUsuario,
                 fontSize = fontSizeUser,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -572,7 +574,7 @@ fun CommentCreation(
         Text(
             text = comment.comentario,
             fontSize = fontSizeComment,
-            color = MaterialTheme.colorScheme.tertiary
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         Spacer(Modifier.padding(bottom = 15.dp))
@@ -607,7 +609,7 @@ fun InputComment(
             Text(
                 text = stringResource(R.string.comment_input),
                 fontSize = fontSize,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 softWrap = false,
             )
@@ -621,16 +623,16 @@ fun InputComment(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.send_comment),
-                    tint = if (value.isNotBlank()) Color(0xFF4285F4) else Color.Gray
+                    tint = if (value.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                 )
             }
         },
 
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF4285F4),
-            unfocusedBorderColor = Color.Gray,
-            errorBorderColor = Color.Red,
-            cursorColor = MaterialTheme.colorScheme.tertiary
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            cursorColor = MaterialTheme.colorScheme.primary
         ),
     )
 }
@@ -802,10 +804,10 @@ fun SaveButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF4285F4),
-            contentColor = Color.White,
-            disabledContentColor = Color.Gray,
-            disabledContainerColor = Color(0xFF153870)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.38f)
         ),
         enabled = enable,
         modifier = Modifier
@@ -829,7 +831,8 @@ fun SaveButton(
 fun TextLink(
     @StringRes texto: Int,
     onClick: () -> Unit,
-    windowSize: WindowWidthSizeClass
+    windowSize: WindowWidthSizeClass,
+    color: Color = MaterialTheme.colorScheme.primary
 ) {
     val fontSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> 16.sp
@@ -840,7 +843,7 @@ fun TextLink(
 
     Text(
         text = stringResource(texto),
-        color = Color(0xFF4285F4),
+        color = color,
         fontSize = fontSize,
         fontWeight = FontWeight.Bold,
         textDecoration = TextDecoration.Underline,
@@ -1009,7 +1012,7 @@ fun AlertDialog(
             {
                 Text(
                     text = stringResource(title),
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = fontSizeTitle,
                     fontFamily = BebasNeue
                 )
@@ -1029,10 +1032,10 @@ fun AlertDialog(
                         windowSize = windowSize,
                         textButton = R.string.accept,
                         colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.onSecondary,
-                            contentColor = MaterialTheme.colorScheme.tertiary,
-                            disabledContentColor = Color.Red,
-                            disabledContainerColor = Color.Gray
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                            disabledContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.38f)
                         )
                     )
                 }
@@ -1046,9 +1049,9 @@ fun AlertDialog(
                         textButton = R.string.cancel_text,
                         colors = ButtonColors(
                             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                            contentColor = MaterialTheme.colorScheme.tertiary,
-                            disabledContentColor = Color.Red,
-                            disabledContainerColor = Color.Gray
+                            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                            disabledContainerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.38f)
                         )
                     )
                 }

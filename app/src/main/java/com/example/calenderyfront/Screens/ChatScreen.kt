@@ -48,6 +48,7 @@ import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.chat.ChatState
 import com.example.calenderyfront.chat.ChatViewModel
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 
 @Composable
 fun ChatTopBar(
@@ -72,11 +73,13 @@ fun ChatTopBar(
         else -> 45.dp
     }
 
+    val colors = LocalCustomColors.current
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(height)
-            .background(color = MaterialTheme.colorScheme.inversePrimary),
+            .background(color = colors.chatTopbarBackground),
         verticalAlignment = Alignment.CenterVertically
     )
     {
@@ -92,7 +95,7 @@ fun ChatTopBar(
         Text(
             text = userName,
             fontSize = fontSize,
-            color = MaterialTheme.colorScheme.tertiary
+            color = colors.chatTopbarContent
         )
     }
 
@@ -112,9 +115,10 @@ fun MessageItem(
         else -> 280.dp
     }
 
+    val colors = LocalCustomColors.current
     val color = when (isMine) {
-        true -> CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inversePrimary)
-        else -> CardDefaults.cardColors()
+        true -> CardDefaults.cardColors(containerColor = colors.chatBubbleMine)
+        else -> CardDefaults.cardColors(containerColor = colors.chatBubbleOther)
     }
 
     Row(
@@ -129,7 +133,7 @@ fun MessageItem(
         {
             Text(
                 text = message.contenido,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(8.dp),
                 softWrap = true,
                 overflow = TextOverflow.Clip,
@@ -151,9 +155,9 @@ fun ChatInput(
         value = value,
         onValueChange = onValueChange,
         colors = TextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedTextColor = MaterialTheme.colorScheme.tertiary,
-            cursorColor = MaterialTheme.colorScheme.tertiary,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            cursorColor = MaterialTheme.colorScheme.primary,
         ),
         trailingIcon = {
             IconButton(
@@ -164,7 +168,7 @@ fun ChatInput(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = stringResource(R.string.send_comment),
-                    tint = if (value.isNotBlank()) Color(0xFF4285F4) else Color.Gray
+                    tint = if (value.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         },

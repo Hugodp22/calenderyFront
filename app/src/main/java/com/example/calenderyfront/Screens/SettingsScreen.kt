@@ -76,7 +76,7 @@ fun ExitButton(
                 modifier = Modifier.size(iconSize),
                 painter = painterResource(R.drawable.exit),
                 contentDescription = stringResource(R.string.exit_app),
-                tint = Color.Unspecified
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -194,7 +194,7 @@ fun SettingScreen(
                     text = stringResource(R.string.Settings_Title),
                     fontSize = fontSize,
                     fontFamily = BebasNeue,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 PhotoUserContainer(
@@ -213,14 +213,14 @@ fun SettingScreen(
             Text(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 text = stringResource((stateProcess as SettingsState.Error).mensaje),
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.error,
                 fontSize = 14.sp
             )
         }
         else if (stateProcess is SettingsState.Cargando) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                color = MaterialTheme.colorScheme.onTertiary
+                color = MaterialTheme.colorScheme.primary
             )
         }
 

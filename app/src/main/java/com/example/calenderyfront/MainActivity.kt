@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -82,6 +83,7 @@ import com.example.calenderyfront.observer.AppLifecycleObserver
 import com.example.calenderyfront.service.WebSocketService
 import com.example.calenderyfront.ui.theme.BebasNeue
 import com.example.calenderyfront.ui.theme.CalenderyFrontTheme
+import com.example.calenderyfront.ui.theme.LocalCustomColors
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
@@ -398,7 +400,14 @@ fun CalenderyTopBar(
             else -> 28.sp
         }
 
+        val colors = LocalCustomColors.current
+
         CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = colors.topbarBackground,
+                titleContentColor = colors.topbarContent,
+                navigationIconContentColor = colors.topbarContent
+            ),
             navigationIcon = {
                 Image(
                     painter = painterResource(R.drawable.logo),
@@ -419,7 +428,7 @@ fun CalenderyTopBar(
                     text = stringResource(R.string.calendary_app),
                     fontFamily = BebasNeue,
                     fontSize = titleSize,
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = colors.topbarContent
                 )
             }
         )
@@ -449,12 +458,13 @@ fun CalenderyBottomBar(
             else -> 65.dp
         }
 
+        val colors = LocalCustomColors.current
         val iconColor =
-            if (bottomBarState.newMessage) MaterialTheme.colorScheme.onPrimaryFixed
-            else Color.Unspecified
+            if (bottomBarState.newMessage) colors.bottombarNotification
+            else colors.bottombarContent
 
         NavigationBar(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = colors.bottombarBackground,
             modifier = Modifier.navigationBarsPadding().height(navigationBarHeight)
         )
         {
@@ -514,7 +524,7 @@ fun RowScope.NavigationBarItemCalendery( //Añadimos RowScope para usar la funci
     @DrawableRes icon: Int,
     @StringRes contentDescription: Int,
     iconSize: Dp,
-    color: Color = Color.Unspecified
+    color: Color = LocalCustomColors.current.bottombarContent
 )
 {
     NavigationBarItem(

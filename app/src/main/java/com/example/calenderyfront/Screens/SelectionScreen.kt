@@ -77,7 +77,7 @@ fun SearchInput(
         placeholder = {
             Text(
                 text = stringResource(R.string.search_input_placeholder),
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = fontSize
             )
                       },
@@ -92,13 +92,13 @@ fun SearchInput(
         ),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF4285F4),
-            unfocusedBorderColor = Color.Gray,
-            errorBorderColor = Color.Red,
-            cursorColor = MaterialTheme.colorScheme.tertiary,
-            focusedContainerColor = MaterialTheme.colorScheme.primary,
-            focusedTextColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.primary
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
         )
     )
 }
@@ -150,7 +150,7 @@ fun UserSelectionProfileInfo(
             Text(
                 text = userSelectionUserData.nombre,
                 fontSize = fontSizeName,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -219,7 +219,7 @@ fun UserSelectionChatInfo(
             Text(
                 text = userSelectionUserData.nombre,
                 fontSize = fontSizeName,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
              Row(
@@ -253,7 +253,7 @@ fun ChatExtraData(
             modifier = modifier,
             text = lastMessage,
             fontSize = fontSize,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -264,7 +264,7 @@ fun ChatExtraData(
             modifier = Modifier.size(iconSize),
             painter = painterResource(R.drawable.new_label),
             contentDescription = stringResource(R.string.new_message_selection),
-            tint = Color.Unspecified
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 
