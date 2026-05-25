@@ -59,7 +59,7 @@ val ColorNotificacionOscuro = Color(0xAF00FFAE)
 
 val FondoIconosPublicacionesOscuro = Color(0xFF2F2E2E)
 
-val ColorCardsOscuro = Color(0xFF9600FF)
+val ColorCardsOscuro = Color(0xFF6F00C4)
 
 val TextoLinkOscuro = Color(0xB6FFFFFF)
 
