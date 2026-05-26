@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -203,9 +202,28 @@ fun SettingScreen(
                     onClick = openGallery,
                     contentDescription = R.string.image_description
                 )
-                InputCreation(Modifier.fillMaxWidth(width),R.string.input_label_name, uiState.nombre, { viewModel.onNameChange(it) }, R.string.input_placeholder_empty_name,false,errorName,windowSize)
-                MessageLimitContent(Modifier.fillMaxWidth(width),R.string.share_description_Mesagge,uiState.descripcion,{viewModel.onDescriptionChange(it)})
-                SaveButton(R.string.btn_save, windowSize, onClick = {viewModel.tryChangeSettings(context)},enableButton)
+                InputCreation(
+                    modifier = Modifier.fillMaxWidth(width),
+                    title = R.string.input_label_name,
+                    value = uiState.nombre,
+                    onValueChange = { viewModel.onNameChange(it) },
+                    placeholderRes = R.string.input_placeholder_empty_name,
+                    isPassword = false,
+                    error = errorName,
+                    windowSize = windowSize
+                )
+                MessageLimitContent(
+                    modifier = Modifier.fillMaxWidth(width),
+                    placeHolder = R.string.share_description_Mesagge,
+                    description = uiState.descripcion,
+                    onValueChange = {viewModel.onDescriptionChange(it)}
+                )
+                SaveButton(
+                    textButton = R.string.btn_save,
+                    windowSize = windowSize,
+                    onClick = {viewModel.tryChangeSettings(context)},
+                    enable = enableButton
+                )
             }
         }
 
