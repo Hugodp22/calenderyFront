@@ -8,7 +8,7 @@ val SecundarioClaro = Color(0xFFFFFFFF)
 
 val LetrasClaro = Color(0xFF000000)
 
-val BarraCargaClaro = Color(0xFF00FFA2)
+val BarraCargaClaro = Color(0xFF66FF66)
 
 val FondoLeveClaro = Color(0xFFFFF5F5)
 
@@ -24,7 +24,7 @@ val ColorNotificacionClaro = Color(0xAF00FFD7)
 
 val FondoIconosPublicacionesClaro = Color(0xC8FFFFFF)
 
-val ColorCardsClaro = Color(0xFF00FF92)
+val ColorCardsClaro = Color(0xFF66FF66)
 
 val TextoLinkClaro = Color(0xFF4285F4)
 
@@ -32,7 +32,7 @@ val BarraCargaCardClaro = Color(0xFF4285F4)
 
 val BotonGeneralClaro = Color(0xFFF1F1F1)
 
-val BotonUploadClaro = Color(0xFF00FF92)
+val BotonUploadClaro = Color(0xFF66FF66)
 
 
 
