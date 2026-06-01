@@ -179,7 +179,8 @@ fun InputCreation(
                 errorBorderColor = Color.Red,
                 cursorColor = MaterialTheme.colorScheme.tertiary,
                 focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary
+                unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                errorContainerColor = MaterialTheme.colorScheme.onPrimary
             ),
             modifier = Modifier.fillMaxWidth(),
             maxLines = 1,
@@ -221,7 +222,8 @@ fun MessageLimitContent(
             unfocusedBorderColor = if (!postMessage) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary,
             cursorColor = MaterialTheme.colorScheme.tertiary,
             unfocusedTextColor = Color.Gray,
-            focusedTextColor = MaterialTheme.colorScheme.tertiary
+            focusedTextColor = MaterialTheme.colorScheme.tertiary,
+            errorContainerColor = MaterialTheme.colorScheme.onPrimary
         )
     )
 }

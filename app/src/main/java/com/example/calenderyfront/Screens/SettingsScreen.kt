@@ -43,6 +43,7 @@ import com.example.calenderyfront.Model.DataObjects.UserInfo
 import com.example.calenderyfront.PhotoUserContainer
 import com.example.calenderyfront.R
 import com.example.calenderyfront.SaveButton
+import com.example.calenderyfront.clients.WebSocketClient
 import com.example.calenderyfront.galleryLauncher
 import com.example.calenderyfront.settings.SettingsState
 import com.example.calenderyfront.settings.SettingsViewModel
@@ -255,6 +256,7 @@ fun SettingScreen(
                 windowSize = windowSize,
                 title = R.string.exit_session,
                 onConfirm = {
+                    WebSocketClient.disconnect()
                     onNavigateToLogin()
                     SessionManager.clearSession(context)
                 },
